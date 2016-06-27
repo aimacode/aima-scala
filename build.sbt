@@ -1,5 +1,5 @@
 lazy val commonSettings = Seq(
-  organization := "com.googlecode.aima-scala",
+  organization := "com.github.aimacode.aima-scala",
   version := "0.1.0-SNAPSHOT",
   scalaVersion := "2.11.8"
 )
