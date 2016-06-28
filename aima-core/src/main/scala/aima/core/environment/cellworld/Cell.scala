@@ -6,11 +6,13 @@ package aima.core.environment.cellworld
   * <br>
   * A representation of a Cell in the environment detailed in Figure 17.1.
   *
-  * @param <C> the content type of the cell.
-  *
+  * @param x the x coordinate of the cell
+  * @param y the y coordinate of the cell
+  * @param content the content of the cell
+  * @tparam C the content type of the cell
+  * @author Shawn Garner
   * @author Ciaran O'Reilly
   * @author Ravi Mohan
-  * @author Shawn Garner (Scala version)
   */
 case class Cell[C](x: Int = 1, y: Int = 1, content: Option[C] = None)
 
