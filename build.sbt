@@ -17,5 +17,7 @@ lazy val core = (project in file("core"))
   .settings(commonSettings: _*)
   .settings(name := "core")
   .settings(libraryDependencies ++= librarySettings)
-  .settings(scalacOptions in Test ++= Seq("-Yrangepos"))
+  .settings(scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xlint"))
+  .settings(scalacOptions in Test ++= Seq("-Yrangepos", "-Xlint"))
 
+addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.14")
