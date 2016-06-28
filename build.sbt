@@ -11,11 +11,11 @@ lazy val librarySettings = Seq(
 )
 
 lazy val root = (project in file("."))
-  .aggregate(aima_core)
+  .aggregate(core)
 
-lazy val aima_core = (project in file("aima-core"))
+lazy val core = (project in file("core"))
   .settings(commonSettings: _*)
-  .settings(name := "aima-core")
+  .settings(name := "core")
   .settings(libraryDependencies ++= librarySettings)
   .settings(scalacOptions in Test ++= Seq("-Yrangepos"))
 
