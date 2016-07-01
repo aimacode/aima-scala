@@ -17,7 +17,7 @@ trait SimpleReflexAgent extends Agent {
   def rules: RuleMatch
 
   def ruleMatch(state: State): Action = {
-    rules.applyOrElse(state, _ => NoAction)
+    rules.applyOrElse(state, (_: State) => NoAction)
   }
 
   def interpretInput: InterpretInput

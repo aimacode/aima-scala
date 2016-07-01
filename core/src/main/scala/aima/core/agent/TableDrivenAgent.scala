@@ -12,7 +12,7 @@ trait TableDrivenAgent extends Agent {
 
   lazy val agentFunction: AgentFunction = { percept =>
     percepts += percept
-    lookupTable.applyOrElse(percepts.toList, _ => NoAction)
+    lookupTable.applyOrElse(percepts.toList, (_: List[Percept]) => NoAction)
   }
 
   def lookup(lookupTable: LookupTable, percepts: List[Percept]): Action = {
