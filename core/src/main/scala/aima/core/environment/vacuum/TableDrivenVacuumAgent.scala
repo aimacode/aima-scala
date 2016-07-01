@@ -23,6 +23,5 @@ class TableDrivenVacuumAgent extends TableDrivenAgent {
     case List(_, _, _, _, _, _, _, Dirty) => Suck
     case List(_, _, _, _, _, _, A, Clean) => Right
     case List(_, _, _, _, _, _, B, Clean) => Left
-    case _ => NoAction
   }
 }

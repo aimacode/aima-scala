@@ -9,9 +9,10 @@ trait TableDrivenAgent extends Agent {
 
   def lookupTable: LookupTable
   lazy val percepts = new mutable.ListBuffer[Percept]()
+
   lazy val agentFunction: AgentFunction = { percept =>
     percepts += percept
-    lookupTable(percepts.toList)
+    lookupTable.applyOrElse(percepts.toList, _ => NoAction)
   }
 
   def lookup(lookupTable: LookupTable, percepts: List[Percept]): Action = {
