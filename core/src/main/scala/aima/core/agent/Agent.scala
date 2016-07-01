@@ -1,27 +1,56 @@
 package aima.core.agent
 
-
 /**
   * @author Shawn Garner
   */
+trait AgentProgram {
+  def actuators: Set[Actuator]
+  def sensors: Set[Sensor]
+  def agent: Agent
+
+  def run(environment: Environment): Environment = {
+      val actions = for {
+        sensor <- sensors
+      } yield agent.agentFunction(sensor.perceive(environment))
+
+      actions.foldLeft(environment){ (env, action) =>
+          actuators.foldLeft(env){ (env2, actuator) =>
+            actuator.act(action, environment)
+          }
+      }
+  }
+}
+
 trait Agent {
   type AgentFunction = Percept => Action
 
-  def actuators: Set[Actuator]
-  def sensors: Set[Sensor]
   def agentFunction: AgentFunction
-
-  def run(): Unit
 }
 
-trait Percept
+trait Percept extends Any
+
+case class StringPercept(value: String) extends AnyVal with Percept
+case object NoPercept extends Percept
+
+
 trait Sensor {
-  def perceive(environment: Environment): Stream[Percept]
+  def agent: Agent
+  def perceive(environment: Environment): Percept
 }
 
-trait Action
+trait Action extends Any
+
+case class StringAction(value: String) extends AnyVal with Percept
+case object NoAction extends Action
+
 trait Actuator {
+  def agent: Agent
   def act(action: Action, environment: Environment): Environment
 }
 
-trait Environment
+trait Environment {
+  def addAgent(agent: Agent): Environment
+  def removeAgent(agent: Agent): Environment
+  def actuate(actuator: Actuator, action: Action): Environment
+  def perceive(sensor: Sensor): Percept
+}
