@@ -4,8 +4,8 @@ package aima.core.agent
   * @author Shawn Garner
   */
 trait AgentProgram {
-  def actuators: Set[Actuator]
-  def sensors: Set[Sensor]
+  def actuators: Seq[Actuator]
+  def sensors: Seq[Sensor]
   def agent: Agent
 
   def run(environment: Environment): Environment = {
@@ -29,7 +29,6 @@ trait Agent {
 
 trait Percept extends Any
 
-case class StringPercept(value: String) extends AnyVal with Percept
 case object NoPercept extends Percept
 
 
@@ -40,7 +39,6 @@ trait Sensor {
 
 trait Action extends Any
 
-case class StringAction(value: String) extends AnyVal with Percept
 case object NoAction extends Action
 
 trait Actuator {
