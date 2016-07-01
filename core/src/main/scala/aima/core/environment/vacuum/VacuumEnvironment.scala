@@ -9,8 +9,8 @@ import VacuumEnvironment._
   * @author Shawn Garner
   */
 case class VacuumEnvironment(
-                              statusLocations: Vector[Percept] = defaultStatusLocations,
-                              agentLocations: Vector[Option[Agent]] = defaultAgentLocations) extends Environment { self =>
+                              statusLocations: StatusLocations = defaultStatusLocations,
+                              agentLocations: AgentLocations = defaultAgentLocations) extends Environment { self =>
 
   def addAgent(agent: Agent): Environment = {
     if(agentLocations.count(_.isDefined) == 0)
@@ -26,10 +26,11 @@ case class VacuumEnvironment(
 
   def actuate(actuator: Actuator, action: Action): Environment = (action, actuator) match {
     case (NoAction, _) => self
-    case (SuckerActions.Suck, sa: SuckerActuator) => ???
-    case (MoveActions.Left, ma: MoveActuator) => ???
-    case (MoveActions.Right, ma: MoveActuator) => ???
+    case (SuckerActions.Suck, sa: SuckerActuator) => VacuumEnvironment(updateStatus(agentLocations, actuator.agent, statusLocations, SuckerActions.Suck))
+    case (MoveActions.Left, ma: MoveActuator) => VacuumEnvironment(statusLocations, moveAgent(agentLocations, actuator.agent, MoveActions.Left))
+    case (MoveActions.Right, ma: MoveActuator) => VacuumEnvironment(statusLocations, moveAgent(agentLocations, actuator.agent, MoveActions.Right))
   }
+
   def perceive(sensor: Sensor): Percept = sensor match {
     case ls: AgentLocationSensor =>
       val index = agentLocations.indexOf(Some(ls.agent))
@@ -57,7 +58,7 @@ object LocationPercepts extends Enumeration {
   val B = new Val(1, "B") with Percept
 }
 
-object DirtStatus extends Enumeration {
+object DirtStatusPercepts extends Enumeration {
   val Clean = new Val(0, "Clean") with Percept
   val Dirty = new Val(1, "Dirty") with Percept
 }
@@ -72,7 +73,7 @@ object SuckerActions extends Enumeration {
 }
 
 class SuckerActuator(val agent: Agent) extends Actuator { self =>
-  lazy val rand = new Random()
+  lazy val rand = new Random()//actuators do not always work
   def act(action: Action, environment: Environment): Environment = {
     if(rand.nextBoolean())
       environment
@@ -81,7 +82,7 @@ class SuckerActuator(val agent: Agent) extends Actuator { self =>
   }
 }
 class MoveActuator(val agent: Agent) extends Actuator { self =>
-  lazy val rand = new Random()
+  lazy val rand = new Random()//actuators do not always work
   def act(action: Action, environment: Environment): Environment = {
     if(rand.nextBoolean())
       environment
@@ -92,40 +93,59 @@ class MoveActuator(val agent: Agent) extends Actuator { self =>
 
 
 object VacuumEnvironment {
-  lazy val statusRand = new Random()
+  type AgentLocations = Vector[Option[Agent]]
+  type StatusLocations = Vector[Percept]
 
-  def defaultStatusLocations: Vector[Percept] = Vector.fill(2)(randomStatus())
-  def defaultAgentLocations: Vector[Option[Agent]] = Vector.fill(2)(None)
+  lazy val statusRand = new Random()
+  def defaultStatusLocations: StatusLocations = Vector.fill(2)(randomStatus())
+  def defaultAgentLocations: AgentLocations = Vector.fill(2)(None)
 
   lazy val agentRand = new Random()
-  def randomAgentPlacement(agentLocations: Vector[Option[Agent]], agent: Agent): Vector[Option[Agent]] = {
+  def randomAgentPlacement(agentLocations: AgentLocations, agent: Agent): AgentLocations = {
     val index = if(agentRand.nextBoolean()) 1 else 0
     agentLocations.updated(index, Some(agent))
   }
 
-  def removeAgentLocation(agentLocations: Vector[Option[Agent]], agent: Agent): Vector[Option[Agent]] = {
+  def removeAgentLocation(agentLocations: AgentLocations, agent: Agent): AgentLocations = {
     agentLocations.map {
       case Some(a) if a == agent => None
       case x => x
     }
   }
 
+  def moveAgent(agentLocations: AgentLocations, agent: Agent, moveAction: MoveActions.Value): AgentLocations = {
+    val updatedLocations = removeAgentLocation(agentLocations, agent)
+    val index = moveAction match {
+      case MoveActions.Left => 0
+      case MoveActions.Right => 1
+    }
+    updatedLocations.updated(index, Some(agent))
+  }
+
+  def updateStatus(agentLocations: AgentLocations, agent: Agent, statusLocations: StatusLocations, suckAction: SuckerActions.Value): StatusLocations = {
+    val index = agentLocations.indexOf(Some(agent))
+    val newStatus = suckAction match {
+      case SuckerActions.Suck => DirtStatusPercepts.Clean
+    }
+    statusLocations.updated(index, newStatus)
+  }
+
   def randomStatus(): Percept = {
-    if(statusRand.nextBoolean()) DirtStatus.Dirty else DirtStatus.Clean
+    if(statusRand.nextBoolean()) DirtStatusPercepts.Dirty else DirtStatusPercepts.Clean
   }
 
 
 }
 
 class AgentLocationSensor(val agent: Agent) extends Sensor { self =>
-  lazy val rand = new Random()
+  lazy val rand = new Random()//sensors do not always work
   def perceive(environment: Environment): Percept = {
     if(rand.nextBoolean()) NoPercept else environment.perceive(self)
   }
 }
 
 class DirtSensor(val agent: Agent) extends Sensor { self =>
-  lazy val rand = new Random()
+  lazy val rand = new Random()//sensors do not always work
   def perceive(environment: Environment): Percept = {
     if(rand.nextBoolean()) NoPercept else environment.perceive(self)
   }

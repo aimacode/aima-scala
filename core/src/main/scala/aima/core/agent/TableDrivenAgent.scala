@@ -5,10 +5,16 @@ import scala.collection.mutable
   * @author Shawn Garner
   */
 trait TableDrivenAgent extends Agent {
-  def lookupTable: Map[List[Percept], Action]
+  type LookupTable = PartialFunction[List[Percept], Action]
+
+  def lookupTable: LookupTable
   lazy val percepts = new mutable.ListBuffer[Percept]()
   lazy val agentFunction: AgentFunction = { percept =>
     percepts += percept
-    lookupTable.getOrElse(percepts.toList, NoAction)
+    lookupTable(percepts.toList)
+  }
+
+  def lookup(lookupTable: LookupTable, percepts: List[Percept]): Action = {
+    lookupTable(percepts.toList)
   }
 }
