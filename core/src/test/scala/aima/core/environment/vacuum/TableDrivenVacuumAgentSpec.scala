@@ -8,6 +8,8 @@ import aima.core.environment.vacuum.SuckerActions.Suck
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
+import scala.util.Random
+
 /**
   * @author Shawn Garner
   */
@@ -66,6 +68,29 @@ class TableDrivenVacuumAgentSpec extends Specification {
     val givenPercepts = List.fill(20)(NoPercept)
     val expectedActions = List.fill(20)(NoAction)
     invokeAgent(givenPercepts) must_== expectedActions
+  }
+
+  "table driven agent must persist all percepts" in new context {
+    val rnd = new Random()
+    val numLocationPercepts = LocationPercepts.values.size
+    val numDirtStatusPercepts = DirtStatusPercepts.values.size
+    val randomPerceptStream = Stream.continually {
+      val selector = rnd.nextInt(3)
+      if(selector == 0)
+        LocationPercepts(rnd.nextInt(numLocationPercepts))
+      else if(selector == 1)
+        DirtStatusPercepts(rnd.nextInt(numDirtStatusPercepts))
+      else
+        NoPercept
+    }
+
+    val givenPercepts = randomPerceptStream.take(100).toList.collect {
+      case p: Percept => p
+    }
+
+    invokeAgent(givenPercepts)
+
+    agent.percepts.toList must_== givenPercepts
   }
 
   trait context extends Scope {
