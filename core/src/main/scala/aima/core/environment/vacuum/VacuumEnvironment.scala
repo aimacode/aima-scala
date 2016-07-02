@@ -72,22 +72,22 @@ object SuckerActions extends Enumeration {
   val Suck = new Val(nextId, "Suck") with Action
 }
 
-class SuckerActuator(val agent: Agent) extends Actuator { self =>
-  lazy val rand = new Random()//actuators do not always work
+class SuckerActuator(val agent: Agent)
+  extends UnreliableActuator
+    with DefaultRandomness { self =>
   def act(action: Action, environment: Environment): Environment = {
-    if(rand.nextBoolean())
-      environment
-    else
+    unreliably(environment){
       environment.actuate(self, action)
+    }
   }
 }
-class MoveActuator(val agent: Agent) extends Actuator { self =>
-  lazy val rand = new Random()//actuators do not always work
+class MoveActuator(val agent: Agent)
+  extends UnreliableActuator
+    with DefaultRandomness { self =>
   def act(action: Action, environment: Environment): Environment = {
-    if(rand.nextBoolean())
-      environment
-    else
+    unreliably(environment){
       environment.actuate(self, action)
+    }
   }
 }
 
@@ -137,16 +137,18 @@ object VacuumEnvironment {
 
 }
 
-class AgentLocationSensor(val agent: Agent) extends Sensor { self =>
-  lazy val rand = new Random()//sensors do not always work
-  def perceive(environment: Environment): Percept = {
-    if(rand.nextBoolean()) NoPercept else environment.perceive(self)
+class AgentLocationSensor(val agent: Agent)
+  extends UnreliableSensor
+    with DefaultRandomness { self =>
+  def perceive(environment: Environment): Percept = unreliably() {
+      environment.perceive(self)
   }
 }
 
-class DirtSensor(val agent: Agent) extends Sensor { self =>
-  lazy val rand = new Random()//sensors do not always work
-  def perceive(environment: Environment): Percept = {
-    if(rand.nextBoolean()) NoPercept else environment.perceive(self)
+class DirtSensor(val agent: Agent)
+  extends UnreliableSensor
+    with DefaultRandomness { self =>
+  def perceive(environment: Environment): Percept = unreliably() {
+    environment.perceive(self)
   }
 }
