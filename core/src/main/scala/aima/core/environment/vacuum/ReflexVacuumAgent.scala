@@ -12,11 +12,11 @@ import aima.core.environment.vacuum.SuckerActions.Suck
 class ReflexVacuumAgent extends SimpleReflexAgent {
   type State = Percept
 
-  def interpretInput: InterpretInput = {
+  lazy val interpretInput: InterpretInput = {
     case s => s
   }
 
-  def rules: RuleMatch = {
+  lazy val rules: RuleMatch = {
     case Dirty => Suck
     case A => Right
     case B => Left
