@@ -10,7 +10,7 @@ import aima.core.environment.vacuum.SuckerActions.Suck
   * @author Shawn Garner
   */
 class TableDrivenVacuumAgent extends TableDrivenAgent {
-  override def lookupTable: LookupTable = {
+  def lookupTable: LookupTable = {
     case List(_, Dirty) => Suck
     case List(A, Clean) => Right
     case List(B, Clean) => Left
