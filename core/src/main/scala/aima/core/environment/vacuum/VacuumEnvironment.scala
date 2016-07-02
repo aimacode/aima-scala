@@ -54,22 +54,22 @@ case class VacuumEnvironment(
 }
 
 object LocationPercepts extends Enumeration {
-  val A = new Val(0, "A") with Percept
-  val B = new Val(1, "B") with Percept
+  val A = new Val(nextId, "A") with Percept
+  val B = new Val(nextId, "B") with Percept
 }
 
 object DirtStatusPercepts extends Enumeration {
-  val Clean = new Val(0, "Clean") with Percept
-  val Dirty = new Val(1, "Dirty") with Percept
+  val Clean = new Val(nextId, "Clean") with Percept
+  val Dirty = new Val(nextId, "Dirty") with Percept
 }
 
 object MoveActions extends Enumeration {
-  val Left = new Val(0, "Left") with Action
-  val Right = new Val(1, "Right") with Action
+  val Left = new Val(nextId, "Left") with Action
+  val Right = new Val(nextId, "Right") with Action
 }
 
 object SuckerActions extends Enumeration {
-  val Suck = new Val(0, "Suck") with Action
+  val Suck = new Val(nextId, "Suck") with Action
 }
 
 class SuckerActuator(val agent: Agent) extends Actuator { self =>
