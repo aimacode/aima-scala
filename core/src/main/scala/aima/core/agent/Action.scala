@@ -6,4 +6,3 @@ package aima.core.agent
 trait Action extends Any
 
 case object NoAction extends Action
-

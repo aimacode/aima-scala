@@ -7,7 +7,7 @@ import aima.core.util.DefaultRandomness
   * @author Shawn Garner
   */
 class SuckerActuator(val agent: Agent)
-  extends UnreliableActuator
+    extends UnreliableActuator
     with DefaultRandomness {
   self =>
   def act(action: Action, environment: Environment): Environment = {
@@ -17,7 +17,7 @@ class SuckerActuator(val agent: Agent)
   }
 }
 class MoveActuator(val agent: Agent)
-  extends UnreliableActuator
+    extends UnreliableActuator
     with DefaultRandomness {
   self =>
   def act(action: Action, environment: Environment): Environment = {

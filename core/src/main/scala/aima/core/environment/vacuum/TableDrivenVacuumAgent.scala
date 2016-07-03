@@ -17,7 +17,9 @@ class TableDrivenVacuumAgent extends TableDrivenAgent {
     case List(_, _, _, _, LocationAPercept, CleanPercept) => RightMoveAction
     case List(_, _, _, _, LocationBPercept, CleanPercept) => LeftMoveAction
     case List(_, _, _, _, _, _, _, DirtyPercept) => Suck
-    case List(_, _, _, _, _, _, LocationAPercept, CleanPercept) => RightMoveAction
-    case List(_, _, _, _, _, _, LocationBPercept, CleanPercept) => LeftMoveAction
+    case List(_, _, _, _, _, _, LocationAPercept, CleanPercept) =>
+      RightMoveAction
+    case List(_, _, _, _, _, _, LocationBPercept, CleanPercept) =>
+      LeftMoveAction
   }
 }

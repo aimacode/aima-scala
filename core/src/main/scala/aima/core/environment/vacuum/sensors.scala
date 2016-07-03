@@ -7,7 +7,7 @@ import aima.core.util.DefaultRandomness
   * @author Shawn Garner
   */
 class AgentLocationSensor(val agent: Agent)
-  extends UnreliableSensor
+    extends UnreliableSensor
     with DefaultRandomness {
   self =>
   def perceive(environment: Environment): Percept = unreliably() {
@@ -16,7 +16,7 @@ class AgentLocationSensor(val agent: Agent)
 }
 
 class DirtSensor(val agent: Agent)
-  extends UnreliableSensor
+    extends UnreliableSensor
     with DefaultRandomness {
   self =>
   def perceive(environment: Environment): Percept = unreliably() {

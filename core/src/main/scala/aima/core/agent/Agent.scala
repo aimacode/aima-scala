@@ -30,10 +30,3 @@ trait Agent {
 
   def agentFunction: AgentFunction
 }
-
-
-
-
-
-
-
