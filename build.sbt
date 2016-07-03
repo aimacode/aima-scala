@@ -1,7 +1,8 @@
 lazy val commonSettings = Seq(
   organization := "com.github.aimacode.aima-scala",
   version := "0.1.0-SNAPSHOT",
-  scalaVersion := "2.11.8"
+  scalaVersion := "2.11.8",
+  scalafmtConfig := Some(file(".scalafmt"))
 )
 
 lazy val librarySettings = Seq(
