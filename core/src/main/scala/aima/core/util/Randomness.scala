@@ -21,3 +21,13 @@ trait EnumerationRandomness extends Randomness {
     apply(selection)
   }
 }
+
+trait SetRandomness[T] extends Randomness {
+  def valueSet: Set[T]
+
+  def randomValue: T = {
+    val selection = rand.nextInt(valueSet.size)
+    val valueList = valueSet.toList
+    valueList(selection)
+  }
+}

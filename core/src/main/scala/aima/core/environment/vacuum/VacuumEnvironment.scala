@@ -1,9 +1,7 @@
 package aima.core.environment.vacuum
 
 import aima.core.agent._
-import aima.core.environment.vacuum.DirtStatusPercepts.{Dirty, Clean}
-import aima.core.environment.vacuum.SuckerActions.Suck
-import aima.core.util.{DefaultRandomness, Randomness}
+import aima.core.util.DefaultRandomness
 
 /**
   * @author Shawn Garner
@@ -21,8 +19,8 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap()) extends Environment {
   def actuate(actuator: Actuator, action: Action): Environment =
     (action, actuator) match {
       case (Suck, sa: SuckerActuator) =>
-        VacuumEnvironment(map.updateStatus(sa.agent, Clean))
-      case (moveAction: MoveActions.Value, actuator: MoveActuator) =>
+        VacuumEnvironment(map.updateStatus(sa.agent, CleanPercept))
+      case (moveAction: MoveAction, actuator: MoveActuator) =>
         VacuumEnvironment(map.moveAgent(actuator.agent, moveAction))
       case (NoAction, _) => self
     }
@@ -36,7 +34,7 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap()) extends Environment {
   }
 }
 
-case class VacuumMapNode(dirtStatus: DirtStatusPercepts.Value = DirtStatusPercepts.randomValue, maybeAgent: Option[Agent] = None)
+case class VacuumMapNode(dirtStatus: DirtPercept = DirtPercept.randomValue, maybeAgent: Option[Agent] = None)
 
 case class VacuumMap(nodes : Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode())) extends DefaultRandomness { self =>
   def getDirtStatus(agent: Agent): Option[Percept] = {
@@ -44,12 +42,7 @@ case class VacuumMap(nodes : Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNod
       case (VacuumMapNode(_, Some(a)), _) if agent == a => true
       case _ => false
     }
-    maybeNodeWithIndex.map { p =>
-      p._1.dirtStatus match {//shouldn't need to do this if it was a trait instead Enumeration
-        case Clean => Clean
-        case Dirty => Dirty
-      }
-    }
+    maybeNodeWithIndex.map ( p => p._1.dirtStatus )
   }
 
   def getAgentLocation(agent: Agent): Option[Percept] = {
@@ -61,18 +54,14 @@ case class VacuumMap(nodes : Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNod
   }
 
   private[this] def indexToLocationPercept(index: Int): Percept = {
-    if(index == 0) {
-      LocationPercepts.A
-    } else {
-      LocationPercepts.B
-    }
+    if(index == 0) { LocationAPercept} else { LocationBPercept }
   }
-  private[this] def directionToMapIndex(direction: MoveActions.Value):Int = direction match {
-    case MoveActions.Left => 0
-    case MoveActions.Right => 1
+  private[this] def directionToMapIndex(direction: MoveAction):Int = direction match {
+    case LeftMoveAction => 0
+    case RightMoveAction => 1
   }
 
-  def moveAgent(agent: Agent, direction: MoveActions.Value): VacuumMap = {
+  def moveAgent(agent: Agent, direction: MoveAction): VacuumMap = {
     removeAgent(agent).updateByIndex(directionToMapIndex(direction))(vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent)))
   }
 
@@ -84,7 +73,7 @@ case class VacuumMap(nodes : Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNod
     VacuumMap(updatedNodes)
   }
 
-  def updateStatus(agent: Agent, dirtStatusPercepts: DirtStatusPercepts.Value): VacuumMap =
+  def updateStatus(agent: Agent, dirtStatusPercepts: DirtPercept): VacuumMap =
     updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(dirtStatus = dirtStatusPercepts))
 
   def removeAgent(agent: Agent): VacuumMap =

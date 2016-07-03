@@ -1,10 +1,6 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.{NoAction, NoPercept, Percept, Action}
-import aima.core.environment.vacuum.DirtStatusPercepts.{Clean, Dirty}
-import aima.core.environment.vacuum.LocationPercepts.{B, A}
-import aima.core.environment.vacuum.MoveActions.{Left, Right}
-import aima.core.environment.vacuum.SuckerActions.Suck
+import aima.core.agent.{Action, NoAction, NoPercept, Percept}
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
@@ -16,51 +12,51 @@ import scala.util.Random
 class TableDrivenVacuumAgentSpec extends Specification {
 
   "first level dirty sucks" in new context {
-    invokeAgent(List(NoPercept, Dirty)) must_== List(NoAction, Suck)
+    invokeAgent(List(NoPercept, DirtyPercept)) must_== List(NoAction, Suck)
   }
 
   "first level A and Clean moves Right" in new context {
-    invokeAgent(List(A, Clean)) must_== List(NoAction, Right)
+    invokeAgent(List(LocationAPercept, CleanPercept)) must_== List(NoAction, RightMoveAction)
   }
 
   "first level B and Clean moves Right" in new context {
-    invokeAgent(List(B, Clean)) must_== List(NoAction, Left)
+    invokeAgent(List(LocationBPercept, CleanPercept)) must_== List(NoAction, LeftMoveAction)
   }
 
 
   "second level dirty sucks" in new context {
-    val givenPercepts = List.fill(2)(NoPercept) ++ List(NoPercept, Dirty)
+    val givenPercepts = List.fill(2)(NoPercept) ++ List(NoPercept, DirtyPercept)
     val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, Suck)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "second level A and Clean moves Right" in new context {
-    val givenPercepts = List.fill(2)(NoPercept) ++ List(A, Clean)
-    val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, Right)
+    val givenPercepts = List.fill(2)(NoPercept) ++ List(LocationAPercept, CleanPercept)
+    val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, RightMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "second level B and Clean moves Right" in new context {
-    val givenPercepts = List.fill(2)(NoPercept) ++ List(B, Clean)
-    val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, Left)
+    val givenPercepts = List.fill(2)(NoPercept) ++ List(LocationBPercept, CleanPercept)
+    val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, LeftMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "fourth level dirty sucks" in new context {
-    val givenPercepts = List.fill(6)(NoPercept) ++ List(NoPercept, Dirty)
+    val givenPercepts = List.fill(6)(NoPercept) ++ List(NoPercept, DirtyPercept)
     val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, Suck)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "fourth level A and Clean moves Right" in new context {
-    val givenPercepts = List.fill(6)(NoPercept) ++ List(A, Clean)
-    val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, Right)
+    val givenPercepts = List.fill(6)(NoPercept) ++ List(LocationAPercept, CleanPercept)
+    val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, RightMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "fourth level B and Clean moves Right" in new context {
-    val givenPercepts = List.fill(6)(NoPercept) ++ List(B, Clean)
-    val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, Left)
+    val givenPercepts = List.fill(6)(NoPercept) ++ List(LocationBPercept, CleanPercept)
+    val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, LeftMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
@@ -72,21 +68,17 @@ class TableDrivenVacuumAgentSpec extends Specification {
 
   "table driven agent must persist all percepts" in new context {
     val rnd = new Random()
-    val numLocationPercepts = LocationPercepts.values.size
-    val numDirtStatusPercepts = DirtStatusPercepts.values.size
-    val randomPerceptStream = Stream.continually {
+    val randomPerceptStream: Stream[Percept] = Stream.continually {
       val selector = rnd.nextInt(3)
       if(selector == 0)
-        LocationPercepts(rnd.nextInt(numLocationPercepts))
+        LocationPercept.randomValue
       else if(selector == 1)
-        DirtStatusPercepts(rnd.nextInt(numDirtStatusPercepts))
+        DirtPercept.randomValue
       else
         NoPercept
     }
 
-    val givenPercepts = randomPerceptStream.take(100).toList.collect {
-      case p: Percept => p
-    }
+    val givenPercepts = randomPerceptStream.take(100).toList
 
     invokeAgent(givenPercepts)
 
