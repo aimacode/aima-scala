@@ -1,6 +1,7 @@
 package aima.core.agent
 
 import scala.collection.mutable
+
 /**
   * @author Shawn Garner
   */

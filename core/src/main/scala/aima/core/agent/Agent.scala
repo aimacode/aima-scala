@@ -11,15 +11,15 @@ trait AgentProgram {
   def agent: Agent
 
   def run(environment: Environment): Environment = {
-      val actions = for {
-        sensor <- sensors
-      } yield agent.agentFunction(sensor.perceive(environment))
+    val actions = for {
+      sensor <- sensors
+    } yield agent.agentFunction(sensor.perceive(environment))
 
-      actions.foldLeft(environment){ (env, action) =>
-          actuators.foldLeft(env){ (env2, actuator) =>
-            actuator.act(action, environment)
-          }
+    actions.foldLeft(environment) { (env, action) =>
+      actuators.foldLeft(env) { (env2, actuator) =>
+        actuator.act(action, environment)
       }
+    }
   }
 }
 
@@ -33,7 +33,6 @@ trait Percept extends Any
 
 case object NoPercept extends Percept
 
-
 trait Sensor {
   def agent: Agent
   def perceive(environment: Environment): Percept
@@ -41,7 +40,7 @@ trait Sensor {
 
 trait UnreliableSensor extends Sensor with Randomness {
   def unreliably(reliability: Int = 50)(perceive: => Percept): Percept = {
-    if(rand.nextInt(100) < reliability) perceive else NoPercept
+    if (rand.nextInt(100) < reliability) perceive else NoPercept
   }
 }
 
@@ -54,13 +53,12 @@ trait Actuator {
   def act(action: Action, environment: Environment): Environment
 }
 
-
 trait UnreliableActuator extends Actuator with Randomness {
-  def unreliably(original: Environment, reliability: Int = 50)(act: => Environment): Environment = {
-    if(rand.nextInt(100) < reliability) act else original
+  def unreliably(original: Environment, reliability: Int = 50)(
+      act: => Environment): Environment = {
+    if (rand.nextInt(100) < reliability) act else original
   }
 }
-
 
 trait Environment {
   def addAgent(agent: Agent): Environment
@@ -68,8 +66,6 @@ trait Environment {
   def actuate(actuator: Actuator, action: Action): Environment
   def perceive(sensor: Sensor): Percept
 }
-
-
 
 trait Randomness {
   def rand: Random
