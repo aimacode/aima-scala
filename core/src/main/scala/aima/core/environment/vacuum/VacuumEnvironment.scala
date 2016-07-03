@@ -58,12 +58,7 @@ case class VacuumEnvironment(
 
     case ds: DirtSensor =>
       val index = agentLocations.indexOf(Some(ds.agent))
-      if (index == 0) {
-        statusLocations(index)
-      } else if (index == 1)
-        statusLocations(index)
-      else
-        NoPercept
+      if (index == 0 || index == 1) statusLocations(index) else NoPercept
 
   }
 }

@@ -2,7 +2,8 @@ lazy val commonSettings = Seq(
   organization := "com.github.aimacode.aima-scala",
   version := "0.1.0-SNAPSHOT",
   scalaVersion := "2.11.8",
-  scalafmtConfig := Some(file(".scalafmt"))
+  scalafmtConfig := Some(file(".scalafmt")),
+  addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.14")
 )
 
 lazy val librarySettings = Seq(
@@ -20,5 +21,3 @@ lazy val core = (project in file("core"))
   .settings(libraryDependencies ++= librarySettings)
   .settings(scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xlint"))
   .settings(scalacOptions in Test ++= Seq("-Yrangepos", "-Xlint"))
-
-addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.14")
