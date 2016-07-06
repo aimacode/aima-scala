@@ -6,8 +6,7 @@ import aima.core.util.DefaultRandomness
 /**
   * @author Shawn Garner
   */
-case class VacuumEnvironment(map: VacuumMap = VacuumMap())
-    extends Environment { self =>
+case class VacuumEnvironment(map: VacuumMap = VacuumMap()) extends Environment { self =>
 
   def addAgent(agent: Agent): Environment = {
     VacuumEnvironment(map.addAgent(agent))
@@ -19,10 +18,8 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap())
 
   def actuate(actuator: Actuator, action: Action): Environment =
     (action, actuator) match {
-      case (Suck, sa: SuckerActuator) =>
-        VacuumEnvironment(map.updateStatus(sa.agent, CleanPercept))
-      case (moveAction: MoveAction, actuator: MoveActuator) =>
-        VacuumEnvironment(map.moveAgent(actuator.agent, moveAction))
+      case (Suck, sa: SuckerActuator) => VacuumEnvironment(map.updateStatus(sa.agent, CleanPercept))
+      case (moveAction: MoveAction, actuator: MoveActuator) => VacuumEnvironment(map.moveAgent(actuator.agent, moveAction))
       case (NoAction, _) => self
     }
 
@@ -35,12 +32,10 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap())
   }
 }
 
-case class VacuumMapNode(dirtStatus: DirtPercept = DirtPercept.randomValue,
-                         maybeAgent: Option[Agent] = None)
+case class VacuumMapNode(dirtStatus: DirtPercept = DirtPercept.randomValue, maybeAgent: Option[Agent] = None)
 
-case class VacuumMap(
-    nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode()))
-    extends DefaultRandomness { self =>
+case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode()))
+  extends DefaultRandomness { self =>
   def getDirtStatus(agent: Agent): Option[Percept] =
     nodes.collectFirst {
       case VacuumMapNode(dirtStatus, Some(a)) if agent == a => dirtStatus
@@ -63,12 +58,11 @@ case class VacuumMap(
     }
 
   def moveAgent(agent: Agent, direction: MoveAction): VacuumMap = {
-    removeAgent(agent).updateByIndex(directionToMapIndex(direction))(
-        vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent)))
+    removeAgent(agent).updateByIndex(directionToMapIndex(direction))(vacuumMapNode =>
+          vacuumMapNode.copy(maybeAgent = Some(agent)))
   }
 
-  private[this] def updateByAgent(target: Agent)(
-      f: VacuumMapNode => VacuumMapNode): VacuumMap = {
+  private[this] def updateByAgent(target: Agent)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
     val updatedNodes = nodes.map {
       case n @ VacuumMapNode(_, Some(a)) if a == target => f(n)
       case x => x
@@ -77,15 +71,12 @@ case class VacuumMap(
   }
 
   def updateStatus(agent: Agent, dirtStatusPercepts: DirtPercept): VacuumMap =
-    updateByAgent(agent)(vacuumMapNode =>
-          vacuumMapNode.copy(dirtStatus = dirtStatusPercepts))
+    updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(dirtStatus = dirtStatusPercepts))
 
   def removeAgent(agent: Agent): VacuumMap =
-    updateByAgent(agent)(vacuumMapNode =>
-          vacuumMapNode.copy(maybeAgent = None))
+    updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = None))
 
-  private def updateByIndex(index: Int)(
-      f: VacuumMapNode => VacuumMapNode): VacuumMap = {
+  private def updateByIndex(index: Int)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
     val node = nodes.apply(index)
     val updatedNodes = nodes.updated(index, f(node))
     VacuumMap(updatedNodes)
@@ -94,8 +85,7 @@ case class VacuumMap(
   def addAgent(agent: Agent): VacuumMap = {
     if (nodes.count(_.maybeAgent.isDefined) == 0) {
       val selection = rand.nextInt(nodes.size)
-      updateByIndex(selection)(vacuumMapNode =>
-            vacuumMapNode.copy(maybeAgent = Some(agent)))
+      updateByIndex(selection)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent)))
     } else {
       self
     }

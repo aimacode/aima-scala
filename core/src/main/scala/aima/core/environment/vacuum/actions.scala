@@ -17,8 +17,6 @@ object MoveAction extends SetRandomness[MoveAction] with DefaultRandomness {
 sealed trait SuckerAction extends Action
 case object Suck extends SuckerAction
 
-object SuckerAction
-    extends SetRandomness[SuckerAction]
-    with DefaultRandomness {
+object SuckerAction extends SetRandomness[SuckerAction] with DefaultRandomness {
   lazy val valueSet: Set[SuckerAction] = Set(Suck)
 }

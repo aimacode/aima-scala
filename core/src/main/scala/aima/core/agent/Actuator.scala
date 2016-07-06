@@ -11,8 +11,7 @@ trait Actuator {
 }
 
 trait UnreliableActuator extends Actuator with Randomness {
-  def unreliably(original: Environment, reliability: Int = 50)(
-      act: => Environment): Environment = {
+  def unreliably(original: Environment, reliability: Int = 50)(act: => Environment): Environment = {
     if (rand.nextInt(100) < reliability) act else original
   }
 }
