@@ -21,7 +21,7 @@ trait GraphSearch extends ProblemSearch {
           val childNodes = for {
             action <- problem.actions(leaf.state)
             childNode = newChildNode(problem, leaf, action)
-            if !updatedExploredSet.contains(childNode)
+            if !(updatedExploredSet.contains(childNode) || updatedFrontier.contains(childNode))
           } yield childNode
 
           val frontierWithChildNodes = updatedFrontier.enqueue(childNodes)
