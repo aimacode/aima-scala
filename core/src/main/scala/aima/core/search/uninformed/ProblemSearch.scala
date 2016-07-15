@@ -14,12 +14,15 @@ trait ProblemSearch {
     def isGoalState(state: State): Boolean
     def actions(state: State): List[Action]
   }
-  trait Node {
-    def state: State
-  }
+
+  type Node
+
 
   trait Frontier {
+    def replaceByState(childNode: Node): Frontier
+    def getNode(state: State): Option[Node]
     def removeLeaf: Option[(Node, Frontier)]
+    def add(node: Node): Frontier
     def addAll(iterable: Iterable[Node]): Frontier
     def contains(state: State): Boolean
   }

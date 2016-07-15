@@ -11,12 +11,10 @@ trait BreadthFirstSearch extends GraphSearch {
 
   object FIFOQueueFrontier {
     def toQueue(s: State) =
-      Queue(new Node {
-        lazy val state: State = s
-      })
+      Queue(StateNode(s))
   }
 
-  class FIFOQueueFrontier(queue: Queue[Node], stateSet: Set[State]) extends Frontier {
+  class FIFOQueueFrontier(queue: Queue[Node], stateSet: Set[State]) extends Frontier { self =>
     def this(s: State) = this(FIFOQueueFrontier.toQueue(s), Set(s))
 
     def removeLeaf: Option[(Node, Frontier)] = queue.dequeueOption.map {
@@ -26,5 +24,20 @@ trait BreadthFirstSearch extends GraphSearch {
       new FIFOQueueFrontier(queue.enqueue(iterable), stateSet ++ iterable.map(_.state))
     def contains(state: State): Boolean = stateSet.contains(state)
 
+    override def replaceByState(node: Node): Frontier = {
+      if(contains(node.state)) {
+        new FIFOQueueFrontier(queue.filterNot(_.state == node.state).enqueue(node), stateSet)
+      } else {
+        self
+      }
+    }
+    override def getNode(state: State): Option[Node] = {
+      if(contains(state)) {
+        queue.find(_.state == state)
+      } else {
+        None
+      }
+    }
+    override def add(node: Node): Frontier = new FIFOQueueFrontier(queue.enqueue(node), stateSet + node.state)
   }
 }
