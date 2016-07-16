@@ -19,7 +19,8 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap()) extends Environment {
   def actuate(actuator: Actuator, action: Action): Environment =
     (action, actuator) match {
       case (Suck, sa: SuckerActuator) => VacuumEnvironment(map.updateStatus(sa.agent, CleanPercept))
-      case (moveAction: MoveAction, actuator: MoveActuator) => VacuumEnvironment(map.moveAgent(actuator.agent, moveAction))
+      case (moveAction: MoveAction, actuator: MoveActuator) =>
+        VacuumEnvironment(map.moveAgent(actuator.agent, moveAction))
       case (NoAction, _) => self
     }
 
@@ -34,8 +35,8 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap()) extends Environment {
 
 case class VacuumMapNode(dirtStatus: DirtPercept = DirtPercept.randomValue, maybeAgent: Option[Agent] = None)
 
-case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode()))
-  extends DefaultRandomness { self =>
+case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode())) extends DefaultRandomness {
+  self =>
   def getDirtStatus(agent: Agent): Option[Percept] =
     nodes.collectFirst {
       case VacuumMapNode(dirtStatus, Some(a)) if agent == a => dirtStatus
@@ -53,7 +54,7 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
   }
   private[this] def directionToMapIndex(direction: MoveAction): Int =
     direction match {
-      case LeftMoveAction => 0
+      case LeftMoveAction  => 0
       case RightMoveAction => 1
     }
 
@@ -65,7 +66,7 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
   private[this] def updateByAgent(target: Agent)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
     val updatedNodes = nodes.map {
       case n @ VacuumMapNode(_, Some(a)) if a == target => f(n)
-      case x => x
+      case x                                            => x
     }
     VacuumMap(updatedNodes)
   }
@@ -77,7 +78,7 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
     updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = None))
 
   private def updateByIndex(index: Int)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
-    val node = nodes.apply(index)
+    val node         = nodes.apply(index)
     val updatedNodes = nodes.updated(index, f(node))
     VacuumMap(updatedNodes)
   }

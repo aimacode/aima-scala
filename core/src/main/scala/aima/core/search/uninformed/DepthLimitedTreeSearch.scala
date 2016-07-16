@@ -16,13 +16,12 @@ trait DepthLimitedTreeSearch extends ProblemSearch {
   }
 
   case class Solution(actions: List[Action]) extends DLSResult
-  case class CutOff(actions: List[Action]) extends DLSResult
-
+  case class CutOff(actions: List[Action])   extends DLSResult
 
   def search(problem: Problem, initialLimit: Int): Try[DLSResult] = {
 
     def recursiveDLS(node: Node, currentLimit: Int): Try[DLSResult] = {
-      if(problem.isGoalState(node.state)) {
+      if (problem.isGoalState(node.state)) {
         Success(Solution(solution(node)))
       } else if (currentLimit == 0) {
         Success(CutOff(solution(node)))
@@ -34,15 +33,15 @@ trait DepthLimitedTreeSearch extends ProblemSearch {
 
         val solution = results.find {
           case Success(s: Solution) => true
-          case _ => false
+          case _                    => false
         }
         lazy val cutoff = results.find {
           case Success(c: CutOff) => true
-          case _ => false
+          case _                  => false
         }
         lazy val failure = results.find {
           case f: Failure[_] => true
-          case _ => false
+          case _             => false
         }
 
         solution.getOrElse {
@@ -59,6 +58,5 @@ trait DepthLimitedTreeSearch extends ProblemSearch {
   }
 
   def makeNode(state: State): Node = StateNode(state)
-
 
 }

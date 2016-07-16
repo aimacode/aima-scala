@@ -11,18 +11,18 @@ trait SimpleProblemSolvingAgent extends Agent {
   def initialState: State
 
   var actions = List.empty[Action]
-  var state = initialState
+  var state   = initialState
 
   def agentFunction: AgentFunction = { percept =>
     state = updateState(state, percept)
     if (actions.isEmpty) {
-      val goal = formulateGoal(state)
+      val goal    = formulateGoal(state)
       val problem = formulateProblem(state, goal)
       actions = search(problem)
     }
 
     val (firstAction, restOfActions) = actions match {
-      case Nil => (NoAction, Nil)
+      case Nil           => (NoAction, Nil)
       case first :: rest => (first, rest)
     }
 

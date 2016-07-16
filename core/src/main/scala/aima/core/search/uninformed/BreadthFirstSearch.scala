@@ -25,14 +25,14 @@ trait BreadthFirstSearch extends GraphSearch {
     def contains(state: State): Boolean = stateSet.contains(state)
 
     override def replaceByState(node: Node): Frontier = {
-      if(contains(node.state)) {
+      if (contains(node.state)) {
         new FIFOQueueFrontier(queue.filterNot(_.state == node.state).enqueue(node), stateSet)
       } else {
         self
       }
     }
     override def getNode(state: State): Option[Node] = {
-      if(contains(state)) {
+      if (contains(state)) {
         queue.find(_.state == state)
       } else {
         None

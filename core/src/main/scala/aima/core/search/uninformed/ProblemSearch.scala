@@ -17,7 +17,6 @@ trait ProblemSearch {
 
   type Node
 
-
   trait Frontier {
     def replaceByState(childNode: Node): Frontier
     def getNode(state: State): Option[Node]

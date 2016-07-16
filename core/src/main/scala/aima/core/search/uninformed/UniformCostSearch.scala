@@ -11,7 +11,7 @@ import scala.util.Try
   * @author Shawn Garner
   */
 trait UniformCostSearch extends ProblemSearch {
-  case class CostNode(state:State, cost: Int)
+  case class CostNode(state: State, cost: Int)
   type Node = CostNode
 
   def search(problem: Problem): List[Action] = {
@@ -19,7 +19,7 @@ trait UniformCostSearch extends ProblemSearch {
 
     @tailrec def searchHelper(frontier: Frontier, exploredSet: Set[State] = Set.empty[State]): List[Action] = {
       frontier.removeLeaf match {
-        case None => List.empty[Action]
+        case None                                               => List.empty[Action]
         case Some((leaf, _)) if problem.isGoalState(leaf.state) => solution(leaf)
         case Some((leaf, updatedFrontier)) =>
           val updatedExploredSet = exploredSet + leaf.state
@@ -28,9 +28,11 @@ trait UniformCostSearch extends ProblemSearch {
           } yield newChildNode(problem, leaf, action)
 
           val frontierWithChildNodes = childNodes.foldLeft(updatedFrontier) { (accFrontier, childNode) =>
-            if(!(updatedExploredSet.contains(childNode.state) || accFrontier.contains(childNode.state))) {
+            if (!(updatedExploredSet.contains(childNode.state) || accFrontier.contains(childNode.state))) {
               accFrontier.add(childNode)
-            } else if (accFrontier.getNode(childNode.state).exists(existingNode => existingNode.cost > childNode.cost)) {
+            } else if (accFrontier
+                         .getNode(childNode.state)
+                         .exists(existingNode => existingNode.cost > childNode.cost)) {
               accFrontier.replaceByState(childNode)
             } else {
               accFrontier
@@ -44,28 +46,30 @@ trait UniformCostSearch extends ProblemSearch {
     searchHelper(initialFrontier)
   }
 
-
   object PriorityQueueHashSetFrontier {
     val costNodeOrdering: Ordering[CostNode] = new Ordering[CostNode] {
-      def compare(x: CostNode, y: CostNode): Int = Ordering.Int.reverse.compare(x.cost,y.cost)
+      def compare(x: CostNode, y: CostNode): Int = Ordering.Int.reverse.compare(x.cost, y.cost)
     }
   }
 
   import PriorityQueueHashSetFrontier._
-  class PriorityQueueHashSetFrontier(queue: mutable.PriorityQueue[CostNode], stateMap: mutable.Map[State, CostNode]) extends Frontier { self =>
+  class PriorityQueueHashSetFrontier(queue: mutable.PriorityQueue[CostNode], stateMap: mutable.Map[State, CostNode])
+      extends Frontier { self =>
 
-    def this(s: State) = this(mutable.PriorityQueue(CostNode(s, 0))(costNodeOrdering), mutable.Map(s -> CostNode(s, 0)))
+    def this(s: State) =
+      this(mutable.PriorityQueue(CostNode(s, 0))(costNodeOrdering), mutable.Map(s -> CostNode(s, 0)))
 
-    def removeLeaf: Option[(Node, Frontier)] = Try {
-      val leaf = queue.dequeue
-      stateMap -= leaf.state
-      (leaf, self)
-    }.toOption
+    def removeLeaf: Option[(Node, Frontier)] =
+      Try {
+        val leaf = queue.dequeue
+        stateMap -= leaf.state
+        (leaf, self)
+      }.toOption
 
     def addAll(iterable: Iterable[Node]): Frontier = {
       iterable.foreach { costNode =>
-          queue += costNode
-          stateMap += (costNode.state -> costNode)
+        queue += costNode
+        stateMap += (costNode.state -> costNode)
       }
       self
     }
@@ -73,7 +77,7 @@ trait UniformCostSearch extends ProblemSearch {
     def contains(state: State): Boolean = stateMap.contains(state)
 
     override def replaceByState(node: Node): Frontier = {
-      if(contains(node.state)) {
+      if (contains(node.state)) {
         val updatedElems = node :: queue.toList.filterNot(_.state == node.state)
         queue.clear()
         queue.enqueue(updatedElems: _*)
@@ -83,7 +87,7 @@ trait UniformCostSearch extends ProblemSearch {
 
     }
     override def getNode(state: State): Option[Node] = {
-      if(contains(state)) {
+      if (contains(state)) {
         queue.find(_.state == state)
       } else {
         None
@@ -97,6 +101,5 @@ trait UniformCostSearch extends ProblemSearch {
       self
     }
   }
-
 
 }
