@@ -2,6 +2,7 @@ package aima.core.search.uninformed
 
 import aima.core.agent.Action
 
+import scala.annotation.tailrec
 import scala.util.{Success, Failure, Try}
 
 /**
@@ -26,30 +27,24 @@ trait DepthLimitedTreeSearch extends ProblemSearch {
       } else if (currentLimit == 0) {
         Success(CutOff(solution(node)))
       } else {
-        val results = for {
+        val childNodes = for {
           action <- problem.actions(node.state)
-        } yield recursiveDLS(newChildNode(problem, node, action), currentLimit - 1)
+        } yield newChildNode(problem, node, action)
 
-        val solution = results.find {
-          case Success(s: Solution) => true
-          case _                    => false
-        }
-        lazy val cutoff = results.find {
-          case Success(c: CutOff) => true
-          case _                  => false
-        }
-        lazy val failure = results.find {
-          case f: Failure[_] => true
-          case _             => false
-        }
-
-        solution.getOrElse {
-          cutoff.getOrElse {
-            failure.getOrElse {
-              Failure[DLSResult](new Exception("Could not find solution, cutoff, or failure"))
-            }
+        @tailrec def shortCircuitChildSearch(children: List[Node]): Try[DLSResult] = {
+          children match {
+            case Nil => Failure[DLSResult](new Exception("Exhausted child nodes"))
+            case lastChild :: Nil =>
+              recursiveDLS(lastChild, currentLimit - 1)
+            case firstChild :: rest =>
+              recursiveDLS(firstChild, currentLimit - 1) match {
+                case result @ Success(s: Solution) => result
+                case _ => shortCircuitChildSearch(rest)
+              }
           }
         }
+
+        shortCircuitChildSearch(childNodes)
       }
     }
 
