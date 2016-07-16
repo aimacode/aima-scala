@@ -27,8 +27,6 @@ trait ProblemSearch {
     def contains(state: State): Boolean
   }
 
-  def search(problem: Problem): List[Action]
-
   def newChildNode(problem: Problem, node: Node, action: Action): Node
   def solution(node: Node): List[Action]
 
