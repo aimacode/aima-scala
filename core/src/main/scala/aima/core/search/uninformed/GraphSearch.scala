@@ -7,7 +7,7 @@ import scala.annotation.tailrec
 /**
   * @author Shawn Garner
   */
-trait GraphSearch extends ProblemSearch {
+trait GraphSearch extends FrontierSearch {
   case class StateNode(state: State)
   type Node = StateNode
   def search(problem: Problem): List[Action] = {

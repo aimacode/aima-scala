@@ -3,14 +3,14 @@ package aima.core.search.uninformed
 import aima.core.agent.Action
 
 import scala.annotation.tailrec
-import scala.collection.immutable.{Iterable, Queue}
+import scala.collection.immutable.Iterable
 import scala.collection.mutable
 import scala.util.Try
 
 /**
   * @author Shawn Garner
   */
-trait UniformCostSearch extends ProblemSearch {
+trait UniformCostSearch extends FrontierSearch {
   case class CostNode(state: State, cost: Int)
   type Node = CostNode
 

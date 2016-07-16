@@ -14,8 +14,13 @@ trait ProblemSearch {
     def isGoalState(state: State): Boolean
     def actions(state: State): List[Action]
   }
-
   type Node
+
+  def newChildNode(problem: Problem, node: Node, action: Action): Node
+  def solution(node: Node): List[Action]
+}
+
+trait FrontierSearch extends ProblemSearch {
 
   trait Frontier {
     def replaceByState(childNode: Node): Frontier
@@ -25,9 +30,6 @@ trait ProblemSearch {
     def addAll(iterable: Iterable[Node]): Frontier
     def contains(state: State): Boolean
   }
-
-  def newChildNode(problem: Problem, node: Node, action: Action): Node
-  def solution(node: Node): List[Action]
 
   def newFrontier(state: State): Frontier
 }
