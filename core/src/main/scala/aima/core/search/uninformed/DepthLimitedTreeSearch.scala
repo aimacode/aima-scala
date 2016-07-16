@@ -28,8 +28,7 @@ trait DepthLimitedTreeSearch extends ProblemSearch {
       } else {
         val results = for {
           action <- problem.actions(node.state)
-          child = newChildNode(problem, node, action)
-        } yield recursiveDLS(child, currentLimit - 1)
+        } yield recursiveDLS(newChildNode(problem, node, action), currentLimit - 1)
 
         val solution = results.find {
           case Success(s: Solution) => true
