@@ -1,4 +1,4 @@
-package aima.core.search.uninformed
+package aima.core.search
 
 import aima.core.agent.Action
 

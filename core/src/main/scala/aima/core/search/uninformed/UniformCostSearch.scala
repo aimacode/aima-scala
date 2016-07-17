@@ -1,6 +1,7 @@
 package aima.core.search.uninformed
 
 import aima.core.agent.Action
+import aima.core.search.{FrontierSearch, State, Problem}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Iterable

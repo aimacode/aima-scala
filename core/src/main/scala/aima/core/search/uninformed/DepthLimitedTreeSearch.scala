@@ -1,6 +1,7 @@
 package aima.core.search.uninformed
 
 import aima.core.agent.Action
+import aima.core.search.{State, Problem, ProblemSearch}
 
 import scala.annotation.tailrec
 import scala.util.{Success, Failure, Try}
@@ -9,8 +10,8 @@ sealed trait DLSResult {
   def actions: List[Action]
 }
 
-case class Solution(actions: List[Action]) extends DLSResult
-case class CutOff(actions: List[Action])   extends DLSResult
+final case class Solution(actions: List[Action]) extends DLSResult
+final case class CutOff(actions: List[Action])   extends DLSResult
 
 /**
   * @author Shawn Garner

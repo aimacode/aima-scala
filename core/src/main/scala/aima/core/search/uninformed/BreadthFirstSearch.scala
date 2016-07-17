@@ -1,5 +1,7 @@
 package aima.core.search.uninformed
 
+import aima.core.search.State
+
 import scala.collection.immutable.{Queue, Iterable}
 
 /**
