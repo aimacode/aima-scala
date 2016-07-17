@@ -4,16 +4,19 @@ import aima.core.agent.Action
 
 import scala.collection.immutable.Iterable
 
+trait Problem {
+  def initialState: State
+  def isGoalState(state: State): Boolean
+  def actions(state: State): List[Action]
+}
+
+trait State
+
 /**
   * @author Shawn Garner
   */
 trait ProblemSearch {
-  type State
-  trait Problem {
-    def initialState: State
-    def isGoalState(state: State): Boolean
-    def actions(state: State): List[Action]
-  }
+
   type Node
 
   def newChildNode(problem: Problem, node: Node, action: Action): Node
