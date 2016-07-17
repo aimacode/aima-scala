@@ -4,16 +4,13 @@ import aima.core.agent.Action
 
 import scala.annotation.tailrec
 import scala.util.{Success, Failure, Try}
-import DepthLimitedTreeSearch._
 
-object DepthLimitedTreeSearch {
-  sealed trait DLSResult {
-    def actions: List[Action]
-  }
-
-  case class Solution(actions: List[Action]) extends DLSResult
-  case class CutOff(actions: List[Action])   extends DLSResult
+sealed trait DLSResult {
+  def actions: List[Action]
 }
+
+case class Solution(actions: List[Action]) extends DLSResult
+case class CutOff(actions: List[Action])   extends DLSResult
 
 /**
   * @author Shawn Garner

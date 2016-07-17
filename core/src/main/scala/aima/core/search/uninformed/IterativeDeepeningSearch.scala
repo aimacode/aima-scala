@@ -1,7 +1,5 @@
 package aima.core.search.uninformed
 
-import aima.core.search.uninformed.DepthLimitedTreeSearch.{Solution, DLSResult}
-
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
