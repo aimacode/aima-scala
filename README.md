@@ -6,3 +6,10 @@ Scala implementation of algorithms from [Russell](http://www.cs.berkeley.edu/~ru
 sbt scalafmt
 ```
 
+## Test Coverage
+```
+sbt ";clean;test"
+sbt coverageReport
+```
+
+reports are generated in the target/scoverage-report folder of the sub-projects

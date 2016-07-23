@@ -3,7 +3,10 @@ lazy val commonSettings = Seq(
   version := "0.1.0-SNAPSHOT",
   scalaVersion := "2.11.8",
   scalafmtConfig := Some(file(".scalafmt")),
-  addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.14")
+  addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.14"),
+  coverageEnabled := true,
+  coverageMinimum := 70,
+  coverageFailOnMinimum := false
 )
 
 lazy val librarySettings = Seq(
@@ -13,6 +16,7 @@ lazy val librarySettings = Seq(
 )
 
 lazy val root = (project in file("."))
+  .settings(commonSettings)
   .aggregate(core)
 
 lazy val core = (project in file("core"))
