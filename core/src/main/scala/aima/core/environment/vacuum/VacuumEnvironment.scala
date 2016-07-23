@@ -21,7 +21,7 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap()) extends Environment {
       case (Suck, sa: SuckerActuator) => VacuumEnvironment(map.updateStatus(sa.agent, CleanPercept))
       case (moveAction: MoveAction, actuator: MoveActuator) =>
         VacuumEnvironment(map.moveAgent(actuator.agent, moveAction))
-      case (NoAction, _) => self
+      case _ => self
     }
 
   def perceive(sensor: Sensor): Percept = sensor match {
@@ -31,12 +31,26 @@ case class VacuumEnvironment(map: VacuumMap = VacuumMap()) extends Environment {
     case ds: DirtSensor =>
       map.getDirtStatus(ds.agent).getOrElse(NoPercept)
   }
+
+  def isClean(): Boolean = {
+    map.isClean()
+  }
 }
 
 case class VacuumMapNode(dirtStatus: DirtPercept = DirtPercept.randomValue, maybeAgent: Option[Agent] = None)
 
 case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode())) extends DefaultRandomness {
   self =>
+
+  def isClean(): Boolean = {
+    nodes.forall { node =>
+      node.dirtStatus match {
+        case CleanPercept => true
+        case _            => false
+      }
+    }
+  }
+
   def getDirtStatus(agent: Agent): Option[Percept] =
     nodes.collectFirst {
       case VacuumMapNode(dirtStatus, Some(a)) if agent == a => dirtStatus

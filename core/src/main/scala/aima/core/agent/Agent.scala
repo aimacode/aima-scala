@@ -1,9 +1,5 @@
 package aima.core.agent
 
-import aima.core.util.Randomness
-
-import scala.util.Random
-
 /**
   * @author Shawn Garner
   */
@@ -19,7 +15,7 @@ trait AgentProgram {
 
     actions.foldLeft(environment) { (env, action) =>
       actuators.foldLeft(env) { (env2, actuator) =>
-        actuator.act(action, environment)
+        actuator.act(action, env2)
       }
     }
   }
