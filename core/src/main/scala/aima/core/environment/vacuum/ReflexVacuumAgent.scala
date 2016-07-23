@@ -13,7 +13,7 @@ class ReflexVacuumAgent extends SimpleReflexAgent {
   }
 
   lazy val rules: RuleMatch = {
-    case DirtyPercept => Suck
+    case DirtyPercept     => Suck
     case LocationAPercept => RightMoveAction
     case LocationBPercept => LeftMoveAction
   }

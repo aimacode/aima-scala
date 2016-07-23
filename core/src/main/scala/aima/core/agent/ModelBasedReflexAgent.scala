@@ -7,14 +7,14 @@ trait ModelBasedReflexAgent extends Agent {
   type State
   type Model
   type UpdateState = (Action, Percept, State, Model) => State
-  type RuleMatch = PartialFunction[State, Action]
+  type RuleMatch   = PartialFunction[State, Action]
 
   def initialModel: Model
   def initialState: State
 
   var action: Action = NoAction
-  var state: State = initialState
-  var model: Model = initialModel
+  var state: State   = initialState
+  var model: Model   = initialModel
 
   lazy val agentFunction: AgentFunction = { percept =>
     state = updateState(action, percept, state, model)

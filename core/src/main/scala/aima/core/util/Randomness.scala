@@ -13,7 +13,7 @@ trait DefaultRandomness extends Randomness {
   lazy val rand = new Random()
 }
 
-trait EnumerationRandomness extends Randomness { self: Enumeration =>
+trait EnumerationRandomness extends Randomness { self: Enumeration =>
 
   def randomValue: self.Value = {
     val selection = rand.nextInt(self.maxId)
