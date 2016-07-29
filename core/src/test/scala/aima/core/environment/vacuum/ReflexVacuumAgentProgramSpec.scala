@@ -16,7 +16,7 @@ class ReflexVacuumAgentProgramSpec extends Specification with ScalaCheck {
 
   "should eventually clean environment" in prop { env: VacuumEnvironment =>
     val agentProgram = new AgentProgram {
-      lazy val agent = new ReflexVacuumAgent
+      lazy val agent = new SimpleReflexVacuumAgent
       lazy val actuators = Seq[Actuator](new SuckerActuator(agent), new MoveActuator(agent))
       lazy val sensors = Seq[Sensor](new DirtSensor(agent), new AgentLocationSensor(agent))
     }

@@ -6,7 +6,7 @@ import org.specs2.specification.Scope
 /**
   * @author Shawn Garner
   */
-class ReflexVacuumAgentSpec extends Specification {
+class SimpleReflexVacuumAgentSpec extends Specification {
 
   "should move right if location A" in new context {
     agent.agentFunction.apply(LocationAPercept) must beLike {
@@ -27,7 +27,7 @@ class ReflexVacuumAgentSpec extends Specification {
   }
 
   trait context extends Scope {
-    val agent = new ReflexVacuumAgent
+    val agent = new SimpleReflexVacuumAgent
 
   }
 }

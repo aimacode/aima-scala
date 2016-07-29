@@ -5,7 +5,7 @@ import aima.core.agent.{Percept, SimpleReflexAgent}
 /**
   * @author Shawn Garner
   */
-class ReflexVacuumAgent extends SimpleReflexAgent {
+class SimpleReflexVacuumAgent extends SimpleReflexAgent {
   type State = Percept
 
   lazy val interpretInput: InterpretInput = {
