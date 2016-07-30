@@ -1,5 +1,6 @@
 package aima.core.search.uninformed
 
+import aima.core.agent.NoAction
 import aima.core.search.State
 
 import scala.collection.immutable.{Queue, Iterable}
@@ -13,7 +14,7 @@ trait BreadthFirstSearch extends GraphSearch {
 
   object FIFOQueueFrontier {
     def toQueue(s: State) =
-      Queue(StateNode(s))
+      Queue(StateNode(s, NoAction, None))
   }
 
   class FIFOQueueFrontier(queue: Queue[Node], stateSet: Set[State]) extends Frontier { self =>
@@ -26,20 +27,21 @@ trait BreadthFirstSearch extends GraphSearch {
       new FIFOQueueFrontier(queue.enqueue(iterable), stateSet ++ iterable.map(_.state))
     def contains(state: State): Boolean = stateSet.contains(state)
 
-    override def replaceByState(node: Node): Frontier = {
+    def replaceByState(node: Node): Frontier = {
       if (contains(node.state)) {
         new FIFOQueueFrontier(queue.filterNot(_.state == node.state).enqueue(node), stateSet)
       } else {
         self
       }
     }
-    override def getNode(state: State): Option[Node] = {
+    def getNode(state: State): Option[Node] = {
       if (contains(state)) {
         queue.find(_.state == state)
       } else {
         None
       }
     }
-    override def add(node: Node): Frontier = new FIFOQueueFrontier(queue.enqueue(node), stateSet + node.state)
+
+    def add(node: Node): Frontier = new FIFOQueueFrontier(queue.enqueue(node), stateSet + node.state)
   }
 }

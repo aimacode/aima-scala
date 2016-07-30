@@ -8,6 +8,7 @@ trait Problem {
   def initialState: State
   def isGoalState(state: State): Boolean
   def actions(state: State): List[Action]
+  def result(state: State, action: Action): State
 }
 
 trait State
@@ -19,7 +20,7 @@ trait ProblemSearch {
 
   type Node
 
-  def newChildNode(problem: Problem, node: Node, action: Action): Node
+  def newChildNode(problem: Problem, parent: Node, action: Action): Node
   def solution(node: Node): List[Action]
 }
 

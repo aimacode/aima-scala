@@ -1,7 +1,7 @@
 package aima.core.search.problems
 
 import org.specs2.mutable.Specification
-import RomaniaRoadMap._
+import Romania._
 /**
   * @author Shawn Garner
   */
@@ -12,10 +12,10 @@ class RomaniaRoadMapSpec extends Specification {
   }
 
   "Arad Connections" in {
-    edges.getOrElse(Arad, List.empty[Edge]).map(_.node2) must_== List(Timisoara, Zerind)
+    roadsFromCity.getOrElse(Arad, List.empty[Road]).map(_.to) must_== List(Timisoara, Zerind)
   }
 
   "Bucharest Connections" in {
-    edges.getOrElse(Bucharest, List.empty[Edge]).map(_.node2) must_== List(Giurgiu, Urziceni, Fagaras, Pitesti)
+    roadsFromCity.getOrElse(Bucharest, List.empty[Road]).map(_.to) must_== List(Giurgiu, Urziceni, Fagaras, Pitesti)
   }
 }
