@@ -33,7 +33,8 @@ object Romania {
 
   val roadsFromCity: Map[City, List[Road]] = List(
       Road(Arad, Zerind, 75),
-      Road(Arad, Timisoara, 118), //Arad Edges
+      Road(Arad, Timisoara, 118),
+      Road(Arad, Sibiu, 140), //Arad Edges
       Road(Zerind, Arad, 75),
       Road(Zerind, Oradea, 71), //Zerind Edges
       Road(Oradea, Zerind, 71),
