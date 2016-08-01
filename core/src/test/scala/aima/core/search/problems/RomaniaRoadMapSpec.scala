@@ -12,7 +12,7 @@ class RomaniaRoadMapSpec extends Specification {
   }
 
   "Arad Connections" in {
-    roadsFromCity.getOrElse(Arad, List.empty[Road]).map(_.to) must_== List(Timisoara, Zerind)
+    roadsFromCity.getOrElse(Arad, List.empty[Road]).map(_.to) must_== List(Sibiu, Timisoara, Zerind)
   }
 
   "Bucharest Connections" in {
