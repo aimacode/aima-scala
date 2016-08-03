@@ -9,6 +9,7 @@ trait Problem {
   def isGoalState(state: State): Boolean
   def actions(state: State): List[Action]
   def result(state: State, action: Action): State
+  def stepCost(state: State, action: Action, childPrime: State): Int
 }
 
 trait State

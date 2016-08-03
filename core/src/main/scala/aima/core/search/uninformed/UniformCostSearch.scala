@@ -1,6 +1,6 @@
 package aima.core.search.uninformed
 
-import aima.core.agent.Action
+import aima.core.agent.{NoAction, Action}
 import aima.core.search.{FrontierSearch, State, Problem}
 
 import scala.annotation.tailrec
@@ -12,7 +12,7 @@ import scala.util.Try
   * @author Shawn Garner
   */
 trait UniformCostSearch extends FrontierSearch {
-  case class CostNode(state: State, cost: Int)
+  case class CostNode(state: State, cost: Int, action: Action, parent: Option[CostNode])
   type Node = CostNode
 
   def search(problem: Problem): List[Action] = {
@@ -58,7 +58,8 @@ trait UniformCostSearch extends FrontierSearch {
       extends Frontier { self =>
 
     def this(s: State) =
-      this(mutable.PriorityQueue(CostNode(s, 0))(costNodeOrdering), mutable.Map(s -> CostNode(s, 0)))
+      this(mutable.PriorityQueue(CostNode(s, 0, NoAction, None))(costNodeOrdering),
+           mutable.Map(s -> CostNode(s, 0, NoAction, None)))
 
     def removeLeaf: Option[(Node, Frontier)] =
       Try {
@@ -103,4 +104,25 @@ trait UniformCostSearch extends FrontierSearch {
     }
   }
 
+  override def newFrontier(state: State): Frontier = new PriorityQueueHashSetFrontier(state)
+
+  override def newChildNode(problem: Problem, parent: CostNode, action: Action): CostNode = {
+    val childState = problem.result(parent.state, action)
+    CostNode(
+        state = childState,
+        cost = parent.cost + problem.stepCost(parent.state, action, childState),
+        action = action,
+        parent = Some(parent)
+    )
+  }
+  override def solution(node: CostNode): List[Action] = {
+    @tailrec def solutionHelper(n: Node, actions: List[Action]): List[Action] = {
+      n.parent match {
+        case None         => actions
+        case Some(parent) => solutionHelper(parent, n.action :: actions)
+      }
+    }
+
+    solutionHelper(node, Nil)
+  }
 }

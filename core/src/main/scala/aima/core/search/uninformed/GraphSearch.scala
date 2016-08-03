@@ -1,7 +1,5 @@
 package aima.core.search.uninformed
 
-import javafx.scene.Parent
-
 import aima.core.agent.Action
 import aima.core.search.{FrontierSearch, State, Problem}
 

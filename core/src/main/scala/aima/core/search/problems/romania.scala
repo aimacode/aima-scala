@@ -103,6 +103,14 @@ object Romania {
       case (In(city), In(goal)) => city == goal
       case _                    => false
     }
+
+    def stepCost(state: State, action: Action, statePrime: State): Int = (state, statePrime) match {
+      case (In(city), In(cityPrime)) =>
+        val maybeCost = roadsFromCity(city) collectFirst {
+          case Road(c1, c2, cost) if c1 == city && c2 == cityPrime => cost
+        }
+        maybeCost.getOrElse(Int.MaxValue)
+    }
   }
 
 }
