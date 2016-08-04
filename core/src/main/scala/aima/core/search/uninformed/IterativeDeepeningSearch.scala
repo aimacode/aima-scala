@@ -8,7 +8,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * @author Shawn Garner
   */
-trait IterativeDeepeningSearch extends ProblemSearch {
+trait IterativeDeepeningSearch {
   def depthLimitedTreeSearch: DepthLimitedTreeSearch
 
   def search(problem: Problem): Try[DLSResult] = {
