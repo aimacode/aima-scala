@@ -1,7 +1,7 @@
 package aima.core.search.informed
 
-import aima.core.agent.Action
-import aima.core.search.{State, ProblemSearch, Problem}
+import aima.core.agent.{NoAction, Action}
+import aima.core.search.{HeuristicsNode, State, ProblemSearch, Problem}
 
 import scala.annotation.tailrec
 
@@ -13,7 +13,7 @@ final case class SearchFailure(updatedFCost: Double) extends RBFSearchResult
   * @author Shawn Garner
   */
 trait RecursiveBestFirstSearch extends ProblemSearch {
-  case class HeuristicsNode(state: State, gValue: Double, hValue: Option[Double], fValue: Option[Double])
+
   type Node      = HeuristicsNode
   type Heuristic = Node => Double
 
@@ -32,7 +32,7 @@ trait RecursiveBestFirstSearch extends ProblemSearch {
           SearchFailure(Double.PositiveInfinity)
         else {
           val updated = successors.collect {
-            case s @ HeuristicsNode(_, gValue, Some(hValue), _) =>
+            case s @ HeuristicsNode(_, gValue, Some(hValue), _, _, _) =>
               val updatedFValue = node.fValue.map(nodeFValue => math.max(gValue + hValue, nodeFValue))
               s.copy(fValue = updatedFValue)
           }
@@ -40,8 +40,8 @@ trait RecursiveBestFirstSearch extends ProblemSearch {
           @tailrec def getBestFValue(updatedSuccessors: List[HeuristicsNode]): RBFSearchResult = {
             val sortedSuccessors = updatedSuccessors.sortBy(_.fValue.getOrElse(Double.MaxValue))
             sortedSuccessors match {
-              case HeuristicsNode(_, _, _, Some(fValue)) :: rest if fValue > fLimit => SearchFailure(fValue)
-              case best :: (second @ HeuristicsNode(_, _, _, Some(fValue))) :: rest =>
+              case HeuristicsNode(_, _, _, Some(fValue), _, _) :: rest if fValue > fLimit => SearchFailure(fValue)
+              case best :: (second @ HeuristicsNode(_, _, _, Some(fValue), _, _)) :: rest =>
                 val result = rbfs(best, math.min(fLimit, fValue))
                 result match {
                   case s: Solution => s
@@ -60,7 +60,7 @@ trait RecursiveBestFirstSearch extends ProblemSearch {
   }
 
   def makeNode(state: State): Node = {
-    val basic          = HeuristicsNode(state = state, gValue = 0, hValue = None, fValue = None)
+    val basic          = HeuristicsNode(state = state, gValue = 0, hValue = None, fValue = None, NoAction, None)
     val hValue: Double = h(basic)
     val fValue: Double = basic.gValue + hValue
     basic.copy(hValue = Some(hValue), fValue = Some(fValue))

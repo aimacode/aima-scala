@@ -1,21 +1,20 @@
 package aima.core.search.uninformed
 
 import aima.core.agent.Action
-import aima.core.search.{FrontierSearch, State, Problem}
+import aima.core.search._
 
 import scala.annotation.tailrec
 
 /**
   * @author Shawn Garner
   */
-trait TreeSearch extends FrontierSearch {
-  case class StateNode(state: State)
+trait TreeSearch extends ProblemSearch with FrontierSearch {
   type Node = StateNode
 
   def search(problem: Problem): List[Action] = {
     val initialFrontier = newFrontier(problem.initialState)
 
-    @tailrec def searchHelper(frontier: Frontier): List[Action] = {
+    @tailrec def searchHelper(frontier: Frontier[Node]): List[Action] = {
       frontier.removeLeaf match {
         case None                                               => List.empty[Action]
         case Some((leaf, _)) if problem.isGoalState(leaf.state) => solution(leaf)

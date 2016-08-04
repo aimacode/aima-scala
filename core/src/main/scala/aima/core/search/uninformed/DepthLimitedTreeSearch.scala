@@ -1,7 +1,7 @@
 package aima.core.search.uninformed
 
 import aima.core.agent.{NoAction, Action}
-import aima.core.search.{State, Problem, ProblemSearch}
+import aima.core.search.{StateNode, State, Problem, ProblemSearch}
 
 import scala.annotation.tailrec
 import scala.util.{Success, Failure, Try}
@@ -17,7 +17,6 @@ final case class CutOff(actions: List[Action])   extends DLSResult
   * @author Shawn Garner
   */
 trait DepthLimitedTreeSearch extends ProblemSearch {
-  case class StateNode(state: State, action: Action, parent: Option[StateNode])
   type Node = StateNode
 
   def search(problem: Problem, initialLimit: Int): Try[DLSResult] =
