@@ -70,9 +70,9 @@ trait UniformCostSearch extends ProblemSearch with FrontierSearch {
 
     @tailrec def searchHelper(frontier: Frontier[Node], exploredSet: Set[State] = Set.empty[State]): List[Action] = {
       frontier.removeLeaf match {
-        case None                                                     => List.empty[Action]
-        case Some((leaf: Node, _)) if problem.isGoalState(leaf.state) => solution(leaf)
-        case Some((leaf: Node, updatedFrontier)) =>
+        case None                                               => List.empty[Action]
+        case Some((leaf, _)) if problem.isGoalState(leaf.state) => solution(leaf)
+        case Some((leaf, updatedFrontier)) =>
           val updatedExploredSet = exploredSet + leaf.state
           val childNodes = for {
             action <- problem.actions(leaf.state)

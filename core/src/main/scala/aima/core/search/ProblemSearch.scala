@@ -41,10 +41,10 @@ trait ProblemSearch {
   def newChildNode(problem: Problem, parent: Node, action: Action): Node
 
   def solution(node: Node): List[Action] = {
-    @tailrec def solutionHelper(n: Node, actions: List[Action]): List[Action] = {
+    @tailrec def solutionHelper(n: SearchNode, actions: List[Action]): List[Action] = {
       n.parent match {
-        case None               => actions
-        case Some(parent: Node) => solutionHelper(parent, n.action :: actions)
+        case None         => actions
+        case Some(parent) => solutionHelper(parent, n.action :: actions)
       }
     }
 
