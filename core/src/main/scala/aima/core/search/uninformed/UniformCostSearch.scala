@@ -4,59 +4,6 @@ import aima.core.agent.{NoAction, Action}
 import aima.core.search._
 
 import scala.annotation.tailrec
-import scala.collection.immutable.Iterable
-import scala.collection.mutable
-import scala.util.Try
-
-class PriorityQueueHashSetFrontier[Node <: SearchNode](queue: mutable.PriorityQueue[Node],
-                                                       stateMap: mutable.Map[State, Node])
-    extends Frontier[Node] { self =>
-
-  def this(n: Node, costNodeOrdering: Ordering[Node]) =
-    this(mutable.PriorityQueue(n)(costNodeOrdering), mutable.Map(n.state -> n))
-
-  def removeLeaf: Option[(Node, Frontier[Node])] =
-    Try {
-      val leaf = queue.dequeue
-      stateMap -= leaf.state
-      (leaf, self)
-    }.toOption
-
-  def addAll(iterable: Iterable[Node]): Frontier[Node] = {
-    iterable.foreach { costNode =>
-      queue += costNode
-      stateMap += (costNode.state -> costNode)
-    }
-    self
-  }
-
-  def contains(state: State): Boolean = stateMap.contains(state)
-
-  def replaceByState(node: Node): Frontier[Node] = {
-    if (contains(node.state)) {
-      val updatedElems = node :: queue.toList.filterNot(_.state == node.state)
-      queue.clear()
-      queue.enqueue(updatedElems: _*)
-      stateMap += (node.state -> node)
-    }
-    self
-  }
-
-  def getNode(state: State): Option[Node] = {
-    if (contains(state)) {
-      queue.find(_.state == state)
-    } else {
-      None
-    }
-  }
-
-  def add(node: Node): Frontier[Node] = {
-    val costNode = node
-    queue.enqueue(costNode)
-    stateMap += (node.state -> costNode)
-    self
-  }
-}
 
 /**
   * @author Shawn Garner
