@@ -59,15 +59,4 @@ trait DepthLimitedTreeSearch extends ProblemSearch {
     val childState = problem.result(parent.state, action)
     StateNode(childState, action, Some(parent))
   }
-
-  def solution(node: Node): List[Action] = {
-    @tailrec def solutionHelper(n: Node, actions: List[Action]): List[Action] = {
-      n.parent match {
-        case None         => actions
-        case Some(parent) => solutionHelper(parent, n.action :: actions)
-      }
-    }
-
-    solutionHelper(node, Nil)
-  }
 }

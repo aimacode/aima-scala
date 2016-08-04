@@ -2,6 +2,7 @@ package aima.core.search
 
 import aima.core.agent.Action
 
+import scala.annotation.tailrec
 import scala.collection.immutable.Iterable
 
 trait Problem {
@@ -38,7 +39,17 @@ trait ProblemSearch {
   type Node <: SearchNode
 
   def newChildNode(problem: Problem, parent: Node, action: Action): Node
-  def solution(node: Node): List[Action]
+
+  def solution(node: Node): List[Action] = {
+    @tailrec def solutionHelper(n: Node, actions: List[Action]): List[Action] = {
+      n.parent match {
+        case None               => actions
+        case Some(parent: Node) => solutionHelper(parent, n.action :: actions)
+      }
+    }
+
+    solutionHelper(node, Nil)
+  }
 }
 
 trait Frontier[Node <: SearchNode] {

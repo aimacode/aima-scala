@@ -113,15 +113,4 @@ trait UniformCostSearch extends ProblemSearch with FrontierSearch {
         parent = Some(parent)
     )
   }
-
-  def solution(node: CostNode): List[Action] = {
-    @tailrec def solutionHelper(n: Node, actions: List[Action]): List[Action] = {
-      n.parent match {
-        case None         => actions
-        case Some(parent) => solutionHelper(parent, n.action :: actions)
-      }
-    }
-
-    solutionHelper(node, Nil)
-  }
 }
