@@ -16,7 +16,7 @@ lazy val librarySettings = Seq(
 )
 
 lazy val root = (project in file("."))
-  .settings(commonSettings)
+  .settings(commonSettings: _*)
   .aggregate(core)
 
 lazy val core = (project in file("core"))
