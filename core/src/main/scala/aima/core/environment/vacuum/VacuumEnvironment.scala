@@ -74,7 +74,7 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
 
   def moveAgent(agent: Agent, direction: MoveAction): VacuumMap = {
     removeAgent(agent).updateByIndex(directionToMapIndex(direction))(vacuumMapNode =>
-          vacuumMapNode.copy(maybeAgent = Some(agent)))
+      vacuumMapNode.copy(maybeAgent = Some(agent)))
   }
 
   private[this] def updateByAgent(target: Agent)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {

@@ -54,10 +54,10 @@ trait UniformCostSearch extends ProblemSearch with FrontierSearch {
   def newChildNode(problem: Problem, parent: CostNode, action: Action): CostNode = {
     val childState = problem.result(parent.state, action)
     CostNode(
-        state = childState,
-        cost = parent.cost + problem.stepCost(parent.state, action, childState),
-        action = action,
-        parent = Some(parent)
+      state = childState,
+      cost = parent.cost + problem.stepCost(parent.state, action, childState),
+      action = action,
+      parent = Some(parent)
     )
   }
 }

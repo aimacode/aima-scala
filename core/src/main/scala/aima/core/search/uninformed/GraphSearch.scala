@@ -23,7 +23,7 @@ trait GraphSearch extends ProblemSearch with FrontierSearch {
             action <- problem.actions(leaf.state)
             childNode = newChildNode(problem, leaf, action)
             if !(updatedExploredSet.contains(childNode.state)
-                  || updatedFrontier.contains(childNode.state))
+              || updatedFrontier.contains(childNode.state))
           } yield childNode
 
           val frontierWithChildNodes = updatedFrontier.addAll(childNodes)
