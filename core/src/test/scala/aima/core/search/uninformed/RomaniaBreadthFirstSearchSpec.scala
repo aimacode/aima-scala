@@ -17,11 +17,6 @@ class RomaniaBreadthFirstSearchSpec extends Specification {
     search(new RomaniaRoadProblem(In(Arad), In(Bucharest))) must_== List(GoTo(Sibiu), GoTo(Fagaras), GoTo(Bucharest))
   }
 
-  trait context extends Scope with BreadthFirstSearch {
-
-
-  }
-
-
+  trait context extends Scope with BreadthFirstSearch {}
 
 }

@@ -42,7 +42,7 @@ class ModelBasedReflexVacuumAgentSpec extends Specification {
       case LeftMoveAction => ok
     }
   }
-  
+
   "should assume dirty after moving to location A" in new context {
     agent.agentFunction.apply(LocationBPercept)
     agent.agentFunction.apply(CleanPercept)

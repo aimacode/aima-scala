@@ -17,16 +17,13 @@ class RomaniaIterativeDeepeningSearchSpec extends Specification {
 
   "going from Arad to Bucharest must return a list of actions" in new context {
     search(new RomaniaRoadProblem(In(Arad), In(Bucharest))) must beSuccessfulTry.like {
-      case Solution(GoTo(Sibiu)::GoTo(Fagaras)::GoTo(Bucharest)::Nil) => ok
+      case Solution(GoTo(Sibiu) :: GoTo(Fagaras) :: GoTo(Bucharest) :: Nil) => ok
     }
   }
-
 
   trait context extends Scope with IterativeDeepeningSearch {
 
     lazy val depthLimitedTreeSearch = new DepthLimitedTreeSearch {}
   }
-
-
 
 }
