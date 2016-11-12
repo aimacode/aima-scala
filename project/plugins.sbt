@@ -1,2 +1,2 @@
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.4.3")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.5")
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.4.10")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
