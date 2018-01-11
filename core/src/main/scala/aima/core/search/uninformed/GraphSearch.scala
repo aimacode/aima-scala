@@ -11,7 +11,7 @@ import scala.annotation.tailrec
 trait GraphSearch extends ProblemSearch with FrontierSearch {
   type Node = StateNode
   def search(problem: Problem): List[Action] = {
-    val initialFrontier = newFrontier(problem.initialState)
+    val initialFrontier = new Frontier(problem.initialState)
 
     @tailrec def searchHelper(frontier: Frontier[Node], exploredSet: Set[State] = Set.empty[State]): List[Action] = {
       frontier.removeLeaf match {
