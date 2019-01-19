@@ -3,7 +3,7 @@ import org.scalafmt.sbt.ScalaFmtPlugin.autoImport._
 lazy val commonSettings = Seq(
     organization := "com.github.aimacode.aima-scala",
     version := "0.1.0-SNAPSHOT",
-    scalaVersion := "2.12.0",
+    scalaVersion := "2.12.8",
     scalafmtConfig := Some(file(".scalafmt")),
     addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.16"),
     coverageEnabled := true,
