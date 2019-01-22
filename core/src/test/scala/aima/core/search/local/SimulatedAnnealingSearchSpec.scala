@@ -1,7 +1,9 @@
 package aima.core.search.local
 
+import aima.core.search.local.time.TimeStep
 import org.specs2.mutable.Specification
-import aima.core.search.local.SimulatedAnnealingSearch._
+
+import scala.util.{Success, Try}
 
 /**
   * @author Shawn Garner
@@ -9,27 +11,26 @@ import aima.core.search.local.SimulatedAnnealingSearch._
 class SimulatedAnnealingSearchSpec extends Specification {
 
   "BasicSchedule" >> {
-    import BasicSchedule.schedule
+    import aima.core.search.local.SimulatedAnnealingSearch.BasicSchedule.schedule
+    import aima.core.search.local.time.TimeStep.Implicits._
+
+    def increment(ts: TimeStep, times: Int): Try[TimeStep] = times match {
+      case 0 => Success(ts)
+      case _ => ts.step.flatMap(increment(_, times - 1))
+    }
 
     "lower limit check" in {
-      schedule(1) must beCloseTo(19.1d within 3.significantFigures)
+      schedule(TimeStep.start) must beCloseTo(19.1d within 3.significantFigures)
     }
 
     "upper limit check" in {
-      schedule(99) must beCloseTo(0.232d within 3.significantFigures)
+      increment(TimeStep.start, 98).map(schedule(_)) must beSuccessfulTry(
+        beCloseTo(0.232d within 3.significantFigures))
     }
 
     "over limit check" in {
-      schedule(100) must beCloseTo(0.00d within 3.significantFigures)
+      increment(TimeStep.start, 99).map(schedule(_)) must beSuccessfulTry(beCloseTo(0.00d within 3.significantFigures))
     }
-
-    "below time step 1 - zero check" in {
-      schedule(0) must beCloseTo(20.0d within 3.significantFigures)
-    }
-
-    "negative time step check" in {
-      schedule(-1) must beCloseTo(20.9d within 3.significantFigures)
-    }
-
   }
+
 }

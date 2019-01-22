@@ -1,9 +1,30 @@
 package aima.core.search.local
 
+import aima.core.search.local.time.TimeStep
 import aima.core.search.{Problem, State}
 
-import scala.annotation.tailrec
-import scala.util.Random
+import scala.util.{Failure, Random, Success, Try}
+import scala.util.control.NoStackTrace
+
+package time {
+  case object UpperLimitExceeded extends RuntimeException with NoStackTrace
+
+  final case class TimeStep private[time] (value: Int) extends AnyVal
+
+  object TimeStep {
+    val start = TimeStep(1)
+
+    object Implicits {
+      implicit class TimeStepOps(t: TimeStep) {
+        def step: Try[TimeStep] = t.value match {
+          case Int.MaxValue => Failure(UpperLimitExceeded)
+          case v            => Success(TimeStep(v + 1))
+        }
+      }
+    }
+  }
+
+}
 
 /**
   * <pre>
@@ -25,7 +46,7 @@ import scala.util.Random
   */
 object SimulatedAnnealingSearch {
 
-  type Schedule = Int => Double
+  type Schedule = TimeStep => Double
 
   object BasicSchedule {
 
@@ -33,9 +54,9 @@ object SimulatedAnnealingSearch {
     val lam: Double = 0.045
     val limit: Int  = 100
 
-    val schedule: Schedule = { t: Int => // time steps 1 to infinity (Integer.Max)
-      if (t < limit) {
-        k * math.exp((-1) * lam * t)
+    val schedule: Schedule = { t: TimeStep => // time steps 1 to infinity (Integer.Max)
+      if (t.value < limit) {
+        k * math.exp((-1) * lam * t.value)
       } else {
         0.0
       }
@@ -44,20 +65,21 @@ object SimulatedAnnealingSearch {
 
   final case class StateValueNode(state: State, value: Double) extends State
 
-  def apply(stateToValue: State => Double, problem: Problem): State =
+  def apply(stateToValue: State => Double, problem: Problem): Try[State] =
     apply(stateToValue, problem, BasicSchedule.schedule)
 
-  def apply(stateToValue: State => Double, problem: Problem, sched: Schedule): State = {
+  def apply(stateToValue: State => Double, problem: Problem, sched: Schedule): Try[State] = {
     val random = new Random()
 
     def makeNode(state: State): StateValueNode = StateValueNode(state, stateToValue(state))
 
-    def schedule(t: Int): Double = {
+    def schedule(t: TimeStep): Try[Double] = {
       val T = sched(t)
       if (T < 0.0d) {
-        throw new IllegalArgumentException("Configured schedule returns negative temperatures: t=" + t + ", T=" + T) // TODO: we don't throw in Scala
+        Failure(new IllegalArgumentException("Configured schedule returns negative temperatures: t=" + t + ", T=" + T)) // TODO: seems like smart constructor of Temperature type
+      } else {
+        Success(T)
       }
-      T
     }
 
     def randomlySelectSuccessor(current: StateValueNode): StateValueNode = {
@@ -77,22 +99,35 @@ object SimulatedAnnealingSearch {
       successor
     }
 
-    @tailrec def recurse(current: StateValueNode, t: Int): State = {
-      val T = schedule(t)
-      if (T == 0.0d) { //TODO: don't think this is good practice to compare 0.0 double against constant, could be really close but not exact
-        current
-      } else {
-        val next                    = randomlySelectSuccessor(current)
-        val DeltaE                  = next.value - current.value
-        lazy val acceptDownHillMove = math.exp(DeltaE / T) > random.nextDouble()
-        if (DeltaE > 0.0d || acceptDownHillMove) {
-          recurse(next, t + 1)
-        } else {
-          recurse(current, t + 1)
+    def recurse(current: StateValueNode, t: TimeStep): Try[State] = {
+      import time.TimeStep.Implicits._
+
+      for {
+        temperatureT <- schedule(t)
+        result <- {
+          if (temperatureT == 0.0d) { //TODO: don't think this is good practice to compare 0.0 double against constant, could be really close but not exact
+            Success(current)
+          } else {
+            val randomSuccessor         = randomlySelectSuccessor(current)
+            val DeltaE                  = randomSuccessor.value - current.value
+            lazy val acceptDownHillMove = math.exp(DeltaE / temperatureT) > random.nextDouble()
+
+            val nextNode = {
+              if (DeltaE > 0.0d || acceptDownHillMove) {
+                randomSuccessor
+              } else {
+                current
+              }
+            }
+
+            val nextTimeStep: Try[TimeStep] = t.step
+            nextTimeStep.flatMap(recurse(nextNode, _))
+          }
         }
-      }
+      } yield result
+
     }
 
-    recurse(makeNode(problem.initialState), 1)
+    recurse(makeNode(problem.initialState), TimeStep.start)
   }
 }
