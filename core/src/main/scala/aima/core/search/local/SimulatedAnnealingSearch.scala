@@ -79,7 +79,7 @@ object SimulatedAnnealingSearch {
 
     @tailrec def recurse(current: StateValueNode, t: Int): State = {
       val T = schedule(t)
-      if (T == 0.0d) {
+      if (T == 0.0d) { //TODO: don't think this is good practice to compare 0.0 double against constant, could be really close but not exact
         current
       } else {
         val next                    = randomlySelectSuccessor(current)
