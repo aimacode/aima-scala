@@ -1,5 +1,6 @@
 package aima.core.search.local
 
+import aima.core.search.local.SimulatedAnnealingSearch.{OverTimeStepLimit, Temperature, TemperatureResult}
 import aima.core.search.local.time.TimeStep
 import org.specs2.mutable.Specification
 
@@ -20,16 +21,22 @@ class SimulatedAnnealingSearchSpec extends Specification {
     }
 
     "lower limit check" in {
-      schedule(TimeStep.start) must beCloseTo(19.1d within 3.significantFigures)
+      schedule(TimeStep.start) match {
+        case Temperature(t) => t must beCloseTo(19.1d within 3.significantFigures)
+        case other          => ko(other.toString)
+      }
     }
 
     "upper limit check" in {
-      increment(TimeStep.start, 98).map(schedule(_)) must beSuccessfulTry(
-        beCloseTo(0.232d within 3.significantFigures))
+      increment(TimeStep.start, 98).map(schedule(_)) match {
+        case Success(Temperature(t)) => t must beCloseTo(0.232d within 3.significantFigures)
+        case other                   => ko(other.toString)
+      }
+
     }
 
     "over limit check" in {
-      increment(TimeStep.start, 99).map(schedule(_)) must beSuccessfulTry(beCloseTo(0.00d within 3.significantFigures))
+      increment(TimeStep.start, 99).map(schedule(_)) must beSuccessfulTry[TemperatureResult](OverTimeStepLimit)
     }
   }
 

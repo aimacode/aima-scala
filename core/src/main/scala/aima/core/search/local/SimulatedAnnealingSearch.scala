@@ -46,7 +46,11 @@ package time {
   */
 object SimulatedAnnealingSearch {
 
-  type Schedule = TimeStep => Double
+  sealed trait TemperatureResult
+  final case class Temperature private[SimulatedAnnealingSearch] (double: Double) extends TemperatureResult
+  case object OverTimeStepLimit                                                   extends TemperatureResult
+
+  type Schedule = TimeStep => TemperatureResult
 
   object BasicSchedule {
 
@@ -54,11 +58,11 @@ object SimulatedAnnealingSearch {
     val lam: Double = 0.045
     val limit: Int  = 100
 
-    val schedule: Schedule = { t: TimeStep => // time steps 1 to infinity (Integer.Max)
+    val schedule: Schedule = { t: TimeStep =>
       if (t.value < limit) {
-        k * math.exp((-1) * lam * t.value)
+        Temperature(k * math.exp((-1) * lam * t.value))
       } else {
-        0.0
+        OverTimeStepLimit
       }
     }
   }
@@ -68,19 +72,10 @@ object SimulatedAnnealingSearch {
   def apply(stateToValue: State => Double, problem: Problem): Try[State] =
     apply(stateToValue, problem, BasicSchedule.schedule)
 
-  def apply(stateToValue: State => Double, problem: Problem, sched: Schedule): Try[State] = {
+  def apply(stateToValue: State => Double, problem: Problem, schedule: Schedule): Try[State] = {
     val random = new Random()
 
     def makeNode(state: State): StateValueNode = StateValueNode(state, stateToValue(state))
-
-    def schedule(t: TimeStep): Try[Double] = {
-      val T = sched(t)
-      if (T < 0.0d) {
-        Failure(new IllegalArgumentException("Configured schedule returns negative temperatures: t=" + t + ", T=" + T)) // TODO: seems like smart constructor of Temperature type
-      } else {
-        Success(T)
-      }
-    }
 
     def randomlySelectSuccessor(current: StateValueNode): StateValueNode = {
       // Default successor to current, so that in the case we reach a dead-end
@@ -101,13 +96,13 @@ object SimulatedAnnealingSearch {
 
     def recurse(current: StateValueNode, t: TimeStep): Try[State] = {
       import time.TimeStep.Implicits._
+      val T = schedule(t)
 
       for {
-        temperatureT <- schedule(t)
-        result <- {
-          if (temperatureT == 0.0d) { //TODO: don't think this is good practice to compare 0.0 double against constant, could be really close but not exact
-            Success(current)
-          } else {
+        result <- T match {
+          case OverTimeStepLimit => Success(current)
+
+          case Temperature(temperatureT) =>
             val randomSuccessor         = randomlySelectSuccessor(current)
             val DeltaE                  = randomSuccessor.value - current.value
             lazy val acceptDownHillMove = math.exp(DeltaE / temperatureT) > random.nextDouble()
@@ -122,7 +117,7 @@ object SimulatedAnnealingSearch {
 
             val nextTimeStep: Try[TimeStep] = t.step
             nextTimeStep.flatMap(recurse(nextNode, _))
-          }
+
         }
       } yield result
 
