@@ -6,7 +6,7 @@ lazy val commonSettings = Seq(
     scalaVersion := "2.12.8",
     scalafmtConfig := Some(file(".scalafmt")),
     addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.16"),
-    coverageEnabled := true,
+    coverageEnabled := false,
     coverageMinimum := 70,
     coverageFailOnMinimum := false,
     autoCompilerPlugins := true
