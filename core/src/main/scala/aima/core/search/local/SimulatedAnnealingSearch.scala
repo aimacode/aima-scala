@@ -67,7 +67,7 @@ object SimulatedAnnealingSearch {
     }
   }
 
-  final case class StateValueNode(state: State, value: Double) extends State
+  final case class StateValueNode(state: State, value: Double)
 
   def apply(stateToValue: State => Double, problem: Problem): Try[State] =
     apply(stateToValue, problem, BasicSchedule.schedule)
@@ -94,7 +94,7 @@ object SimulatedAnnealingSearch {
       successor
     }
 
-    def recurse(current: StateValueNode, t: TimeStep): Try[State] = {
+    def recurse(current: StateValueNode, t: TimeStep): Try[StateValueNode] = {
       import time.TimeStep.Implicits._
       val T = schedule(t)
 
@@ -123,6 +123,6 @@ object SimulatedAnnealingSearch {
 
     }
 
-    recurse(makeNode(problem.initialState), TimeStep.start)
+    recurse(makeNode(problem.initialState), TimeStep.start).map(_.state)
   }
 }
