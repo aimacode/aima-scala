@@ -22,14 +22,14 @@ import scala.annotation.tailrec
   */
 object HillClimbing {
 
-  final case class StateValueNode(state: State, value: Double) extends State
+  final case class StateValueNode(state: State, value: Double)
 
   def apply(stateToValue: State => Double)(problem: Problem): State = {
 
     def makeNode(state: State) = StateValueNode(state, stateToValue(state))
 
     def highestValuedSuccessor(current: StateValueNode): StateValueNode = {
-      val successors = problem.actions(current).map(a => problem.result(current, a)).map(makeNode)
+      val successors = problem.actions(current.state).map(a => problem.result(current.state, a)).map(makeNode)
 
       if (successors.isEmpty) {
         current
