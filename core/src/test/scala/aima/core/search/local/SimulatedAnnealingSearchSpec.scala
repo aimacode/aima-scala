@@ -2,7 +2,12 @@ package aima.core.search.local
 
 import aima.core.agent.Action
 import aima.core.search.{Problem, State}
-import aima.core.search.local.SimulatedAnnealingSearch.{OverTimeStepLimit, Temperature, TemperatureResult}
+import aima.core.search.local.SimulatedAnnealingSearch.{
+  BasicSchedule,
+  OverTimeStepLimit,
+  Temperature,
+  TemperatureResult
+}
 import aima.core.search.local.time.TimeStep
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
@@ -25,14 +30,14 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
     }
 
     "lower limit check" in {
-      schedule(TimeStep.start) match {
+      schedule()(TimeStep.start) match {
         case Temperature(t) => t must beCloseTo(19.1d within 3.significantFigures)
         case other          => ko(other.toString)
       }
     }
 
     "upper limit check" in {
-      increment(TimeStep.start, 98).map(schedule(_)) match {
+      increment(TimeStep.start, 98).map(schedule()(_)) match {
         case Success(Temperature(t)) => t must beCloseTo(0.232d within 3.significantFigures)
         case other                   => ko(other.toString)
       }
@@ -40,7 +45,7 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
     }
 
     "over limit check" in {
-      increment(TimeStep.start, 99).map(schedule(_)) must beSuccessfulTry[TemperatureResult](OverTimeStepLimit)
+      increment(TimeStep.start, 99).map(schedule()(_)) must beSuccessfulTry[TemperatureResult](OverTimeStepLimit)
     }
 
     implicit val arbTimeStep: Arbitrary[TimeStep] = Arbitrary {
@@ -50,7 +55,7 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
     }
 
     "must not create negative temperature" >> prop { ts: TimeStep =>
-      schedule(ts) match {
+      schedule()(ts) match {
         case Temperature(t) => t must be_>(0.00d)
         case other          => ko(other.toString)
       }
@@ -92,48 +97,66 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
           )
         )
     }
+
     "find solution" >> prop { s: EightQueensState =>
       val eightQueensProblem = new Problem {
         override def initialState: State = s
 
         override def isGoalState(state: State): Boolean = false // Not used
 
-        override def actions(state: State): List[Action] = (0 to 7).toList.flatMap(i => List(MoveDown(i), MoveUp(i)))
+        override def actions(state: State): List[Action] = state match {
+          case EightQueensState(cols) =>
+            cols.zipWithIndex.flatMap {
+              case (QueenPosition(rowIndex), colIndex) =>
+                (0 to 7).toList.filterNot(r => rowIndex == r).map(newRowIndex => MoveTo(colIndex, newRowIndex))
+            }
+        }
 
         override def result(state: State, action: Action): State = (state, action) match {
-          case (EightQueensState(cols), MoveUp(idx)) =>
-            val currentRow: QueenPosition = cols(idx)
-            val newRow                    = currentRow.row - 1
-            if (newRow < 0) {
-              EightQueensState(cols.updated(idx, QueenPosition(7)))
-            } else {
-              EightQueensState(cols.updated(idx, QueenPosition(newRow)))
-            }
+          case (EightQueensState(cols), MoveTo(colIndex, newRowIndex)) =>
+            EightQueensState(cols.updated(colIndex, QueenPosition(newRowIndex)))
 
-          case (EightQueensState(cols), MoveDown(idx)) =>
-            val currentRow: QueenPosition = cols(idx)
-            val newRow                    = currentRow.row + 1
-            if (newRow > 7) {
-              EightQueensState(cols.updated(idx, QueenPosition(0)))
-            } else {
-              EightQueensState(cols.updated(idx, QueenPosition(newRow)))
-            }
         }
 
         override def stepCost(state: State, action: Action, childPrime: State): Int = -1 // Not used
       }
 
-      val result = SimulatedAnnealingSearch.apply(queenStateToValue, eightQueensProblem)
-      result must beSuccessfulTry
-    }
+      val result =
+        SimulatedAnnealingSearch.apply(queenStateToValue,
+                                       eightQueensProblem,
+                                       BasicSchedule.schedule(BasicSchedule.defaultScheduleParams.copy(limit = 10000)))
+
+      result must beSuccessfulTry.like {
+        case s @ EightQueensState(_) => queenStateToValue(s) must be beCloseTo (8.00d within 2.significantFigures)
+      }
+
+      result.foreach {
+        case s @ EightQueensState(cols) =>
+          val numQueensRightScore = queenStateToValue(s)
+          println(s"*** Score: $numQueensRightScore")
+          println(List.fill(8)("-").mkString(" ", " ", " "))
+
+          for {
+            currentRow <- 0 to 7
+            row = cols.zipWithIndex.map {
+              case (QueenPosition(r), _) if r == currentRow => "Q"
+              case _                                        => " "
+            }
+          } {
+            println(row.mkString("|", "|", "|"))
+            println(List.fill(8)("-").mkString(" ", " ", " "))
+          }
+      }
+
+      ok
+    }.set(minTestsOk = 1)
   }
 
 }
 
 object SimulatedAnnealingSearchSpec {
-  sealed trait QueenMove                      extends Action
-  final case class MoveDown(columnIndex: Int) extends QueenMove
-  final case class MoveUp(columnIndex: Int)   extends QueenMove
+  sealed trait QueenMove                                      extends Action
+  final case class MoveTo(columnIndex: Int, newRowIndex: Int) extends QueenMove
 
   final case class QueenPosition(row: Int)                        extends AnyVal
   final case class EightQueensState(columns: List[QueenPosition]) extends State
@@ -150,7 +173,7 @@ object SimulatedAnnealingSearchSpec {
       case (QueenPosition(rowIdx), colIdx) =>
         val run  = math.abs(colIdx - columnIndex)
         val rise = math.abs(rowIdx - currentRow)
-        (rise / run) == 1
+        rise == run
     }
 
     rows.contains(true)
