@@ -67,8 +67,8 @@ trait GeneticAlgorithm[Individual] {
 
   type FitnessFunction      = Individual => Fitness
   type FitEnough            = Individual => Boolean
-  type ReproductionFunction = (Individual, Individual) => List[Individual]
-  type MutationFunction     = Individual => Individual
+  type ReproductionFunction = (Individual, Individual, Random) => List[Individual]
+  type MutationFunction     = (Individual, Random) => Individual
 
   //TODO: should be NonEmptySet otherwise can't guarantee Individual
   def geneticAlgorithm(initialPopulation: Set[Individual], fitnessFunction: FitnessFunction)(
@@ -84,11 +84,11 @@ trait GeneticAlgorithm[Individual] {
     @tailrec def recurse(currentPopulation: Set[Individual], newPopulation: Set[Individual]): Individual = {
       val x        = randomSelection(currentPopulation, fitnessFunction)(random)
       val y        = randomSelection(currentPopulation, fitnessFunction)(random)
-      val children = reproduce(x, y)
+      val children = reproduce(x, y, random)
       val mutated = {
         children.map { c =>
           if (isSmallRandomProbabilityOfMutation(mutationProbability, random)) {
-            mutate(c)
+            mutate(c, random)
           } else {
             c
           }
@@ -173,4 +173,41 @@ trait GeneticAlgorithm[Individual] {
     selectByProbability(popWithFValues, 0.0d)
   }
 
+}
+
+object GeneticAlgorithm {
+  object StringIndividual {
+
+    // function REPRODUCE(x, y) returns an individual
+    def reproduce1(x: String, y: String, random: Random): List[String] = {
+      // n <- LENGTH(x);
+      val n = x.length
+      // c <- random number from 1 to n
+      val c = random.nextInt(n)
+      // return APPEND(SUBSTRING(x, 1, c), SUBSTRING(y, c+1, n))
+      List(
+        x.substring(0, c) + y.substring(c, n)
+      )
+    }
+
+    // function REPRODUCE(x, y) returns a pair of individual
+    def reproduce2(x: String, y: String, random: Random): List[String] = {
+      // n <- LENGTH(x);
+      val n = x.length
+      // c <- random number from 1 to n
+      val c = random.nextInt(n)
+      // return APPEND(SUBSTRING(x, 1, c), SUBSTRING(y, c+1, n)) and APPEND(SUBSTRING(y, 1, c), SUBSTRING(x, c+1, n))
+      List(
+        x.substring(0, c) + y.substring(c, n),
+        y.substring(0, c) + x.substring(c, n)
+      )
+    }
+
+    val alphabet: List[Char] = (('a' to 'z') ++ ('A' to 'Z')).toList
+
+    def mutate(child: String, random: Random): String = {
+      val replacement: Char = alphabet(random.nextInt(alphabet.size))
+      child.updated(random.nextInt(child.length), replacement)
+    }
+  }
 }
