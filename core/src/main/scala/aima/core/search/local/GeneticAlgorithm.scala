@@ -1,11 +1,27 @@
 package aima.core.search.local
 
+import aima.core.search.local.set.NonEmptySet
+
 import scala.annotation.tailrec
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Random
 
 final case class Fitness(value: Double)     extends AnyVal
 final case class Probability(value: Double) extends AnyVal // Need to make sure between 0.0 an 1.0
+
+package set {
+  final case class NonEmptySet[A] private[set] (value: Set[A])
+
+  object NonEmptySet {
+    def apply[A](set: Set[A]): Either[String, NonEmptySet[A]] = {
+      if (set.isEmpty) {
+        Left("Set can not be empty")
+      } else {
+        Right(new NonEmptySet[A](set))
+      }
+    }
+  }
+}
 
 trait Deadline {
   def isOverDeadline: Boolean
@@ -70,8 +86,7 @@ trait GeneticAlgorithm[Individual] {
   type ReproductionFunction = (Individual, Individual, Random) => List[Individual]
   type MutationFunction     = (Individual, Random) => Individual
 
-  //TODO: should be NonEmptySet otherwise can't guarantee Individual
-  def geneticAlgorithm(initialPopulation: Set[Individual], fitnessFunction: FitnessFunction)(
+  def geneticAlgorithm(initialPopulation: NonEmptySet[Individual], fitnessFunction: FitnessFunction)(
       fitEnough: FitEnough,
       timeLimit: FiniteDuration,
       reproduce: ReproductionFunction,
@@ -109,7 +124,7 @@ trait GeneticAlgorithm[Individual] {
       }
     }
 
-    recurse(initialPopulation, Set.empty[Individual])
+    recurse(initialPopulation.value, Set.empty[Individual])
 
   }
 
