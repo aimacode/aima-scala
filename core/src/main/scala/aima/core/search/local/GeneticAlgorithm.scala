@@ -10,7 +10,7 @@ final case class Fitness(value: Double)     extends AnyVal
 final case class Probability(value: Double) extends AnyVal // Need to make sure between 0.0 an 1.0
 
 package set {
-  final case class NonEmptySet[A] private[set] (value: Set[A])
+  final class NonEmptySet[A] private[set] (val value: Set[A])
 
   object NonEmptySet {
     def apply[A](set: Set[A]): Either[String, NonEmptySet[A]] = {
