@@ -50,8 +50,8 @@ trait AndOrGraphSearch {
         case Nil => ConditionalPlanningFailure
         case action :: rest =>
           andSearch(problem.results(state, action), problem, statePlusPath) match {
-            case ConditionalPlan(v)         => ConditionalPlan(v + (state -> action))
-            case ConditionalPlanningFailure => recurse(rest)
+            case conditionalPlan: ConditionalPlan => newPlan(action, conditionalPlan)
+            case ConditionalPlanningFailure       => recurse(rest)
           }
       }
 
@@ -63,39 +63,36 @@ trait AndOrGraphSearch {
                 problem: NondeterministicProblem[Action, State],
                 path: List[State]): ConditionPlanResult = {
 
+    @tailrec def recurse(currentStates: List[State], acc: List[(State, ConditionalPlan)]): ConditionPlanResult =
+      (currentStates, acc) match {
+        case (Nil, x :: Nil) => x._2
+        case (Nil, ls)       => ConditionalPlan(ls.map(statePlan => ConditionedSubPlan(statePlan._1, statePlan._2)))
+        case (si :: rest, _) =>
+          orSearch(si, problem, path) match {
+            case ConditionalPlanningFailure       => ConditionalPlanningFailure
+            case conditionalPlan: ConditionalPlan => recurse(rest, (si -> conditionalPlan) :: acc)
+          }
+      }
+
+    recurse(states, List.empty)
   }
+
+  def newPlan(action: Action, plan: ConditionalPlan): ConditionPlanResult =
+    ConditionalPlan(ActionStep(action) :: plan.steps)
+
 }
+
+sealed trait Step
+final case class ActionStep(action: Action)                                 extends Step
+final case class ConditionedSubPlan(state: State, subPlan: ConditionalPlan) extends Step
 
 sealed trait ConditionPlanResult
-case object ConditionalPlanningFailure                      extends ConditionPlanResult
-final case class ConditionalPlan(value: Map[State, Action]) extends ConditionPlanResult
+case object ConditionalPlanningFailure              extends ConditionPlanResult
+final case class ConditionalPlan(steps: List[Step]) extends ConditionPlanResult
 
 object ConditionalPlan {
-  val emptyPlan = ConditionalPlan(Map.empty)
+  val emptyPlan = ConditionalPlan(List.empty)
 }
-
-  /*
-
-	// function AND-SEARCH(states, problem, path) returns a conditional plan, or
-	// failure
-	public ConditionalPlan<A, S> andSearch(List<S> states, NondeterministicProblem<A, S> problem, List<S> path) {
-		List<Pair<S, ConditionalPlan<A, S>>> conditionedPlans = new ArrayList<>();
-		// for each s<sub>i</sub> in states do
-		for (S s_i : states) {
-			// plan<sub>i</sub> <- OR-SEARCH(s<sub>i</sub>, problem, path)
-			ConditionalPlan<A, S> plan_i = orSearch(s_i, problem, path);
-			// if plan<sub>i</sub> = failure then return failure
-			if (plan_i == failure()) {
-				return failure();
-			}
-			conditionedPlans.add(new Pair<>(s_i, plan_i));
-		}
-		// return [if s<sub>1</sub> then plan<sub>1</sub> else if s<sub>2</sub>
-		// then plan<sub>2</sub> else ... if s<sub>n-1</sub> then
-		// plan<sub>n-1</sub> else plan<sub>n</sub>]
-		return newPlan(conditionedPlans);
-	}
- */
 
 trait NondeterministicProblem[ACTION, STATE] {
   def initialState(): STATE
