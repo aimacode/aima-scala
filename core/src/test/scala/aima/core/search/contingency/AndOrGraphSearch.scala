@@ -62,9 +62,9 @@ trait AndOrGraphSearch[ACTION, STATE] {
                 path: List[STATE]): ConditionPlanResult = {
 
     @tailrec def recurse(currentStates: List[STATE], acc: List[(STATE, ConditionalPlan)]): ConditionPlanResult =
-      (currentStates, acc) match {
-        case (Nil, l) => newPlan(l)
-        case (si :: rest, _) =>
+      currentStates match {
+        case Nil => newPlan(acc)
+        case si :: rest =>
           orSearch(si, problem, path) match {
             case ConditionalPlanningFailure => ConditionalPlanningFailure
             case plani: ConditionalPlan     => recurse(rest, acc :+ (si -> plani))
@@ -75,9 +75,8 @@ trait AndOrGraphSearch[ACTION, STATE] {
   }
 
   def newPlan(l: List[(STATE, ConditionalPlan)]): ConditionalPlan = l match {
-    case Nil                                => ConditionalPlan.emptyPlan
-    case (_, ConditionalPlan(steps)) :: Nil => ConditionalPlan(steps)
-    case ls                                 => ConditionalPlan(ls.map(statePlan => ConditionedSubPlan(statePlan._1, statePlan._2)))
+    case (_, cp: ConditionalPlan) :: Nil => cp
+    case ls                              => ConditionalPlan(ls.map(statePlan => ConditionedSubPlan(statePlan._1, statePlan._2)))
 
   }
 
@@ -96,78 +95,27 @@ final case class ConditionalPlan(steps: List[Step]) extends ConditionPlanResult
 
 object ConditionalPlan {
   val emptyPlan = ConditionalPlan(List.empty)
-//  def show[STATE, ACTION](conditionalPlan: ConditionalPlan,
-//                          showState: STATE => String,
-//                          showAction: ACTION => String): String = {
-//
-//    @tailrec def recurse(steps: List[Step], acc: String, lastStepAction: Boolean): String = steps match {
-//      case Nil                           => acc
-//      case ActionStep(a: ACTION) :: Nil  => recurse(Nil, acc + showAction(a), true)
-//      case ActionStep(a: ACTION) :: rest => recurse(rest, acc + showAction(a) + ", ", true)
-//      case ConditionedSubPlan(state: STATE, subPlan) :: rest if lastStepAction =>
-//        recurse(rest, acc + s"if State = ${showState(state)} then ${show(subPlan, showState, showAction)}", false)
-//      case ConditionedSubPlan(_, subPlan) :: Nil =>
-//        recurse(Nil, acc + s" else ${show(subPlan, showState, showAction)}", false)
-//      case ConditionedSubPlan(_, subPlan) :: ActionStep(a) :: rest =>
-//        recurse(ActionStep(a) :: rest, acc + s" else ${show(subPlan, showState, showAction)}", false)
-//      case ConditionedSubPlan(state: STATE, subPlan) :: rest =>
-//        recurse(rest,
-//                acc + s" else if State = ${showState(state)} then ${show(subPlan, showState, showAction)}",
-//                false)
-//    }
-//
-//    recurse(conditionalPlan.steps, "[", true) + "]"
-//  }
-
   def show[STATE, ACTION](conditionalPlan: ConditionalPlan,
                           showState: STATE => String,
                           showAction: ACTION => String): String = {
-    val sb = new StringBuilder()
-    sb.append("[")
-    var lastStepAction = true
-    val steps          = conditionalPlan.steps
-    steps.indices.foreach { i =>
-      val step = steps(i)
-      val nextStep = {
-        if (i + 1 < steps.size)
-          Some(steps(i + 1))
-        else
-          None
-      }
-      (step, nextStep) match {
-        case (ActionStep(a: ACTION), _) =>
-          sb.append(showAction(a))
-          lastStepAction = true
-          if (nextStep.isDefined) {
-            sb.append(", ")
-          }
-        case (ConditionedSubPlan(s: STATE, subPlan), _) if lastStepAction =>
-          sb.append(showState(s))
-          sb.append(" then ")
-          sb.append(show[STATE, ACTION](subPlan, showState, showAction))
 
-        case (ConditionedSubPlan(s: STATE, subPlan), None) =>
-          sb.append(showState(s))
-          sb.append(" else ")
-          sb.append(show[STATE, ACTION](subPlan, showState, showAction))
-
-        case (ConditionedSubPlan(s: STATE, subPlan), Some(_: ActionStep[ACTION])) =>
-          sb.append(showState(s))
-          sb.append(" else ")
-          sb.append(show[STATE, ACTION](subPlan, showState, showAction))
-
-        case (ConditionedSubPlan(s: STATE, subPlan), _) =>
-          sb.append(" else if State = ")
-          sb.append(showState(s))
-          sb.append(" then ")
-          sb.append(show[STATE, ACTION](subPlan, showState, showAction));
-      }
-
+    @tailrec def recurse(steps: List[Step], acc: String, lastStepAction: Boolean): String = steps match {
+      case Nil                           => acc
+      case ActionStep(a: ACTION) :: Nil  => recurse(Nil, acc + showAction(a), true)
+      case ActionStep(a: ACTION) :: rest => recurse(rest, acc + showAction(a) + ", ", true)
+      case ConditionedSubPlan(state: STATE, subPlan) :: rest if lastStepAction =>
+        recurse(rest, acc + s"if State = ${showState(state)} then ${show(subPlan, showState, showAction)}", false)
+      case ConditionedSubPlan(_, subPlan) :: Nil =>
+        recurse(Nil, acc + s" else ${show(subPlan, showState, showAction)}", false)
+      case ConditionedSubPlan(_, subPlan) :: ActionStep(a) :: rest =>
+        recurse(ActionStep(a) :: rest, acc + s" else ${show(subPlan, showState, showAction)}", false)
+      case ConditionedSubPlan(state: STATE, subPlan) :: rest =>
+        recurse(rest,
+                acc + s" else if State = ${showState(state)} then ${show(subPlan, showState, showAction)}",
+                false)
     }
 
-    sb.append("]")
-    sb.toString()
-
+    recurse(conditionalPlan.steps, "[", true) + "]"
   }
 
 }
