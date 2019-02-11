@@ -1,8 +1,9 @@
 package aima.core.search.contingency
 
-import org.specs2.matcher.MatchResult
+import aima.core.search.contingency.AndOrGraphSearchSpec.{Action, VacuumWorldState}
+import org.scalacheck.{Arbitrary, Gen}
+import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
-import org.specs2.specification.Scope
 
 object AndOrGraphSearchSpec {
   sealed trait Action
@@ -33,21 +34,70 @@ object AndOrGraphSearchSpec {
 
   final case class VacuumWorldState(vacuumLocation: Location, a: Status, b: Status)
 
+  object VacuumWorldState {
+    object Implicits {
+      implicit val arbVacuumWorldState = Arbitrary {
+        for {
+          location <- Gen.oneOf(LocationA, LocationB)
+          aStatus  <- Gen.oneOf(Dirty, Clean)
+          bStatus  <- Gen.oneOf(Dirty, Clean)
+        } yield VacuumWorldState(location, aStatus, bStatus)
+      }
+    }
+  }
+
   def stateShow(s: VacuumWorldState): String = s.vacuumLocation match {
     case LocationA => s"[${statusShow(s.a)}_/][${statusShow(s.b)}  ]"
     case LocationB => s"[${statusShow(s.a)}  ][${statusShow(s.b)}_/]"
+  }
+
+  def problem(initial: VacuumWorldState) = new NondeterministicProblem[Action, VacuumWorldState] {
+    override def initialState(): VacuumWorldState = initial
+
+    override def actions(s: VacuumWorldState): List[Action] = allActions
+
+    override def results(s: VacuumWorldState, a: Action): List[VacuumWorldState] = (s, a) match {
+      case (_, MoveRight) => List(s.copy(vacuumLocation = LocationB))
+      case (_, MoveLeft)  => List(s.copy(vacuumLocation = LocationA))
+
+      case (VacuumWorldState(LocationA, Clean, _), Suck) =>
+        List(s, s.copy(a = Dirty)) // if current location is clean suck can sometimes deposit dirt
+      case (VacuumWorldState(LocationB, _, Clean), Suck) =>
+        List(s, s.copy(b = Dirty)) // if current location is clean suck can sometimes deposit dirt
+
+      case (VacuumWorldState(LocationA, Dirty, Dirty), Suck) =>
+        List(s.copy(a = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
+      case (VacuumWorldState(LocationB, Dirty, Dirty), Suck) =>
+        List(s.copy(b = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
+
+      case (VacuumWorldState(LocationA, Dirty, _), Suck) =>
+        List(s.copy(a = Clean))
+      case (VacuumWorldState(LocationB, _, Dirty), Suck) =>
+        List(s.copy(b = Clean))
+
+    }
+
+    override def isGoalState(s: VacuumWorldState): Boolean = s match {
+      case VacuumWorldState(_, Clean, Clean) => true
+      case _                                 => false
+    }
+
+    override def stepCost(s: VacuumWorldState, a: Action, childPrime: VacuumWorldState): Double =
+      ??? // Not used
   }
 }
 
 /**
   * @author Shawn Garner
   */
-class AndOrGraphSearchSpec extends Specification {
+class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, VacuumWorldState] with ScalaCheck {
   import AndOrGraphSearchSpec._
 
   "AndOrGraphSearch" should {
-    "handle state State 1 [*_/][* ]" in new context {
-      val cp = andOrGraphSearch(problem)
+    "handle state State 1 [*_/][* ]" in {
+      val initial = VacuumWorldState(LocationA, Dirty, Dirty)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
           ConditionalPlan
@@ -55,48 +105,15 @@ class AndOrGraphSearchSpec extends Specification {
         case f => ko(f.toString)
       }
     }
-  }
 
-  trait context extends Scope with AndOrGraphSearch[Action, VacuumWorldState] {
-    val problem = new NondeterministicProblem[Action, VacuumWorldState] {
-      override def initialState(): VacuumWorldState =
-        VacuumWorldState(
-          LocationA,
-          Dirty,
-          Dirty
-        )
-
-      override def actions(s: VacuumWorldState): List[Action] = allActions
-
-      override def results(s: VacuumWorldState, a: Action): List[VacuumWorldState] = (s, a) match {
-        case (_, MoveRight) => List(s.copy(vacuumLocation = LocationB))
-        case (_, MoveLeft)  => List(s.copy(vacuumLocation = LocationA))
-
-        case (VacuumWorldState(LocationA, Clean, _), Suck) =>
-          List(s, s.copy(a = Dirty)) // if current location is clean suck can sometimes deposit dirt
-        case (VacuumWorldState(LocationB, _, Clean), Suck) =>
-          List(s, s.copy(b = Dirty)) // if current location is clean suck can sometimes deposit dirt
-
-        case (VacuumWorldState(LocationA, Dirty, Dirty), Suck) =>
-          List(s.copy(a = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
-        case (VacuumWorldState(LocationB, Dirty, Dirty), Suck) =>
-          List(s.copy(b = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
-
-        case (VacuumWorldState(LocationA, Dirty, _), Suck) =>
-          List(s.copy(a = Clean))
-        case (VacuumWorldState(LocationB, _, Dirty), Suck) =>
-          List(s.copy(b = Clean))
-
+    import VacuumWorldState.Implicits.arbVacuumWorldState
+    "find solutions for all initial states" >> prop { initial: VacuumWorldState =>
+      val prob = problem(initial)
+      val cp   = andOrGraphSearch(prob)
+      cp match {
+        case _: ConditionalPlan => ok
+        case f                  => ko(f.toString)
       }
-
-      override def isGoalState(s: VacuumWorldState): Boolean = s match {
-        case VacuumWorldState(_, Clean, Clean) => true
-        case _                                 => false
-      }
-
-      override def stepCost(s: VacuumWorldState, a: Action, childPrime: VacuumWorldState): Double =
-        ??? // Not used
     }
   }
-
 }
