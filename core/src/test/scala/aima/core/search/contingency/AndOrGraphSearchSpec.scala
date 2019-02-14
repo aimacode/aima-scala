@@ -94,7 +94,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
   import AndOrGraphSearchSpec._
 
   "AndOrGraphSearch" should {
-    "handle state State 1 [*_/][* ]" in {
+    "handle State 1 [*_/][* ]" in {
       val initial = VacuumWorldState(LocationA, Dirty, Dirty)
       val prob    = problem(initial)
       val cp      = andOrGraphSearch(prob)
@@ -102,6 +102,84 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
         case cp: ConditionalPlan =>
           ConditionalPlan
             .show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Suck, if State = [ _/][*  ] then [Right, Suck] else []]"
+        case f => ko(f.toString)
+      }
+    }
+
+    "handle State 2 [* ][*_/]" in {
+      val initial = VacuumWorldState(LocationB, Dirty, Dirty)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
+      cp match {
+        case cp: ConditionalPlan =>
+          ConditionalPlan
+            .show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Left, Suck, if State = [ _/][*  ] then [Right, Suck] else []]"
+        case f => ko(f.toString)
+      }
+    }
+
+    "handle State 3 [*_/][ ]" in {
+      val initial = VacuumWorldState(LocationA, Dirty, Clean)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
+      cp match {
+        case cp: ConditionalPlan =>
+          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Suck]"
+        case f => ko(f.toString)
+      }
+    }
+
+    "handle State 4 [* ][ _/]" in {
+      val initial = VacuumWorldState(LocationB, Dirty, Clean)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
+      cp match {
+        case cp: ConditionalPlan =>
+          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Left, Suck]"
+        case f => ko(f.toString)
+      }
+    }
+
+    "handle State 5 [ _/][* ]" in {
+      val initial = VacuumWorldState(LocationA, Clean, Dirty)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
+      cp match {
+        case cp: ConditionalPlan =>
+          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Right, Suck]"
+        case f => ko(f.toString)
+      }
+    }
+
+    "handle State 6 [ ][*_/]" in {
+      val initial = VacuumWorldState(LocationB, Clean, Dirty)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
+      cp match {
+        case cp: ConditionalPlan =>
+          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Suck]"
+        case f => ko(f.toString)
+      }
+    }
+
+    "handle State 7 [ _/][ ]" in {
+      val initial = VacuumWorldState(LocationA, Clean, Clean)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
+      cp match {
+        case cp: ConditionalPlan =>
+          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[]"
+        case f => ko(f.toString)
+      }
+    }
+
+    "handle  State 8 [ ][ _/]" in {
+      val initial = VacuumWorldState(LocationB, Clean, Clean)
+      val prob    = problem(initial)
+      val cp      = andOrGraphSearch(prob)
+      cp match {
+        case cp: ConditionalPlan =>
+          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[]"
         case f => ko(f.toString)
       }
     }
