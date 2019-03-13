@@ -3,6 +3,8 @@ package aima.core.agent.basic
 import aima.core.agent.{Action, NoAction, Percept}
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.search.State
+import org.scalacheck.{Arbitrary, Gen}
+import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 
 import scala.annotation.tailrec
@@ -10,7 +12,7 @@ import scala.annotation.tailrec
 /**
   * @author Shawn Garner
   */
-class OnlineDFSAgentSpec extends Specification {
+class OnlineDFSAgentSpec extends Specification with ScalaCheck {
 
   /*
  3    |   x G
@@ -29,7 +31,7 @@ class OnlineDFSAgentSpec extends Specification {
   "maze Figure 4.19" should {
     import OnlineDFSAgentSpec.Maze._
 
-    "find solution from example" >> {
+    "find action solution from example" >> {
       val goalState = MazeXY(3, 3)
       val agent = new OnlineDFSAgent(
         idStateFn,
@@ -40,7 +42,36 @@ class OnlineDFSAgentSpec extends Specification {
       val initialState = MazeXY(1, 1)
       val actions      = determineActions(initialState, agent)
       actions must_== List(Up, Down, Right, Up, Up, Left, Right, Down, Down, Right, Up, Up)
+    }
 
+    "find moveTO action solution from example" >> {
+      val goalState = MazeXY(3, 3)
+      val agent = new OnlineDFSAgent(
+        idStateFn,
+        mazeProblem(goalState),
+        NoAction
+      )
+
+      val initialState = MazeXY(1, 1)
+      val states       = determineMoveToStates(initialState, agent)
+      val goToActions = states.map {
+        case MazeXY(x, y) => s"Go($x,$y)"
+      }
+      val display = goToActions.mkString("", " ", " NoOp")
+      display must_== "Go(1,2) Go(1,1) Go(2,1) Go(2,2) Go(2,3) Go(1,3) Go(2,3) Go(2,2) Go(2,1) Go(3,1) Go(3,2) Go(3,3) NoOp"
+    }
+
+    import aima.core.agent.basic.OnlineDFSAgentSpec.Maze.MazeState.Implicits.arbMazeState
+    "find solutions for all start and goal states" >> prop { (initialState: MazeXY, goalState: MazeXY) =>
+      val agent = new OnlineDFSAgent(
+        idStateFn,
+        mazeProblem(goalState),
+        NoAction
+      )
+
+      val states = determineMoveToStates(initialState, agent)
+
+      states must contain[State](goalState)
     }
 
   }
@@ -71,6 +102,17 @@ object OnlineDFSAgentSpec {
     sealed trait MazeState                  extends State
     final case class MazeXY(x: Int, y: Int) extends MazeState
 
+    object MazeState {
+      object Implicits {
+        implicit val arbMazeState: Arbitrary[MazeXY] = Arbitrary {
+          for {
+            x <- Gen.oneOf(1, 2, 3)
+            y <- Gen.oneOf(1, 2, 3)
+          } yield MazeXY(x, y)
+        }
+      }
+    }
+
     sealed trait MazePercept                            extends Percept
     final case class MazePositionPercept(position: Int) extends MazePercept
 
@@ -85,6 +127,23 @@ object OnlineDFSAgentSpec {
           val statePrime = nextState(s, action)
 
           d(statePrime, action :: acc)
+        }
+
+      }
+
+      d(initialState, Nil)
+    }
+    def determineMoveToStates(initialState: MazeState, agent: OnlineDFSAgent): List[State] = {
+
+      @tailrec def d(s: State, acc: List[State]): List[State] = {
+        val p      = stateToPerceptFn(s)
+        val action = agent.agentFunction(p)
+        if (action == NoAction) {
+          acc.reverse
+        } else {
+          val statePrime = nextState(s, action)
+
+          d(statePrime, statePrime :: acc)
         }
 
       }
