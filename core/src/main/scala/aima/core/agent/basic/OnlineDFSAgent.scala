@@ -44,12 +44,12 @@ class OnlineDFSAgent(identifyStateFor: IdentifyState, onlineProblem: OnlineSearc
     if (onlineProblem.isGoalState(sPrime)) {
       stop
     } else {
-      untried.computeIfAbsent(sPrime, (s: State) => mutable.Queue(onlineProblem.actions(s): _*))
+      untried.computeIfAbsent(sPrime, (state: State) => mutable.Queue(onlineProblem.actions(state): _*))
 
       (s, a) match {
         case (Some(_s), Some(_a)) if !result.get((_s, _a)).contains(sPrime) =>
           result.put((_s, _a), sPrime)
-          unbacktracked.computeIfAbsent(sPrime, (key: State) => mutable.Queue(key))
+          unbacktracked.computeIfAbsent(sPrime, (_: State) => mutable.Queue.empty[State]).enqueue(_s)
         case _ =>
       }
 
