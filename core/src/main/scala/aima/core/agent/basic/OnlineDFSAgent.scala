@@ -1,6 +1,5 @@
 package aima.core.agent.basic
 
-import aima.core.agent.basic.OnlineDFSAgent.Implicits._
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.agent.{Action, Agent, Percept}
 import aima.core.search.State
@@ -44,12 +43,12 @@ class OnlineDFSAgent(identifyStateFor: IdentifyState, onlineProblem: OnlineSearc
     if (onlineProblem.isGoalState(sPrime)) {
       stop
     } else {
-      untried.computeIfAbsent(sPrime, (state: State) => mutable.Queue(onlineProblem.actions(state): _*))
+      untried.getOrElseUpdate(sPrime, mutable.Queue(onlineProblem.actions(sPrime): _*))
 
       (s, a) match {
         case (Some(_s), Some(_a)) if !result.get((_s, _a)).contains(sPrime) =>
           result.put((_s, _a), sPrime)
-          unbacktracked.computeIfAbsent(sPrime, (_: State) => mutable.Queue.empty[State]).enqueue(_s)
+          unbacktracked.getOrElseUpdate(sPrime, mutable.Queue.empty[State]).enqueue(_s)
         case _ =>
       }
 
@@ -85,20 +84,4 @@ trait OnlineSearchProblem {
 
 object OnlineDFSAgent {
   type IdentifyState = Percept => State
-
-  object Implicits {
-
-    implicit class MutableMapOps[K, V](m: mutable.Map[K, V]) {
-      def computeIfAbsent(k: K, f: K => V): V = {
-        val maybeExisting = m.get(k)
-        maybeExisting.fold {
-          val v = f(k)
-          m.put(k, v)
-          v
-        }(identity)
-      }
-    }
-
-  }
-
 }
