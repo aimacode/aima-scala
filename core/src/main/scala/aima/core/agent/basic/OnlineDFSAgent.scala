@@ -4,6 +4,7 @@ import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.agent.{Action, Agent, Percept}
 import aima.core.search.State
 
+import scala.collection.immutable.Stack
 import scala.collection.mutable
 
 /**
@@ -30,26 +31,47 @@ import scala.collection.mutable
   *
   * @author Shawn Garner
   */
-class OnlineDFSAgent(identifyStateFor: IdentifyState, onlineProblem: OnlineSearchProblem, stop: Action) extends Agent {
 
-  val result            = mutable.Map[(State, Action), State]()       // TODO: get rid of mutability
-  val untried           = mutable.Map[State, mutable.Stack[Action]]() // TODO: get rid of mutability
-  val unbacktracked     = mutable.Map[State, mutable.Stack[State]]()  // TODO: get rid of mutability
-  var s: Option[State]  = None                                        // TODO: get rid of mutability
-  var a: Option[Action] = None                                        // TODO: get rid of mutability
+final case class OnlineDFSAgentState[ACTION, STATE](
+                                                      result: Map[(STATE, ACTION), STATE],
+                                                      untried: Map[STATE, Stack[ACTION]],
+                                                      unbacktracked: Map[STATE, Stack[STATE]],
+                                                      previousState: Option[STATE], // s
+                                                      previousAction: Option[ACTION]  // a
 
-  override val agentFunction: AgentFunction = { percept: Percept =>
+                                                   )
+
+final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifyState[PERCEPT, STATE], onlineProblem: OnlineSearchProblem[STATE, ACTION], stop: ACTION) extends StatelessAgent[PERCEPT, ACTION, OnlineDFSAgentState[ACTION, STATE]] {
+
+
+  override val agentFunction: AgentFunction = {
+    case (percept, priorAgentState) =>
+
     val sPrime = identifyStateFor(percept)
     if (onlineProblem.isGoalState(sPrime)) {
       stop
     } else {
-      untried.getOrElseUpdate(sPrime, mutable.Stack(onlineProblem.actions(sPrime): _*))
+      val newUntried = priorAgentState.untried.get(sPrime).fold {
+          priorAgentState.untried + (sPrime -> onlineProblem.actions(sPrime))
+        } (_ => priorAgentState.untried)
 
-      (s, a) match {
-        case (Some(_s), Some(_a)) if !result.get((_s, _a)).contains(sPrime) =>
-          result.put((_s, _a), sPrime)
-          unbacktracked.getOrElseUpdate(sPrime, mutable.Stack()).push(_s)
+
+      val (updatedResult, updateUnbacktracked) = (priorAgentState.previousState, priorAgentState.previousAction) match {
+        case (Some(_s), Some(_a)) if !priorAgentState.result.get((_s, _a)).contains(sPrime) =>
+          (
+            priorAgentState.result + ((_s, _a) -> sPrime),
+            priorAgentState.unbacktracked.get(sPrime).fold{
+              priorAgentState.unbacktracked + (sPrime -> Stack(_s))
+            } { existing =>
+              priorAgentState.unbacktracked.updated(sPrime, existing.push(_s))
+            }
+
+          )
         case _ =>
+          (
+            priorAgentState.result,
+            priorAgentState.unbacktracked
+          )
       }
 
       val action = {
@@ -76,12 +98,19 @@ class OnlineDFSAgent(identifyStateFor: IdentifyState, onlineProblem: OnlineSearc
 
 }
 
-trait OnlineSearchProblem {
-  def actions(s: State): List[Action]
-  def isGoalState(s: State): Boolean
-  def stepCost(s: State, a: Action, sPrime: State): Double
+trait StatelessAgent[PERCEPT, ACTION, AGENT_STATE] {
+  type AgentFunction = (PERCEPT, AGENT_STATE) => (ACTION, AGENT_STATE)
+
+  def agentFunction: AgentFunction
+}
+
+
+trait OnlineSearchProblem[STATE, ACTION] {
+  def actions(s: STATE): List[ACTION]
+  def isGoalState(s: STATE): Boolean
+  def stepCost(s: STATE, a: ACTION, sPrime: STATE): Double
 }
 
 object OnlineDFSAgent {
-  type IdentifyState = Percept => State
+  type IdentifyState[PERCEPT, STATE] = PERCEPT => STATE
 }
