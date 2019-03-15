@@ -71,7 +71,10 @@ class OnlineDFSAgentSpec extends Specification with ScalaCheck {
 
       val states = determineMoveToStates(initialState, agent)
 
-      states must contain[State](goalState)
+      states must beLike {
+        case Nil => ok // already on goal
+        case ls  => ls must contain[State](goalState)
+      }
     }
 
   }

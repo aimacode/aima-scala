@@ -33,8 +33,8 @@ import scala.collection.mutable
 class OnlineDFSAgent(identifyStateFor: IdentifyState, onlineProblem: OnlineSearchProblem, stop: Action) extends Agent {
 
   val result            = mutable.Map[(State, Action), State]()       // TODO: get rid of mutability
-  val untried           = mutable.Map[State, mutable.Queue[Action]]() // TODO: get rid of mutability
-  val unbacktracked     = mutable.Map[State, mutable.Queue[State]]()  // TODO: get rid of mutability
+  val untried           = mutable.Map[State, mutable.Stack[Action]]() // TODO: get rid of mutability
+  val unbacktracked     = mutable.Map[State, mutable.Stack[State]]()  // TODO: get rid of mutability
   var s: Option[State]  = None                                        // TODO: get rid of mutability
   var a: Option[Action] = None                                        // TODO: get rid of mutability
 
@@ -43,27 +43,27 @@ class OnlineDFSAgent(identifyStateFor: IdentifyState, onlineProblem: OnlineSearc
     if (onlineProblem.isGoalState(sPrime)) {
       stop
     } else {
-      untried.getOrElseUpdate(sPrime, mutable.Queue(onlineProblem.actions(sPrime): _*))
+      untried.getOrElseUpdate(sPrime, mutable.Stack(onlineProblem.actions(sPrime): _*))
 
       (s, a) match {
         case (Some(_s), Some(_a)) if !result.get((_s, _a)).contains(sPrime) =>
           result.put((_s, _a), sPrime)
-          unbacktracked.getOrElseUpdate(sPrime, mutable.Queue.empty[State]).enqueue(_s)
+          unbacktracked.getOrElseUpdate(sPrime, mutable.Stack()).push(_s)
         case _ =>
       }
 
       val action = {
-        if (untried.getOrElse(sPrime, mutable.Queue.empty[Action]).isEmpty) {
-          if (unbacktracked.getOrElse(sPrime, mutable.Queue.empty[State]).isEmpty) {
+        if (untried.getOrElse(sPrime, mutable.Stack.empty).isEmpty) {
+          if (unbacktracked.getOrElse(sPrime, mutable.Stack.empty).isEmpty) {
             stop
           } else {
-            val popped = unbacktracked.getOrElse(sPrime, mutable.Queue.empty[State]).dequeue()
+            val popped = unbacktracked.getOrElse(sPrime, mutable.Stack.empty).pop()
             result.toList.collectFirst {
               case ((ks, ka), vs) if ks == sPrime && vs == popped => ka
             }.get // TODO: safe?
           }
         } else {
-          untried.getOrElse(sPrime, mutable.Queue.empty[Action]).dequeue()
+          untried.getOrElse(sPrime, mutable.Stack.empty).pop()
         }
       }
 
