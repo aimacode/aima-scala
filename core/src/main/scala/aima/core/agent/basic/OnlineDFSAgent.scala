@@ -37,6 +37,15 @@ final case class OnlineDFSAgentState[ACTION, STATE](
 
 object OnlineDFSAgentState {
 
+  def apply[ACTION, STATE] =
+    new OnlineDFSAgentState[ACTION, STATE](
+      result = Map.empty,
+      untried = Map.empty,
+      unbacktracked = Map.empty,
+      previousState = None,
+      previousAction = None
+    )
+
   type RESULT[ACTION, STATE]  = Map[(STATE, ACTION), STATE]
   type UNTRIED[ACTION, STATE] = Map[STATE, List[ACTION]]
   type UNBACKTRACKED[STATE]   = Map[STATE, List[STATE]]
