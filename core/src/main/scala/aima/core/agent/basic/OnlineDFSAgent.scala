@@ -1,6 +1,7 @@
 package aima.core.agent.basic
 
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
+import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED}
 
 import scala.collection.immutable.Stack
 
@@ -29,42 +30,87 @@ import scala.collection.immutable.Stack
   * @author Shawn Garner
   */
 final case class OnlineDFSAgentState[ACTION, STATE](
-    result: Map[(STATE, ACTION), STATE],
-    untried: Map[STATE, Stack[ACTION]], //TODO: use List with some helpers to look the same
-    unbacktracked: Map[STATE, Stack[STATE]],
+    result: RESULT[ACTION, STATE],
+    untried: UNTRIED[ACTION, STATE],
+    unbacktracked: UNBACKTRACKED[STATE],
     previousState: Option[STATE], // s
     previousAction: Option[ACTION] // a
 )
+
+object OnlineDFSAgentState {
+
+  type RESULT[ACTION, STATE]  = Map[(STATE, ACTION), STATE]
+  type UNTRIED[ACTION, STATE] = Map[STATE, Stack[ACTION]]
+  type UNBACKTRACKED[STATE]   = Map[STATE, Stack[STATE]]
+
+  object Implicits {
+
+    implicit class MapOps[K, V](m: Map[K, V]) {
+      def put(k: K, v: V): Map[K, V] =
+        m.updated(k, v)
+
+      def computeIfAbsent(k: K, v: K => V): Map[K, V] = {
+        if (m.contains(k)) {
+          m
+        } else {
+          put(k, v(k))
+        }
+      }
+
+      def transformValue(k: K, fv: Option[V] => V): Map[K, V] = {
+        val oldValue = m.get(k)
+        val newValue = fv(oldValue)
+        m.updated(k, newValue)
+      }
+
+    }
+
+    implicit class MapStackOps[K, A](m: Map[K, Stack[A]]) {
+      def safePop2(k: K): (Option[A], Map[K, Stack[A]]) = {
+        val st = m.getOrElse(k, Stack[A]())
+        if (st.isEmpty) {
+          (None, m)
+        } else {
+          val (popped, updatedStack) = st.pop2
+          (Some(popped), m.updated(k, updatedStack))
+        }
+
+      }
+    }
+
+  }
+}
 
 final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifyState[PERCEPT, STATE],
                                                    onlineProblem: OnlineSearchProblem[STATE, ACTION],
                                                    stop: ACTION)
     extends StatelessAgent[PERCEPT, ACTION, OnlineDFSAgentState[ACTION, STATE]] {
 
+  import OnlineDFSAgentState.Implicits._
+
+  type RESULT_TYPE        = RESULT[ACTION, STATE]
+  type UNTRIED_TYPE       = UNTRIED[ACTION, STATE]
+  type UNBACKTRACKED_TYPE = UNBACKTRACKED[STATE]
+
   override val agentFunction: AgentFunction = {
     case (percept, priorAgentState) =>
       val sPrime = identifyStateFor(percept)
-      if (onlineProblem.isGoalState(sPrime)) {
-        (stop, priorAgentState.copy(previousAction = Some(stop)))
-      } else {
-        val updatedUntried: Map[STATE, Stack[ACTION]] = priorAgentState.untried
-          .get(sPrime)
-          .fold {
-            priorAgentState.untried + (sPrime -> Stack[ACTION](onlineProblem.actions(sPrime): _*))
-          }(_ => priorAgentState.untried)
 
-        val (updatedResult, updatedUnbacktracked): (Map[(STATE, ACTION), STATE], Map[STATE, Stack[STATE]]) =
+      if (onlineProblem.isGoalState(sPrime)) {
+
+        (stop, priorAgentState.copy(previousAction = Some(stop)))
+
+      } else {
+
+        val updatedUntried: UNTRIED_TYPE =
+          priorAgentState.untried.computeIfAbsent(sPrime, _ => Stack[ACTION](onlineProblem.actions(sPrime): _*))
+
+        val (updatedResult, updatedUnbacktracked): (RESULT_TYPE, UNBACKTRACKED_TYPE) =
           (priorAgentState.previousState, priorAgentState.previousAction) match {
             case (Some(_s), Some(_a)) if !priorAgentState.result.get((_s, _a)).contains(sPrime) =>
               (
-                priorAgentState.result + ((_s, _a) -> sPrime),
-                priorAgentState.unbacktracked
-                  .get(sPrime)
-                  .fold {
-                    priorAgentState.unbacktracked + (sPrime -> Stack(_s))
-                  } { existing =>
-                    priorAgentState.unbacktracked.updated(sPrime, existing.push(_s))
-                  }
+                priorAgentState.result.put((_s, _a), sPrime),
+                priorAgentState.unbacktracked.transformValue(sPrime, fv => fv.fold(Stack(_s))(st => st.push(_s)))
               )
             case _ =>
               (
@@ -86,13 +132,11 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
               )
 
             } else {
-              val (popped, updatedUnbacktracked2): (STATE, Map[STATE, Stack[STATE]]) = {
-                val st: (STATE, Stack[STATE]) =
-                  updatedUnbacktracked.getOrElse[Stack[STATE]](sPrime, Stack[STATE]()).pop2
-                (st._1, updatedUnbacktracked.updated(sPrime, st._2))
-              }
+              val (popped, updatedUnbacktracked2): (Option[STATE], UNBACKTRACKED_TYPE) =
+                updatedUnbacktracked.safePop2(sPrime)
+
               val action: Option[ACTION] = updatedResult.toList.collectFirst {
-                case ((ks, ka), vs) if ks == sPrime && vs == popped => ka
+                case ((ks, ka), vs) if ks == sPrime && popped.contains(vs) => ka
               }
 
               priorAgentState.copy(
@@ -104,12 +148,11 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
               )
             }
           } else {
-            val (popped, updatededUntried2): (ACTION, Map[STATE, Stack[ACTION]]) = {
-              val st: (ACTION, Stack[ACTION]) = updatedUntried.getOrElse(sPrime, Stack[ACTION]()).pop2 // TODO: pop2 is not safe
-              (st._1, updatedUntried.updated(sPrime, st._2))
-            }
+            val (popped, updatededUntried2): (Option[ACTION], UNTRIED_TYPE) =
+              updatedUntried.safePop2(sPrime)
+
             priorAgentState.copy(
-              previousAction = Some(popped),
+              previousAction = popped,
               previousState = Some(sPrime),
               untried = updatededUntried2,
               result = updatedResult,
