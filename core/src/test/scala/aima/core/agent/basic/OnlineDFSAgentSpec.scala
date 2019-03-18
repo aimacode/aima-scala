@@ -170,7 +170,7 @@ object OnlineDFSAgentSpec {
       case MazePositionPercept(6) => MazeXYState(1, 3)
       case MazePositionPercept(7) => MazeXYState(2, 3)
       case MazePositionPercept(8) => MazeXYState(3, 3)
-      case _                      => MazeXYState(1, 1) // TODO any way to not need this?  above is total for problem space
+      case _                      => MazeXYState(1, 1) // should not be called
     }
 
     def nextState(state: MazeXYState, action: MazeAction): MazeXYState = action match {
@@ -191,7 +191,7 @@ object OnlineDFSAgentSpec {
       case MazeXYState(1, 3) => MazePositionPercept(6)
       case MazeXYState(2, 3) => MazePositionPercept(7)
       case MazeXYState(3, 3) => MazePositionPercept(8)
-      case _                 => MazePositionPercept(0) // TODO any way to not need this?  above is total for problem space
+      case _                 => MazePositionPercept(0) // should not be called
     }
 
     def mazeProblem(goal: MazeXYState) = new OnlineSearchProblem[MazeXYState, MazeAction] {
@@ -210,7 +210,7 @@ object OnlineDFSAgentSpec {
       override def isGoalState(s: MazeXYState): Boolean = s == goal
 
       override def stepCost(s: MazeXYState, a: MazeAction, sPrime: MazeXYState): Double =
-        ??? // TODO: why do we need this if not used?
+        ??? // not used
     }
 
   }
