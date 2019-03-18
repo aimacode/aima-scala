@@ -27,67 +27,6 @@ import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED
   *
   * @author Shawn Garner
   */
-final case class OnlineDFSAgentState[ACTION, STATE](
-    result: RESULT[ACTION, STATE],
-    untried: UNTRIED[ACTION, STATE],
-    unbacktracked: UNBACKTRACKED[STATE],
-    previousState: Option[STATE], // s
-    previousAction: Option[ACTION] // a
-)
-
-object OnlineDFSAgentState {
-
-  def apply[ACTION, STATE] =
-    new OnlineDFSAgentState[ACTION, STATE](
-      result = Map.empty,
-      untried = Map.empty,
-      unbacktracked = Map.empty,
-      previousState = None,
-      previousAction = None
-    )
-
-  type RESULT[ACTION, STATE]  = Map[(STATE, ACTION), STATE]
-  type UNTRIED[ACTION, STATE] = Map[STATE, List[ACTION]]
-  type UNBACKTRACKED[STATE]   = Map[STATE, List[STATE]]
-
-  object Implicits {
-
-    implicit class MapOps[K, V](m: Map[K, V]) {
-      def put(k: K, v: V): Map[K, V] =
-        m.updated(k, v)
-
-      def computeIfAbsent(k: K, v: K => V): Map[K, V] = {
-        if (m.contains(k)) {
-          m
-        } else {
-          put(k, v(k))
-        }
-      }
-
-      def transformValue(k: K, fv: Option[V] => V): Map[K, V] = {
-        val oldValue = m.get(k)
-        val newValue = fv(oldValue)
-        m.updated(k, newValue)
-      }
-
-    }
-
-    implicit class MapListOps[K, A](m: Map[K, List[A]]) {
-      def safePop2(k: K): (Option[A], Map[K, List[A]]) = {
-        val st = m.getOrElse(k, Nil)
-        if (st.isEmpty) {
-          (None, m)
-        } else {
-          val (popped, updatedStack) = (st.head, st.tail)
-          (Some(popped), m.updated(k, updatedStack))
-        }
-
-      }
-    }
-
-  }
-}
-
 final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifyState[PERCEPT, STATE],
                                                    onlineProblem: OnlineSearchProblem[STATE, ACTION],
                                                    stop: ACTION)
@@ -172,6 +111,67 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
       }
   }
 
+}
+
+final case class OnlineDFSAgentState[ACTION, STATE](
+    result: RESULT[ACTION, STATE],
+    untried: UNTRIED[ACTION, STATE],
+    unbacktracked: UNBACKTRACKED[STATE],
+    previousState: Option[STATE], // s
+    previousAction: Option[ACTION] // a
+)
+
+object OnlineDFSAgentState {
+
+  def apply[ACTION, STATE] =
+    new OnlineDFSAgentState[ACTION, STATE](
+      result = Map.empty,
+      untried = Map.empty,
+      unbacktracked = Map.empty,
+      previousState = None,
+      previousAction = None
+    )
+
+  type RESULT[ACTION, STATE]  = Map[(STATE, ACTION), STATE]
+  type UNTRIED[ACTION, STATE] = Map[STATE, List[ACTION]]
+  type UNBACKTRACKED[STATE]   = Map[STATE, List[STATE]]
+
+  object Implicits {
+
+    implicit class MapOps[K, V](m: Map[K, V]) {
+      def put(k: K, v: V): Map[K, V] =
+        m.updated(k, v)
+
+      def computeIfAbsent(k: K, v: K => V): Map[K, V] = {
+        if (m.contains(k)) {
+          m
+        } else {
+          put(k, v(k))
+        }
+      }
+
+      def transformValue(k: K, fv: Option[V] => V): Map[K, V] = {
+        val oldValue = m.get(k)
+        val newValue = fv(oldValue)
+        m.updated(k, newValue)
+      }
+
+    }
+
+    implicit class MapListOps[K, A](m: Map[K, List[A]]) {
+      def safePop2(k: K): (Option[A], Map[K, List[A]]) = {
+        val st = m.getOrElse(k, Nil)
+        if (st.isEmpty) {
+          (None, m)
+        } else {
+          val (popped, updatedStack) = (st.head, st.tail)
+          (Some(popped), m.updated(k, updatedStack))
+        }
+
+      }
+    }
+
+  }
 }
 
 trait StatelessAgent[PERCEPT, ACTION, AGENT_STATE] {
