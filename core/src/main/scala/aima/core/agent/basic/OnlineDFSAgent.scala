@@ -83,7 +83,7 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
 
               val action: Option[ACTION] = updatedResult.toList.collectFirst {
                 case ((ks, ka), vs) if ks == sPrime && popped.contains(vs) => ka
-              }
+              }//TODO: wonder how efficient this is
 
               priorAgentState.copy(
                 previousAction = action,
@@ -95,7 +95,7 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
             }
           } else {
             val (popped, updatededUntried2): (Option[ACTION], UNTRIED_TYPE) =
-              updatedUntried.safePop2(sPrime)
+              updatedUntried.safePop2(sPrime) // TODO: safe pop seems like compensate for not using list pattern matches
 
             priorAgentState.copy(
               previousAction = popped,
