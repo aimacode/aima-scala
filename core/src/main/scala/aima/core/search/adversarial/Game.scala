@@ -1,7 +1,5 @@
 package aima.core.search.adversarial
 
-import aima.core.agent.{Action, NoAction}
-
 final case class UtilityValue(value: Double) extends AnyVal
 
 /**
