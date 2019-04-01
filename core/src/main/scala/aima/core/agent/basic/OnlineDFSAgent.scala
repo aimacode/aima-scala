@@ -65,46 +65,43 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
               )
           }
 
-        val updatedAgentState: OnlineDFSAgentState[ACTION, STATE] = {
-          if (updatedUntried.get(sPrime).toList.flatten.isEmpty) {
-            if (updatedUnbacktracked.get(sPrime).toList.flatten.isEmpty) {
+        val updatedUntriedList: List[ACTION] = updatedUntried.get(sPrime).toList.flatten
 
-              priorAgentState.copy(
-                previousAction = Some(stop),
-                previousState = Some(sPrime),
-                untried = updatedUntried,
-                result = updatedResult,
-                unbacktracked = updatedUnbacktracked
-              )
+        val updatedAgentState: OnlineDFSAgentState[ACTION, STATE] = updatedUntriedList match {
+          case Nil =>
+            val unbacktrackedList: List[STATE] = updatedUnbacktracked.get(sPrime).toList.flatten
+            unbacktrackedList match {
+              case Nil =>
+                priorAgentState.copy(
+                  previousAction = Some(stop),
+                  previousState = Some(sPrime),
+                  untried = updatedUntried,
+                  result = updatedResult,
+                  unbacktracked = updatedUnbacktracked
+                )
 
-            } else {
-              val (popped, updatedUnbacktracked2): (Option[STATE], UNBACKTRACKED_TYPE) =
-                updatedUnbacktracked.safePop2(sPrime)
+              case popped :: remainingUnbacktracked =>
+                val action: Option[ACTION] = updatedResult.toList.collectFirst {
+                  case ((ks, ka), vs) if ks == sPrime && popped == vs => ka
+                } //TODO: wonder how efficient this is
 
-              val action: Option[ACTION] = updatedResult.toList.collectFirst {
-                case ((ks, ka), vs) if ks == sPrime && popped.contains(vs) => ka
-              }//TODO: wonder how efficient this is
-
-              priorAgentState.copy(
-                previousAction = action,
-                previousState = Some(sPrime),
-                untried = updatedUntried,
-                result = updatedResult,
-                unbacktracked = updatedUnbacktracked2
-              )
+                priorAgentState.copy(
+                  previousAction = action,
+                  previousState = Some(sPrime),
+                  untried = updatedUntried,
+                  result = updatedResult,
+                  unbacktracked = updatedUnbacktracked.updated(sPrime, remainingUnbacktracked)
+                )
             }
-          } else {
-            val (popped, updatededUntried2): (Option[ACTION], UNTRIED_TYPE) =
-              updatedUntried.safePop2(sPrime) // TODO: safe pop seems like compensate for not using list pattern matches
 
+          case popped :: remainingUntried =>
             priorAgentState.copy(
-              previousAction = popped,
+              previousAction = Some(popped),
               previousState = Some(sPrime),
-              untried = updatededUntried2,
+              untried = updatedUntried.updated(sPrime, remainingUntried),
               result = updatedResult,
               unbacktracked = updatedUnbacktracked
             )
-          }
         }
 
         (updatedAgentState.previousAction.getOrElse(stop), updatedAgentState)
@@ -156,19 +153,6 @@ object OnlineDFSAgentState {
         m.updated(k, newValue)
       }
 
-    }
-
-    implicit class MapListOps[K, A](m: Map[K, List[A]]) {
-      def safePop2(k: K): (Option[A], Map[K, List[A]]) = {
-        val st = m.getOrElse(k, Nil)
-        if (st.isEmpty) {
-          (None, m)
-        } else {
-          val (popped, updatedStack) = (st.head, st.tail)
-          (Some(popped), m.updated(k, updatedStack))
-        }
-
-      }
     }
 
   }
