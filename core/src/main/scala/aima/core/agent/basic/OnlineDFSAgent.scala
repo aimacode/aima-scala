@@ -83,7 +83,7 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
               case popped :: remainingUnbacktracked =>
                 val action: Option[ACTION] = updatedResult.toList.collectFirst {
                   case ((ks, ka), vs) if ks == sPrime && popped == vs => ka
-                } //TODO: wonder how efficient this is
+                } //TODO: wonder how efficient this is since it's a Map[(STATE, ACTION), STATE] it could iterate over all states looking for state prime (might be better as Map[STATE, MAP[ACTION, STATE]]
 
                 priorAgentState.copy(
                   previousAction = action,
