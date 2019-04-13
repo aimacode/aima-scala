@@ -53,9 +53,12 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
 
         val (updatedResult, updatedUnbacktracked): (RESULT_TYPE, UNBACKTRACKED_TYPE) =
           (priorAgentState.previousState, priorAgentState.previousAction) match {
-            case (Some(_s), Some(_a)) if !priorAgentState.result.get((_s, _a)).contains(sPrime) =>
+            case (Some(_s), Some(_a)) if !priorAgentState.result.get(_s).flatMap(_.get(_a)).contains(sPrime) =>
+              val resultOrigActionToState: Map[ACTION, STATE] =
+                priorAgentState.result.getOrElse(_s, Map.empty[ACTION, STATE])
+              val updatedResultActionToState: Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime)
               (
-                priorAgentState.result.put((_s, _a), sPrime),
+                priorAgentState.result.put(_s, updatedResultActionToState),
                 priorAgentState.unbacktracked.transformValue(sPrime, fv => fv.fold(List(_s))(st => _s :: st))
               )
             case _ =>
@@ -81,9 +84,10 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
                 )
 
               case popped :: remainingUnbacktracked =>
-                val action: Option[ACTION] = updatedResult.toList.collectFirst {
-                  case ((ks, ka), vs) if ks == sPrime && popped == vs => ka
-                } //TODO: wonder how efficient this is since it's a Map[(STATE, ACTION), STATE] it could iterate over all states looking for state prime (might be better as Map[STATE, MAP[ACTION, STATE]]
+                val action: Option[ACTION] =
+                  updatedResult.getOrElse(sPrime, Map.empty[ACTION, STATE]).toList.collectFirst {
+                    case (action, state) if popped == state => action //TODO: should use ===
+                  }
 
                 priorAgentState.copy(
                   previousAction = action,
@@ -129,7 +133,7 @@ object OnlineDFSAgentState {
       previousAction = None
     )
 
-  type RESULT[ACTION, STATE]  = Map[(STATE, ACTION), STATE]
+  type RESULT[ACTION, STATE]  = Map[STATE, Map[ACTION, STATE]]
   type UNTRIED[ACTION, STATE] = Map[STATE, List[ACTION]]
   type UNBACKTRACKED[STATE]   = Map[STATE, List[STATE]]
 
