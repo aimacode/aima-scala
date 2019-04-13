@@ -56,7 +56,7 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
             case (Some(_s), Some(_a)) if !priorAgentState.result.get(_s).flatMap(_.get(_a)).contains(sPrime) =>
               val resultOrigActionToState: Map[ACTION, STATE] =
                 priorAgentState.result.getOrElse(_s, Map.empty[ACTION, STATE])
-              val updatedResultActionToState: Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime)
+              val updatedResultActionToState: Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime) // TODO: could be less verbose with lense
               (
                 priorAgentState.result.put(_s, updatedResultActionToState),
                 priorAgentState.unbacktracked.transformValue(sPrime, fv => fv.fold(List(_s))(st => _s :: st))
