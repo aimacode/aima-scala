@@ -1,7 +1,6 @@
 package aima.core.search.adversarial
 
 import aima.core.search.adversarial.{Game, UtilityValue}
-import aima.core.agent.{Action, NoAction}
 
 /**
   * @author Aditya Lahiri
@@ -14,7 +13,7 @@ object MinimaxDecision {
             
         def maxMinValue(actions: List[Action], p: P): Action = actions match {
             case Nil => NoAction
-            case List(a: Action) => a
+            case a :: Nil => a
             case a1 :: a2 :: rest => maxMinValue( (if (g.minValue(a1, p) > g.minValue(a2, p)) a1 else a2) :: rest )
         }
 
