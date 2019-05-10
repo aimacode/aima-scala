@@ -1,7 +1,6 @@
 package aima.core.search.local
 
-import aima.core.agent.Action
-import aima.core.search.{Problem, ProblemSearch, State, StateNode}
+import aima.core.search.{Problem, State}
 
 import scala.annotation.tailrec
 

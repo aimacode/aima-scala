@@ -1,6 +1,6 @@
 package aima.core.search.uninformed
 
-import aima.core.search.{Problem, ProblemSearch}
+import aima.core.search.Problem
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}

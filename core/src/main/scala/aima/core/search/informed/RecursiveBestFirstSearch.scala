@@ -40,7 +40,7 @@ trait RecursiveBestFirstSearch extends ProblemSearch {
           @tailrec def getBestFValue(updatedSuccessors: List[HeuristicsNode]): RBFSearchResult = {
             val sortedSuccessors = updatedSuccessors.sortBy(_.fValue.getOrElse(Double.MaxValue))
             sortedSuccessors match {
-              case HeuristicsNode(_, _, _, Some(fValue), _, _) :: rest if fValue > fLimit => SearchFailure(fValue)
+              case HeuristicsNode(_, _, _, Some(fValue), _, _) :: _ if fValue > fLimit => SearchFailure(fValue)
               case best :: (second @ HeuristicsNode(_, _, _, Some(fValue), _, _)) :: rest =>
                 val result = rbfs(best, math.min(fLimit, fValue))
                 result match {

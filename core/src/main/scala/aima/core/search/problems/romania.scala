@@ -1,7 +1,6 @@
 package aima.core.search.problems
 
-import aima.core.agent.Action
-import aima.core.search.{State, Problem}
+import aima.core.search.Problem
 
 /**
   * @author Shawn Garner
@@ -84,33 +83,35 @@ object Romania {
     acc.updated(from, road :: listForEdge)
   }
 
-  sealed trait RomaniaState extends State
+  sealed trait RomaniaState
   case class In(city: City) extends RomaniaState
 
-  sealed trait RomaniaAction  extends Action
+  sealed trait RomaniaAction
   case class GoTo(city: City) extends RomaniaAction
 
-  class RomaniaRoadProblem(val initialState: RomaniaState, val goalState: RomaniaState) extends Problem {
-    def result(currentState: State, action: Action): State = action match {
+  class RomaniaRoadProblem(val initialState: RomaniaState, val goalState: RomaniaState)
+      extends Problem[RomaniaState, RomaniaAction] {
+    def result(currentState: RomaniaState, action: RomaniaAction): RomaniaState = action match {
       case GoTo(city) => In(city)
     }
 
-    def actions(state: State): List[Action] = state match {
+    def actions(state: RomaniaState): List[RomaniaAction] = state match {
       case In(city) => roadsFromCity(city).map(road => GoTo(road.to))
     }
 
-    def isGoalState(state: State): Boolean = (state, goalState) match {
+    def isGoalState(state: RomaniaState): Boolean = (state, goalState) match {
       case (In(city), In(goal)) => city == goal
       case _                    => false
     }
 
-    def stepCost(state: State, action: Action, statePrime: State): Int = (state, statePrime) match {
-      case (In(city), In(cityPrime)) =>
-        val maybeCost = roadsFromCity(city) collectFirst {
-          case Road(c1, c2, cost) if c1 == city && c2 == cityPrime => cost
-        }
-        maybeCost.getOrElse(Int.MaxValue)
-    }
+    def stepCost(state: RomaniaState, action: RomaniaAction, statePrime: RomaniaState): Int =
+      (state, statePrime) match {
+        case (In(city), In(cityPrime)) =>
+          val maybeCost = roadsFromCity(city) collectFirst {
+            case Road(c1, c2, cost) if c1 == city && c2 == cityPrime => cost
+          }
+          maybeCost.getOrElse(Int.MaxValue)
+      }
   }
 
 }

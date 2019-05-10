@@ -40,7 +40,7 @@ trait DepthLimitedTreeSearch extends ProblemSearch {
                   recursiveDLS(lastChild, currentLimit - 1)
                 case firstChild :: rest =>
                   recursiveDLS(firstChild, currentLimit - 1) match {
-                    case result @ Success(s: Solution) => result
+                    case result @ Success(Solution(_)) => result
                     case _                             => shortCircuitChildSearch(rest)
                   }
               }
