@@ -14,10 +14,12 @@ class RomaniaUniformCostSearchSpec extends Specification {
   }
 
   "going from Arad to Bucharest must return a list of actions" in new context {
-    search(new RomaniaRoadProblem(In(Arad), In(Bucharest))) must_== List(GoTo(Sibiu),
-                                                                         GoTo(RimnicuVilcea),
-                                                                         GoTo(Pitesti),
-                                                                         GoTo(Bucharest))
+    search(new RomaniaRoadProblem(In(Arad), In(Bucharest))) must_== List(
+      GoTo(Sibiu),
+      GoTo(RimnicuVilcea),
+      GoTo(Pitesti),
+      GoTo(Bucharest)
+    )
   }
 
   trait context extends Scope with UniformCostSearch {}

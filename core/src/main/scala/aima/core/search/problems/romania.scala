@@ -70,14 +70,14 @@ object Romania {
     Road(Urziceni, Bucharest, 85),
     Road(Urziceni, Vaslui, 142),
     Road(Urziceni, Hirsova, 98), //Urziceni Edges
-    Road(Neamt, Iasi, 87), //Neamt Edges
+    Road(Neamt, Iasi, 87),       //Neamt Edges
     Road(Iasi, Neamt, 87),
     Road(Iasi, Vaslui, 92), //Iasi Edges
     Road(Vaslui, Iasi, 92),
     Road(Vaslui, Urziceni, 142), //Vaslui Edges
     Road(Hirsova, Urziceni, 98),
     Road(Hirsova, Eforie, 86), //Hirsova Edges
-    Road(Eforie, Hirsova, 86) //Eforie Edges
+    Road(Eforie, Hirsova, 86)  //Eforie Edges
   ).foldLeft(Map.empty[City, List[Road]]) { (acc, road) =>
     val from        = road.from
     val listForEdge = acc.getOrElse(from, List.empty[Road])

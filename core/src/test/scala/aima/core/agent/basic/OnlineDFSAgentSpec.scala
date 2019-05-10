@@ -116,13 +116,17 @@ object OnlineDFSAgentSpec {
 
     final case class MazePositionPercept(position: Int)
 
-    def determineActions(initialState: MazeXYState,
-                         agent: OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState]): List[MazeAction] = {
+    def determineActions(
+        initialState: MazeXYState,
+        agent: OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState]
+    ): List[MazeAction] = {
 
       @tailrec
-      def d(s: MazeXYState,
-            currentAgentState: OnlineDFSAgentState[MazeAction, MazeXYState],
-            acc: List[MazeAction]): List[MazeAction] = {
+      def d(
+          s: MazeXYState,
+          currentAgentState: OnlineDFSAgentState[MazeAction, MazeXYState],
+          acc: List[MazeAction]
+      ): List[MazeAction] = {
         val p                           = stateToPerceptFn(s)
         val (action, updatedAgentState) = agent.agentFunction(p, currentAgentState)
         if (action == StopAction) {
@@ -139,12 +143,15 @@ object OnlineDFSAgentSpec {
     }
     def determineMoveToStates(
         initialState: MazeXYState,
-        agent: OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState]): List[MazeXYState] = {
+        agent: OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState]
+    ): List[MazeXYState] = {
 
       @tailrec
-      def d(s: MazeXYState,
-            currentAgentState: OnlineDFSAgentState[MazeAction, MazeXYState],
-            acc: List[MazeXYState]): List[MazeXYState] = {
+      def d(
+          s: MazeXYState,
+          currentAgentState: OnlineDFSAgentState[MazeAction, MazeXYState],
+          acc: List[MazeXYState]
+      ): List[MazeXYState] = {
         val p                           = stateToPerceptFn(s)
         val (action, updatedAgentState) = agent.agentFunction(p, currentAgentState)
         if (action == StopAction) {

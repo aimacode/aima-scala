@@ -69,19 +69,19 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
       val all = (0 to 7).toList
       for {
         q0row <- Gen.oneOf(all)
-        l1 = all.filterNot(_ == q0row)
+        l1    = all.filterNot(_ == q0row)
         q1row <- Gen.oneOf(l1)
-        l2 = l1.filterNot(_ == q1row)
+        l2    = l1.filterNot(_ == q1row)
         q2row <- Gen.oneOf(l2)
-        l3 = l2.filterNot(_ == q2row)
+        l3    = l2.filterNot(_ == q2row)
         q3row <- Gen.oneOf(l3)
-        l4 = l3.filterNot(_ == q3row)
+        l4    = l3.filterNot(_ == q3row)
         q4row <- Gen.oneOf(l4)
-        l5 = l4.filterNot(_ == q4row)
+        l5    = l4.filterNot(_ == q4row)
         q5row <- Gen.oneOf(l5)
-        l6 = l5.filterNot(_ == q5row)
+        l6    = l5.filterNot(_ == q5row)
         q6row <- Gen.oneOf(l6)
-        l7 = l6.filterNot(_ == q6row)
+        l7    = l6.filterNot(_ == q6row)
         q7row <- Gen.oneOf(l7)
       } yield
         EightQueensState(
@@ -122,9 +122,11 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
       }
 
       val result =
-        SimulatedAnnealingSearch.apply(queenStateToValue,
-                                       eightQueensProblem,
-                                       BasicSchedule.schedule(BasicSchedule.defaultScheduleParams.copy(limit = 10000)))
+        SimulatedAnnealingSearch.apply(
+          queenStateToValue,
+          eightQueensProblem,
+          BasicSchedule.schedule(BasicSchedule.defaultScheduleParams.copy(limit = 10000))
+        )
 
       result must beSuccessfulTry.like {
         case s @ EightQueensState(_) => queenStateToValue(s) must be beCloseTo (8.00d within 2.significantFigures)

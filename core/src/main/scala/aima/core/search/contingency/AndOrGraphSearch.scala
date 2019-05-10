@@ -35,7 +35,11 @@ trait AndOrGraphSearch[ACTION, STATE] {
   def andOrGraphSearch(problem: NondeterministicProblem[ACTION, STATE]): ConditionPlanResult =
     orSearch(problem.initialState(), problem, Nil)
 
-  def orSearch(state: STATE, problem: NondeterministicProblem[ACTION, STATE], path: List[STATE]): ConditionPlanResult = {
+  def orSearch(
+      state: STATE,
+      problem: NondeterministicProblem[ACTION, STATE],
+      path: List[STATE]
+  ): ConditionPlanResult = {
     if (problem.isGoalState(state)) {
       ConditionalPlan.emptyPlan
     } else if (path.contains(state)) {
@@ -57,9 +61,11 @@ trait AndOrGraphSearch[ACTION, STATE] {
     }
   }
 
-  def andSearch(states: List[STATE],
-                problem: NondeterministicProblem[ACTION, STATE],
-                path: List[STATE]): ConditionPlanResult = {
+  def andSearch(
+      states: List[STATE],
+      problem: NondeterministicProblem[ACTION, STATE],
+      path: List[STATE]
+  ): ConditionPlanResult = {
 
     @tailrec def recurse(currentStates: List[STATE], acc: List[(STATE, ConditionalPlan)]): ConditionPlanResult =
       currentStates match {
@@ -95,9 +101,11 @@ final case class ConditionalPlan(steps: List[Step]) extends ConditionPlanResult
 
 object ConditionalPlan {
   val emptyPlan = ConditionalPlan(List.empty)
-  def show[STATE, ACTION](conditionalPlan: ConditionalPlan,
-                          showState: STATE => String,
-                          showAction: ACTION => String): String = {
+  def show[STATE, ACTION](
+      conditionalPlan: ConditionalPlan,
+      showState: STATE => String,
+      showAction: ACTION => String
+  ): String = {
 
     @tailrec def recurse(steps: List[Step], acc: String, lastStepAction: Boolean): String = steps match {
       case Nil                           => acc
@@ -110,9 +118,7 @@ object ConditionalPlan {
       case ConditionedSubPlan(_, subPlan) :: ActionStep(a) :: rest =>
         recurse(ActionStep(a) :: rest, acc + s" else ${show(subPlan, showState, showAction)}", false)
       case ConditionedSubPlan(state: STATE, subPlan) :: rest =>
-        recurse(rest,
-                acc + s" else if State = ${showState(state)} then ${show(subPlan, showState, showAction)}",
-                false)
+        recurse(rest, acc + s" else if State = ${showState(state)} then ${show(subPlan, showState, showAction)}", false)
     }
 
     recurse(conditionalPlan.steps, "[", true) + "]"
