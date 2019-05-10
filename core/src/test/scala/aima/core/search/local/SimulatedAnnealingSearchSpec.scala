@@ -122,9 +122,11 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
       }
 
       val result =
-        SimulatedAnnealingSearch.apply(queenStateToValue,
-                                       eightQueensProblem,
-                                       BasicSchedule.schedule(BasicSchedule.defaultScheduleParams.copy(limit = 10000)))
+        SimulatedAnnealingSearch.apply(
+          queenStateToValue,
+          eightQueensProblem,
+          BasicSchedule.schedule(BasicSchedule.defaultScheduleParams.copy(limit = 10000))
+        )
 
       result must beSuccessfulTry.like {
         case s @ EightQueensState(_) => queenStateToValue(s) must be beCloseTo (8.00d within 2.significantFigures)

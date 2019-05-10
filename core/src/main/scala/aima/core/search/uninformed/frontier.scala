@@ -34,9 +34,10 @@ class FIFOQueueFrontier[Node <: SearchNode](queue: Queue[Node], stateSet: Set[St
   def add(node: Node): Frontier[Node] = new FIFOQueueFrontier[Node](queue.enqueue(node), stateSet + node.state)
 }
 
-class PriorityQueueHashSetFrontier[Node <: SearchNode](queue: mutable.PriorityQueue[Node],
-                                                       stateMap: mutable.Map[State, Node])
-    extends Frontier[Node] { self =>
+class PriorityQueueHashSetFrontier[Node <: SearchNode](
+    queue: mutable.PriorityQueue[Node],
+    stateMap: mutable.Map[State, Node]
+) extends Frontier[Node] { self =>
 
   def this(n: Node, costNodeOrdering: Ordering[Node]) =
     this(mutable.PriorityQueue(n)(costNodeOrdering), mutable.Map(n.state -> n))

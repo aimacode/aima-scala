@@ -23,13 +23,14 @@ sealed trait SearchNode {
 
 case class StateNode(state: State, action: Action, parent: Option[StateNode])          extends SearchNode
 case class CostNode(state: State, cost: Int, action: Action, parent: Option[CostNode]) extends SearchNode
-case class HeuristicsNode(state: State,
-                          gValue: Double,
-                          hValue: Option[Double],
-                          fValue: Option[Double],
-                          action: Action,
-                          parent: Option[CostNode])
-    extends SearchNode
+case class HeuristicsNode(
+    state: State,
+    gValue: Double,
+    hValue: Option[Double],
+    fValue: Option[Double],
+    action: Action,
+    parent: Option[CostNode]
+) extends SearchNode
 
 /**
   * @author Shawn Garner

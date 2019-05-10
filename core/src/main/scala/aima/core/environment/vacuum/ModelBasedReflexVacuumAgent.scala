@@ -13,24 +13,30 @@ object ModelBasedReflexVacuumAgent {
   */
 class ModelBasedReflexVacuumAgent extends ModelBasedReflexAgent {
 
-  case class VacuumWorldState(locationA: Boolean = false,
-                              locationB: Boolean = false,
-                              dirty: Boolean = true,
-                              batteryLife: Int = 100)
+  case class VacuumWorldState(
+      locationA: Boolean = false,
+      locationB: Boolean = false,
+      dirty: Boolean = true,
+      batteryLife: Int = 100
+  )
 
   type State = VacuumWorldState
 
   lazy val model: Model = {
     case (currentState, RightMoveAction) =>
-      currentState.copy(locationA = false,
-                        locationB = true,
-                        dirty = true,
-                        batteryLife = currentState.batteryLife - MOVE_BATTERY_COST)
+      currentState.copy(
+        locationA = false,
+        locationB = true,
+        dirty = true,
+        batteryLife = currentState.batteryLife - MOVE_BATTERY_COST
+      )
     case (currentState, LeftMoveAction) =>
-      currentState.copy(locationA = true,
-                        locationB = false,
-                        dirty = true,
-                        batteryLife = currentState.batteryLife - MOVE_BATTERY_COST)
+      currentState.copy(
+        locationA = true,
+        locationB = false,
+        dirty = true,
+        batteryLife = currentState.batteryLife - MOVE_BATTERY_COST
+      )
     case (currentState, Suck) =>
       currentState.copy(dirty = false, batteryLife = currentState.batteryLife - SUCK_BATTERY_COST)
     case (currentState, NoAction) => currentState

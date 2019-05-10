@@ -64,7 +64,11 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
   }
 
   private[this] def indexToLocationPercept(index: Int): Percept = {
-    if (index == 0) { LocationAPercept } else { LocationBPercept }
+    if (index == 0) {
+      LocationAPercept
+    } else {
+      LocationBPercept
+    }
   }
   private[this] def directionToMapIndex(direction: MoveAction): Int =
     direction match {
@@ -73,8 +77,9 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
     }
 
   def moveAgent(agent: Agent, direction: MoveAction): VacuumMap = {
-    removeAgent(agent).updateByIndex(directionToMapIndex(direction))(vacuumMapNode =>
-      vacuumMapNode.copy(maybeAgent = Some(agent)))
+    removeAgent(agent).updateByIndex(directionToMapIndex(direction))(
+      vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent))
+    )
   }
 
   private[this] def updateByAgent(target: Agent)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
