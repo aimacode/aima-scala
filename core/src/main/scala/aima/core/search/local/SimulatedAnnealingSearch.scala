@@ -1,7 +1,7 @@
 package aima.core.search.local
 
 import aima.core.search.local.time.TimeStep
-import aima.core.search.{Problem, State}
+import aima.core.search.Problem
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Random, Success, Try}
@@ -72,17 +72,21 @@ object SimulatedAnnealingSearch {
     }
   }
 
-  final case class StateValueNode(state: State, value: Double)
+  final case class StateValueNode[State](state: State, value: Double)
 
-  def apply(stateToValue: State => Double, problem: Problem): Try[State] =
+  def apply[State, Action](stateToValue: State => Double, problem: Problem[State, Action]): Try[State] =
     apply(stateToValue, problem, BasicSchedule.schedule())
 
-  def apply(stateToValue: State => Double, problem: Problem, schedule: Schedule): Try[State] = {
+  def apply[State, Action](
+      stateToValue: State => Double,
+      problem: Problem[State, Action],
+      schedule: Schedule
+  ): Try[State] = {
     val random = new Random()
 
-    def makeNode(state: State): StateValueNode = StateValueNode(state, stateToValue(state))
+    def makeNode(state: State): StateValueNode[State] = StateValueNode(state, stateToValue(state))
 
-    def randomlySelectSuccessor(current: StateValueNode): StateValueNode = {
+    def randomlySelectSuccessor(current: StateValueNode[State]): StateValueNode[State] = {
       // Default successor to current, so that in the case we reach a dead-end
       // state i.e. one without reversible actions we will return something.
       // This will not break the code above as the loop will exit when the
@@ -99,7 +103,7 @@ object SimulatedAnnealingSearch {
       successor
     }
 
-    @tailrec def recurse(current: StateValueNode, t: Try[TimeStep]): Try[StateValueNode] = {
+    @tailrec def recurse(current: StateValueNode[State], t: Try[TimeStep]): Try[StateValueNode[State]] = {
       import time.TimeStep.Implicits._
       t match {
         case Failure(f) => Failure(f)

@@ -1,6 +1,7 @@
 package aima.core.search.contingency
 
 import scala.annotation.tailrec
+import scala.reflect.ClassTag
 
 /**
   *
@@ -32,6 +33,8 @@ import scala.annotation.tailrec
   * @author Shawn Garner
   */
 trait AndOrGraphSearch[ACTION, STATE] {
+  implicit val aCT: ClassTag[ACTION]
+  implicit val sCT: ClassTag[STATE]
   def andOrGraphSearch(problem: NondeterministicProblem[ACTION, STATE]): ConditionPlanResult =
     orSearch(problem.initialState(), problem, Nil)
 
@@ -92,8 +95,8 @@ trait AndOrGraphSearch[ACTION, STATE] {
 }
 
 sealed trait Step
-final case class ActionStep[ACTION](action: ACTION)                                extends Step
-final case class ConditionedSubPlan[STATE](state: STATE, subPlan: ConditionalPlan) extends Step
+final case class ActionStep[ACTION: ClassTag](action: ACTION)                                extends Step
+final case class ConditionedSubPlan[STATE: ClassTag](state: STATE, subPlan: ConditionalPlan) extends Step
 
 sealed trait ConditionPlanResult
 case object ConditionalPlanningFailure              extends ConditionPlanResult
@@ -101,7 +104,7 @@ final case class ConditionalPlan(steps: List[Step]) extends ConditionPlanResult
 
 object ConditionalPlan {
   val emptyPlan = ConditionalPlan(List.empty)
-  def show[STATE, ACTION](
+  def show[STATE: ClassTag, ACTION: ClassTag](
       conditionalPlan: ConditionalPlan,
       showState: STATE => String,
       showAction: ACTION => String

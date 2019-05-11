@@ -1,6 +1,6 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.{NoAction, Agent}
+import aima.core.agent.Agent
 import org.scalacheck.Arbitrary
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
@@ -115,13 +115,13 @@ class VacuumMapSpec extends Specification with ScalaCheck {
     map.addAgent(agent).removeAgent(agent) must_== map
   }
 
-  def noopAgent = new Agent {
+  def noopAgent = new Agent[VacuumAction, VacuumPercept] {
     def agentFunction: AgentFunction = { _ =>
       NoAction
     }
   }
 
-  def agentNode(agent: Agent = noopAgent) = VacuumMapNode(maybeAgent = Some(agent))
-  def dirtyNode                           = VacuumMapNode(DirtyPercept, None)
-  def cleanNode                           = VacuumMapNode(CleanPercept, None)
+  def agentNode(agent: Agent[VacuumAction, VacuumPercept] = noopAgent) = VacuumMapNode(maybeAgent = Some(agent))
+  def dirtyNode                                                        = VacuumMapNode(DirtyPercept, None)
+  def cleanNode                                                        = VacuumMapNode(CleanPercept, None)
 }

@@ -1,7 +1,6 @@
 package aima.core.search.local
 
-import aima.core.agent.Action
-import aima.core.search.{Problem, State}
+import aima.core.search.Problem
 import aima.core.search.local.SimulatedAnnealingSearch.{
   BasicSchedule,
   OverTimeStepLimit,
@@ -99,12 +98,12 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
     }
 
     "find solution" >> prop { s: EightQueensState =>
-      val eightQueensProblem = new Problem {
-        override def initialState: State = s
+      val eightQueensProblem = new Problem[EightQueensState, EightQueensAction] {
+        override def initialState = s
 
-        override def isGoalState(state: State): Boolean = false // Not used
+        override def isGoalState(state: EightQueensState): Boolean = false // Not used
 
-        override def actions(state: State): List[Action] = state match {
+        override def actions(state: EightQueensState): List[EightQueensAction] = state match {
           case EightQueensState(cols) =>
             cols.zipWithIndex.flatMap {
               case (QueenPosition(rowIndex), colIndex) =>
@@ -112,13 +111,15 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
             }
         }
 
-        override def result(state: State, action: Action): State = (state, action) match {
-          case (EightQueensState(cols), MoveTo(colIndex, newRowIndex)) =>
-            EightQueensState(cols.updated(colIndex, QueenPosition(newRowIndex)))
+        override def result(state: EightQueensState, action: EightQueensAction): EightQueensState =
+          (state, action) match {
+            case (EightQueensState(cols), MoveTo(colIndex, newRowIndex)) =>
+              EightQueensState(cols.updated(colIndex, QueenPosition(newRowIndex)))
 
-        }
+          }
 
-        override def stepCost(state: State, action: Action, childPrime: State): Int = -1 // Not used
+        override def stepCost(state: EightQueensState, action: EightQueensAction, childPrime: EightQueensState): Int =
+          -1 // Not used
       }
 
       val result =
@@ -157,11 +158,11 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
 }
 
 object SimulatedAnnealingSearchSpec {
-  sealed trait QueenMove                                      extends Action
-  final case class MoveTo(columnIndex: Int, newRowIndex: Int) extends QueenMove
+  sealed trait EightQueensAction
+  final case class MoveTo(columnIndex: Int, newRowIndex: Int) extends EightQueensAction
 
-  final case class QueenPosition(row: Int)                        extends AnyVal
-  final case class EightQueensState(columns: List[QueenPosition]) extends State
+  final case class QueenPosition(row: Int) extends AnyVal
+  final case class EightQueensState(columns: List[QueenPosition])
 
   def canAttackHorizontal(columnIndex: Int, s: EightQueensState): Boolean = {
     val currentRow      = s.columns(columnIndex).row
@@ -181,15 +182,15 @@ object SimulatedAnnealingSearchSpec {
     rows.contains(true)
   }
 
-  val queenStateToValue: State => Double = {
+  val queenStateToValue: EightQueensState => Double = {
     case state @ EightQueensState(cols) =>
-      cols.zipWithIndex.foldLeft(0) {
+      cols.zipWithIndex.foldLeft(0.0d) {
         case (acc, elem) =>
           val currentColumnIndex = elem._2
           if (canAttackHorizontal(currentColumnIndex, state) || canAttackDiagonal(currentColumnIndex, state)) {
             acc
           } else {
-            acc + 1
+            acc + 1.0d
           }
 
       }

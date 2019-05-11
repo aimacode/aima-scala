@@ -1,6 +1,5 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.{Action, NoAction, NoPercept, Percept}
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
@@ -67,7 +66,7 @@ class TableDrivenVacuumAgentSpec extends Specification {
 
   "table driven agent must persist all percepts" in new context {
     val rnd = new Random()
-    val randomPerceptStream: Stream[Percept] = Stream.continually {
+    val randomPerceptStream: Stream[VacuumPercept] = Stream.continually {
       val selector = rnd.nextInt(3)
       if (selector == 0)
         LocationPercept.randomValue
@@ -86,7 +85,7 @@ class TableDrivenVacuumAgentSpec extends Specification {
 
   trait context extends Scope {
     val agent = new TableDrivenVacuumAgent
-    def invokeAgent(percepts: List[Percept]): List[Action] = {
+    def invokeAgent(percepts: List[VacuumPercept]): List[VacuumAction] = {
       percepts.map(agent.agentFunction)
     }
   }

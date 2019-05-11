@@ -1,20 +1,18 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.{Percept, SimpleReflexAgent}
+import aima.core.agent.SimpleReflexAgent
 
 /**
   * @author Shawn Garner
   */
-class SimpleReflexVacuumAgent extends SimpleReflexAgent {
-  type State = Percept
+class SimpleReflexVacuumAgent extends SimpleReflexAgent[VacuumPercept, VacuumAction, VacuumPercept] {
+  val interpretInput: InterpretInput = identity
 
-  lazy val interpretInput: InterpretInput = {
-    case s => s
-  }
-
-  lazy val rules: RuleMatch = {
+  val rules: RuleMatch = {
     case DirtyPercept     => Suck
     case LocationAPercept => RightMoveAction
     case LocationBPercept => LeftMoveAction
+    case CleanPercept     => NoAction
+    case NoPercept        => NoAction
   }
 }

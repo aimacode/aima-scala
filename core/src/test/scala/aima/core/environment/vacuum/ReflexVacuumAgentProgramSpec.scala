@@ -15,13 +15,16 @@ class ReflexVacuumAgentProgramSpec extends Specification with ScalaCheck {
   implicit val arbVacuumEnvironment = Arbitrary(VacuumEnvironment())
 
   "should eventually clean environment" in prop { env: VacuumEnvironment =>
-    val agentProgram = new AgentProgram {
-      lazy val agent     = new SimpleReflexVacuumAgent
-      lazy val actuators = Seq[Actuator](new SuckerActuator(agent), new MoveActuator(agent))
-      lazy val sensors   = Seq[Sensor](new DirtSensor(agent), new AgentLocationSensor(agent))
+    val agentProgram = new AgentProgram[VacuumAction, VacuumPercept] {
+      val agent     = new SimpleReflexVacuumAgent
+      val actuators = List[Actuator[VacuumAction, VacuumPercept]](new SuckerActuator(agent), new MoveActuator(agent))
+      lazy val sensors = List[Sensor[VacuumAction, VacuumPercept]](
+        new DirtSensor(agent, NoPercept),
+        new AgentLocationSensor(agent, NoPercept)
+      )
     }
 
-    @tailrec def eventuallyClean(currentEnv: Environment): Boolean = {
+    @tailrec def eventuallyClean(currentEnv: Environment[VacuumAction, VacuumPercept]): Boolean = {
       currentEnv match {
         case ve: VacuumEnvironment if ve.isClean() => true
         case _                                     => eventuallyClean(agentProgram.run(currentEnv))

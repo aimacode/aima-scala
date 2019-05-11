@@ -5,6 +5,8 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 
+import scala.reflect.ClassTag
+
 object AndOrGraphSearchSpec {
   sealed trait Action
   case object MoveLeft  extends Action
@@ -85,6 +87,10 @@ object AndOrGraphSearchSpec {
     override def stepCost(s: VacuumWorldState, a: Action, childPrime: VacuumWorldState): Double =
       ??? // Not used
   }
+
+  import scala.reflect.classTag
+  val aCTag: ClassTag[Action]           = classTag[Action]
+  val sCTag: ClassTag[VacuumWorldState] = classTag[VacuumWorldState]
 }
 
 /**
@@ -194,4 +200,6 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       }
     }
   }
+  override implicit val aCT: ClassTag[Action]           = aCTag
+  override implicit val sCT: ClassTag[VacuumWorldState] = sCTag
 }

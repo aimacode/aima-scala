@@ -6,7 +6,6 @@ lazy val commonSettings = Seq(
     scalaVersion := "2.12.8",
     scalafmtConfig := file(".scalafmt"),
     scalafmtOnCompile := true,
-    addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.16"),
     coverageEnabled := false,
     coverageMinimum := 70,
     coverageFailOnMinimum := false,
@@ -25,5 +24,3 @@ lazy val core = (project in file("core"))
   .settings(commonSettings: _*)
   .settings(name := "core")
   .settings(libraryDependencies ++= librarySettings)
-  .settings(scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xlint"))
-  .settings(scalacOptions in Test ++= Seq("-Yrangepos", "-Xlint"))

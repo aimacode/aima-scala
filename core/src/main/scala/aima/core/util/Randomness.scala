@@ -10,7 +10,7 @@ trait Randomness {
 }
 
 trait DefaultRandomness extends Randomness {
-  lazy val rand = new Random()
+  val rand = new Random()
 }
 
 trait EnumerationRandomness extends Randomness { self: Enumeration =>

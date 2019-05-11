@@ -1,11 +1,10 @@
 package aima.core.search.uninformed
 
-import aima.core.agent.NoAction
 import aima.core.search._
 
 /**
   * @author Shawn Garner
   */
-trait BreadthFirstSearch extends GraphSearch { self =>
-  def newFrontier(state: State) = new FIFOQueueFrontier(StateNode(state, NoAction, None))
+trait BreadthFirstSearch[State, Action] extends GraphSearch[State, Action] { self =>
+  def newFrontier(state: State, noAction: Action) = new FIFOQueueFrontier(StateNode(state, noAction, None))
 }
