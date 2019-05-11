@@ -3,6 +3,8 @@ package aima.core.agent.basic
 import aima.core.agent.StatelessAgent
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED}
+import aima.core.fp.Eqv
+import aima.core.fp.Eqv.Implicits._
 
 /**
   * <pre>
@@ -28,7 +30,7 @@ import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED
   *
   * @author Shawn Garner
   */
-final class OnlineDFSAgent[PERCEPT, ACTION, STATE](
+final class OnlineDFSAgent[PERCEPT, ACTION, STATE: Eqv](
     identifyStateFor: IdentifyState[PERCEPT, STATE],
     onlineProblem: OnlineSearchProblem[STATE, ACTION],
     stop: ACTION
@@ -89,7 +91,7 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](
               case popped :: remainingUnbacktracked =>
                 val action: Option[ACTION] =
                   updatedResult.getOrElse(sPrime, Map.empty[ACTION, STATE]).toList.collectFirst {
-                    case (action, state) if popped == state => action //TODO: should use ===
+                    case (action, state) if popped === state => action
                   }
 
                 priorAgentState.copy(
@@ -164,7 +166,6 @@ object OnlineDFSAgentState {
 
   }
 }
-
 
 trait OnlineSearchProblem[STATE, ACTION] {
   def actions(s: STATE): List[ACTION]
