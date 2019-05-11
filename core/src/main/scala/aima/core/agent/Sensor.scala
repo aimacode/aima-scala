@@ -2,13 +2,13 @@ package aima.core.agent
 
 import aima.core.util.Randomness
 
-trait Sensor {
-  def agent: Agent
-  def perceive(environment: Environment): Percept
+trait Sensor[Action, Percept] {
+  def agent: Agent[Action, Percept]
+  def perceive(environment: Environment[Action, Percept]): Percept
 }
 
-trait UnreliableSensor extends Sensor with Randomness {
-  def unreliably(reliability: Int = 50)(perceive: => Percept): Percept = {
-    if (rand.nextInt(100) < reliability) perceive else NoPercept
+trait UnreliableSensor[Action, Percept] extends Sensor[Action, Percept] with Randomness {
+  def unreliably(reliability: Int = 50)(perceive: => Percept)(noPercept: Percept): Percept = {
+    if (rand.nextInt(100) < reliability) perceive else noPercept
   }
 }

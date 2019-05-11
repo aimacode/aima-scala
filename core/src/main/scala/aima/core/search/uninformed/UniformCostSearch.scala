@@ -3,6 +3,7 @@ package aima.core.search.uninformed
 import aima.core.search._
 
 import scala.annotation.tailrec
+import scala.reflect.ClassTag
 
 /**
   * @author Shawn Garner
@@ -10,13 +11,13 @@ import scala.annotation.tailrec
 trait UniformCostSearch[State, Action]
     extends ProblemSearch[State, Action, CostNode[State, Action]]
     with FrontierSearch[State, Action, CostNode[State, Action]] {
-
-  val noAction: Action
+  implicit val sCT: ClassTag[State]
+  implicit val aCT: ClassTag[Action]
 
   type Node = CostNode[State, Action]
 
-  def search(problem: Problem[State, Action]): List[Action] = {
-    val initialFrontier = newFrontier(problem.initialState)
+  def search(problem: Problem[State, Action], noAction: Action): List[Action] = {
+    val initialFrontier = newFrontier(problem.initialState, noAction)
 
     @tailrec def searchHelper(
         frontier: Frontier[State, Action, Node],
@@ -50,7 +51,7 @@ trait UniformCostSearch[State, Action]
     searchHelper(initialFrontier)
   }
 
-  def newFrontier(state: State) = {
+  def newFrontier(state: State, noAction: Action) = {
     val costNodeOrdering: Ordering[Node] = new Ordering[Node] {
       def compare(n1: Node, n2: Node): Int = Ordering.Int.reverse.compare(n1.cost, n2.cost)
     }

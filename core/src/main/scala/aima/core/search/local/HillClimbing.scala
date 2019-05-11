@@ -1,6 +1,6 @@
 package aima.core.search.local
 
-import aima.core.search.{Problem, State}
+import aima.core.search.Problem
 
 import scala.annotation.tailrec
 
@@ -21,13 +21,13 @@ import scala.annotation.tailrec
   */
 object HillClimbing {
 
-  final case class StateValueNode(state: State, value: Double)
+  final case class StateValueNode[State](state: State, value: Double)
 
-  def apply(stateToValue: State => Double)(problem: Problem): State = {
+  def apply[State, Action](stateToValue: State => Double)(problem: Problem[State, Action]): State = {
 
     def makeNode(state: State) = StateValueNode(state, stateToValue(state))
 
-    def highestValuedSuccessor(current: StateValueNode): StateValueNode = {
+    def highestValuedSuccessor(current: StateValueNode[State]): StateValueNode[State] = {
       val successors = problem.actions(current.state).map(a => problem.result(current.state, a)).map(makeNode)
 
       if (successors.isEmpty) {
@@ -38,7 +38,7 @@ object HillClimbing {
 
     }
 
-    @tailrec def recurse(current: StateValueNode): State = {
+    @tailrec def recurse(current: StateValueNode[State]): State = {
       val neighbor = highestValuedSuccessor(current)
       if (neighbor.value <= current.value) {
         current.state

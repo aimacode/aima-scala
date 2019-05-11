@@ -1,6 +1,5 @@
 package aima.core.search.uninformed
 
-import aima.core.agent.Action
 import aima.core.search._
 
 import scala.annotation.tailrec
@@ -8,13 +7,15 @@ import scala.annotation.tailrec
 /**
   * @author Shawn Garner
   */
-trait TreeSearch extends ProblemSearch with FrontierSearch {
-  type Node = StateNode
+trait TreeSearch[State, Action]
+    extends ProblemSearch[State, Action, StateNode[State, Action]]
+    with FrontierSearch[State, Action, StateNode[State, Action]] {
+  type Node = StateNode[State, Action]
 
-  def search(problem: Problem): List[Action] = {
-    val initialFrontier = newFrontier(problem.initialState)
+  def search(problem: Problem[State, Action], noAction: Action): List[Action] = {
+    val initialFrontier = newFrontier(problem.initialState, noAction)
 
-    @tailrec def searchHelper(frontier: Frontier[Node]): List[Action] = {
+    @tailrec def searchHelper(frontier: Frontier[State, Action, Node]): List[Action] = {
       frontier.removeLeaf match {
         case None                                               => List.empty[Action]
         case Some((leaf, _)) if problem.isGoalState(leaf.state) => solution(leaf)

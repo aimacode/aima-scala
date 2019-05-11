@@ -12,5 +12,5 @@ trait Frontier[State, Action, Node <: SearchNode[State, Action]] {
 }
 
 trait FrontierSearch[State, Action, Node <: SearchNode[State, Action]] {
-  def newFrontier(state: State): Frontier[State, Action, Node]
+  def newFrontier(state: State, noAction: Action): Frontier[State, Action, Node]
 }

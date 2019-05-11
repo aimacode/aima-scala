@@ -3,6 +3,7 @@ package aima.core.search.uninformed
 import aima.core.search._
 
 import scala.annotation.tailrec
+import scala.reflect.ClassTag
 
 /**
   * @author Shawn Garner
@@ -10,9 +11,13 @@ import scala.annotation.tailrec
 trait GraphSearch[State, Action]
     extends ProblemSearch[State, Action, StateNode[State, Action]]
     with FrontierSearch[State, Action, StateNode[State, Action]] {
+  implicit val sCT: ClassTag[State]
+  implicit val aCT: ClassTag[Action]
+
   type Node = StateNode[State, Action]
-  def search(problem: Problem[State, Action]): List[Action] = {
-    val initialFrontier = newFrontier(problem.initialState)
+
+  def search(problem: Problem[State, Action], noAction: Action): List[Action] = {
+    val initialFrontier = newFrontier(problem.initialState, noAction)
 
     @tailrec def searchHelper(
         frontier: Frontier[State, Action, Node],
