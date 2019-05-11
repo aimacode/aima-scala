@@ -1,5 +1,7 @@
 package aima.core.search.contingency
 
+import aima.core.fp.Show
+
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
@@ -104,27 +106,31 @@ final case class ConditionalPlan(steps: List[Step]) extends ConditionPlanResult
 
 object ConditionalPlan {
   val emptyPlan = ConditionalPlan(List.empty)
-  def show[STATE: ClassTag, ACTION: ClassTag](
-      conditionalPlan: ConditionalPlan,
-      showState: STATE => String,
-      showAction: ACTION => String
-  ): String = {
 
-    @tailrec def recurse(steps: List[Step], acc: String, lastStepAction: Boolean): String = steps match {
-      case Nil                           => acc
-      case ActionStep(a: ACTION) :: Nil  => recurse(Nil, acc + showAction(a), true)
-      case ActionStep(a: ACTION) :: rest => recurse(rest, acc + showAction(a) + ", ", true)
-      case ConditionedSubPlan(state: STATE, subPlan) :: rest if lastStepAction =>
-        recurse(rest, acc + s"if State = ${showState(state)} then ${show(subPlan, showState, showAction)}", false)
-      case ConditionedSubPlan(_, subPlan) :: Nil =>
-        recurse(Nil, acc + s" else ${show(subPlan, showState, showAction)}", false)
-      case ConditionedSubPlan(_, subPlan) :: ActionStep(a) :: rest =>
-        recurse(ActionStep(a) :: rest, acc + s" else ${show(subPlan, showState, showAction)}", false)
-      case ConditionedSubPlan(state: STATE, subPlan) :: rest =>
-        recurse(rest, acc + s" else if State = ${showState(state)} then ${show(subPlan, showState, showAction)}", false)
-    }
+  object Implicits {
+    import Show.Implicits._
+    implicit def showConditionalPlan[STATE: ClassTag: Show, ACTION: ClassTag: Show]: Show[ConditionalPlan] =
+      new Show[ConditionalPlan] {
 
-    recurse(conditionalPlan.steps, "[", true) + "]"
+        override def show(conditionalPlan: ConditionalPlan): String = {
+
+          @tailrec def recurse(steps: List[Step], acc: String, lastStepAction: Boolean): String = steps match {
+            case Nil                           => acc
+            case ActionStep(a: ACTION) :: Nil  => recurse(Nil, acc + a.show, true)
+            case ActionStep(a: ACTION) :: rest => recurse(rest, acc + a.show + ", ", true)
+            case ConditionedSubPlan(state: STATE, subPlan) :: rest if lastStepAction =>
+              recurse(rest, acc + s"if State = ${state.show} then ${show(subPlan)}", false)
+            case ConditionedSubPlan(_, subPlan) :: Nil =>
+              recurse(Nil, acc + s" else ${show(subPlan)}", false)
+            case ConditionedSubPlan(_, subPlan) :: ActionStep(a) :: rest =>
+              recurse(ActionStep(a) :: rest, acc + s" else ${show(subPlan)}", false)
+            case ConditionedSubPlan(state: STATE, subPlan) :: rest =>
+              recurse(rest, acc + s" else if State = ${state.show} then ${show(subPlan)}", false)
+          }
+
+          recurse(conditionalPlan.steps, "[", true) + "]"
+        }
+      }
   }
 
 }
