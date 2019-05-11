@@ -1,6 +1,6 @@
 package aima.core.environment.vacuum
 
-import aima.core.util.{DefaultRandomness, SetRandomness}
+import aima.core.random.{DefaultRandomness, SetRandomness}
 
 /**
   * @author Shawn Garner

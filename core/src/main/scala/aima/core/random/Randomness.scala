@@ -1,4 +1,4 @@
-package aima.core.util
+package aima.core.random
 
 import scala.util.Random
 

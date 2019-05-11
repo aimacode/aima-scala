@@ -1,6 +1,6 @@
 package aima.core.agent
 
-import aima.core.util.Randomness
+import aima.core.random.Randomness
 
 /**
   * @author Shawn Garner
