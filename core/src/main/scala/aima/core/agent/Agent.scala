@@ -26,3 +26,9 @@ trait Agent[Action, Percept] {
 
   def agentFunction: AgentFunction
 }
+
+trait StatelessAgent[PERCEPT, ACTION, AGENT_STATE] {
+  type AgentFunction = (PERCEPT, AGENT_STATE) => (ACTION, AGENT_STATE)
+
+  def agentFunction: AgentFunction
+}

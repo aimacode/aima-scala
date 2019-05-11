@@ -1,7 +1,7 @@
 package aima.core.environment.vacuum
 
 import aima.core.agent._
-import aima.core.util.DefaultRandomness
+import aima.core.random.DefaultRandomness
 
 /**
   * @author Shawn Garner

@@ -1,6 +1,7 @@
 package aima.core.agent.basic
 
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
+import aima.core.fp.Eqv
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
@@ -28,6 +29,7 @@ class OnlineDFSAgentSpec extends Specification with ScalaCheck {
    */
   "maze Figure 4.19" should {
     import OnlineDFSAgentSpec.Maze._
+    import MazeState.Implicits.mazeStateEq
 
     "find action solution from example" >> {
       val goalState = MazeXYState(3, 3)
@@ -110,6 +112,12 @@ object OnlineDFSAgentSpec {
             x <- Gen.oneOf(1, 2, 3)
             y <- Gen.oneOf(1, 2, 3)
           } yield MazeXYState(x, y)
+        }
+
+        implicit val mazeStateEq: Eqv[MazeXYState] = new Eqv[MazeXYState] {
+          override def eqv(a1: MazeXYState, a2: MazeXYState): Boolean =
+            a1.x == a2.x && a1.y == a2.y
+
         }
       }
     }
