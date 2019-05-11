@@ -40,7 +40,7 @@ class ModelBasedReflexVacuumAgent extends ModelBasedReflexAgent[VacuumWorldState
     case (currentState, NoAction) => currentState
   }
 
-  val noAction: VacuumAction = NoAction
+  lazy val noAction: VacuumAction = NoAction
 
   val rules: RuleMatch = {
     case VacuumWorldState(_, _, _, batteryLife) if batteryLife < 10 => NoAction //too costly to continue
@@ -49,7 +49,7 @@ class ModelBasedReflexVacuumAgent extends ModelBasedReflexAgent[VacuumWorldState
     case VacuumWorldState(_, locationB, _, _) if locationB          => LeftMoveAction
   }
 
-  val initialState: VacuumWorldState = VacuumWorldState()
+  lazy val initialState: VacuumWorldState = VacuumWorldState()
   val updateState: UpdateState = { (s: VacuumWorldState, a: VacuumAction, p: VacuumPercept, m: Model) =>
     val s2 = m(s, a)
     p match {
