@@ -25,12 +25,10 @@ class RomaniaBreadthFirstSearchSpec extends Specification {
   }
 
   trait context extends Scope with BreadthFirstSearch[RomaniaState, RomaniaAction] {
-    import scala.reflect.classTag
 
-    override implicit val sCT: ClassTag[RomaniaState]  = classTag[RomaniaState]
-    override implicit val aCT: ClassTag[RomaniaAction] = classTag[RomaniaAction]
-    override implicit val nCT: ClassTag[StateNode[RomaniaState, RomaniaAction]] =
-      classTag[StateNode[RomaniaState, RomaniaAction]]
+    override implicit val sCT: ClassTag[RomaniaState]                           = sCTag
+    override implicit val aCT: ClassTag[RomaniaAction]                          = aCTag
+    override implicit val nCT: ClassTag[StateNode[RomaniaState, RomaniaAction]] = snCTag
   }
 
 }

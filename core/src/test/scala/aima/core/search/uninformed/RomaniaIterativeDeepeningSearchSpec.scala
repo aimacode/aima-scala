@@ -27,9 +27,7 @@ class RomaniaIterativeDeepeningSearchSpec extends Specification {
   trait context extends Scope with IterativeDeepeningSearch[RomaniaState, RomaniaAction] {
 
     val depthLimitedTreeSearch = new DepthLimitedTreeSearch[RomaniaState, RomaniaAction] {
-      import scala.reflect.classTag
-      override implicit val nCT: ClassTag[StateNode[RomaniaState, RomaniaAction]] =
-        classTag[StateNode[RomaniaState, RomaniaAction]]
+      override implicit val nCT: ClassTag[StateNode[RomaniaState, RomaniaAction]] = snCTag
     }
   }
 

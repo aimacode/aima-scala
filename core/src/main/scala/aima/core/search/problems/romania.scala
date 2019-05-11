@@ -1,6 +1,8 @@
 package aima.core.search.problems
 
-import aima.core.search.Problem
+import aima.core.search.{CostNode, Problem, StateNode}
+
+import scala.reflect.{ClassTag, classTag}
 
 /**
   * @author Shawn Garner
@@ -89,6 +91,14 @@ object Romania {
   sealed trait RomaniaAction
   final case class GoTo(city: City) extends RomaniaAction
   case object NoAction              extends RomaniaAction
+
+  val sCTag: ClassTag[RomaniaState]  = classTag[RomaniaState]
+  val aCTag: ClassTag[RomaniaAction] = classTag[RomaniaAction]
+
+  val snCTag: ClassTag[StateNode[RomaniaState, RomaniaAction]] =
+    classTag[StateNode[RomaniaState, RomaniaAction]]
+
+  val cnCTag: ClassTag[CostNode[RomaniaState, RomaniaAction]] = classTag[CostNode[RomaniaState, RomaniaAction]]
 
   class RomaniaRoadProblem(val initialState: RomaniaState, val goalState: RomaniaState)
       extends Problem[RomaniaState, RomaniaAction] {

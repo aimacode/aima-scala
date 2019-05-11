@@ -25,10 +25,8 @@ class RomaniaUniformCostSearchSpec extends Specification {
     )
   }
 
-  abstract class context extends Scope with UniformCostSearch[RomaniaState, RomaniaAction] {
-    import scala.reflect.classTag
-    override implicit val nCT: ClassTag[CostNode[RomaniaState, RomaniaAction]] =
-      classTag[CostNode[RomaniaState, RomaniaAction]]
+  trait context extends Scope with UniformCostSearch[RomaniaState, RomaniaAction] {
+    override implicit val nCT: ClassTag[CostNode[RomaniaState, RomaniaAction]] = cnCTag
   }
 
 }

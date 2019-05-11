@@ -87,6 +87,10 @@ object AndOrGraphSearchSpec {
     override def stepCost(s: VacuumWorldState, a: Action, childPrime: VacuumWorldState): Double =
       ??? // Not used
   }
+
+  import scala.reflect.classTag
+  val aCTag: ClassTag[Action]           = classTag[Action]
+  val sCTag: ClassTag[VacuumWorldState] = classTag[VacuumWorldState]
 }
 
 /**
@@ -94,9 +98,6 @@ object AndOrGraphSearchSpec {
   */
 class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, VacuumWorldState] with ScalaCheck {
   import AndOrGraphSearchSpec._
-  import scala.reflect.classTag
-  override implicit val aCT: ClassTag[Action]           = classTag[Action]
-  override implicit val sCT: ClassTag[VacuumWorldState] = classTag[VacuumWorldState]
 
   "AndOrGraphSearch" should {
     "handle State 1 [*_/][* ]" in {
@@ -199,4 +200,6 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       }
     }
   }
+  override implicit val aCT: ClassTag[Action]           = aCTag
+  override implicit val sCT: ClassTag[VacuumWorldState] = sCTag
 }
