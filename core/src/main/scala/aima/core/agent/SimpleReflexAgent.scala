@@ -8,7 +8,7 @@ trait SimpleReflexAgent[State, Action, Percept] extends Agent[Action, Percept] {
 
   type RuleMatch = State => Action
 
-  lazy val agentFunction: AgentFunction = { percept =>
+  val agentFunction: AgentFunction = { percept =>
     val state = interpretInput(percept)
     ruleMatch(state)
   }

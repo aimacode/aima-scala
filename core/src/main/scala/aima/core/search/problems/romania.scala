@@ -84,15 +84,17 @@ object Romania {
   }
 
   sealed trait RomaniaState
-  case class In(city: City) extends RomaniaState
+  final case class In(city: City) extends RomaniaState
 
   sealed trait RomaniaAction
-  case class GoTo(city: City) extends RomaniaAction
+  final case class GoTo(city: City) extends RomaniaAction
+  case object NoAction              extends RomaniaAction
 
   class RomaniaRoadProblem(val initialState: RomaniaState, val goalState: RomaniaState)
       extends Problem[RomaniaState, RomaniaAction] {
     def result(currentState: RomaniaState, action: RomaniaAction): RomaniaState = action match {
       case GoTo(city) => In(city)
+      case NoAction   => currentState
     }
 
     def actions(state: RomaniaState): List[RomaniaAction] = state match {

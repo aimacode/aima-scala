@@ -5,6 +5,8 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 
+import scala.reflect.ClassTag
+
 object AndOrGraphSearchSpec {
   sealed trait Action
   case object MoveLeft  extends Action
@@ -92,6 +94,9 @@ object AndOrGraphSearchSpec {
   */
 class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, VacuumWorldState] with ScalaCheck {
   import AndOrGraphSearchSpec._
+  import scala.reflect.classTag
+  override implicit val aCT: ClassTag[Action]           = classTag[Action]
+  override implicit val sCT: ClassTag[VacuumWorldState] = classTag[VacuumWorldState]
 
   "AndOrGraphSearch" should {
     "handle State 1 [*_/][* ]" in {

@@ -3,7 +3,6 @@ package aima.core.search.uninformed
 import aima.core.search._
 
 import scala.annotation.tailrec
-import scala.reflect.ClassTag
 
 /**
   * @author Shawn Garner
@@ -11,8 +10,6 @@ import scala.reflect.ClassTag
 trait UniformCostSearch[State, Action]
     extends ProblemSearch[State, Action, CostNode[State, Action]]
     with FrontierSearch[State, Action, CostNode[State, Action]] {
-  implicit val sCT: ClassTag[State]
-  implicit val aCT: ClassTag[Action]
 
   type Node = CostNode[State, Action]
 

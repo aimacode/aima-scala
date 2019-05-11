@@ -3,7 +3,6 @@ package aima.core.search.uninformed
 import aima.core.search.{Problem, ProblemSearch, StateNode}
 
 import scala.annotation.tailrec
-import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
 sealed trait DLSResult[Action] {
@@ -17,8 +16,6 @@ final case class CutOff[Action](actions: List[Action])   extends DLSResult[Actio
   * @author Shawn Garner
   */
 trait DepthLimitedTreeSearch[State, Action] extends ProblemSearch[State, Action, StateNode[State, Action]] {
-  implicit val sCT: ClassTag[State]
-  implicit val aCT: ClassTag[Action]
 
   type Node = StateNode[State, Action]
 

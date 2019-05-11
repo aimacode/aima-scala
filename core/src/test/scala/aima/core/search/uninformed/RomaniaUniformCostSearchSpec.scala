@@ -1,8 +1,11 @@
 package aima.core.search.uninformed
 
+import aima.core.search.CostNode
 import aima.core.search.problems.Romania._
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
+
+import scala.reflect.ClassTag
 
 /**
   * @author Shawn Garner
@@ -10,11 +13,11 @@ import org.specs2.specification.Scope
 class RomaniaUniformCostSearchSpec extends Specification {
 
   "going from Arad to Arad must return no actions" in new context {
-    search(new RomaniaRoadProblem(In(Arad), In(Arad))) must beEmpty
+    search(new RomaniaRoadProblem(In(Arad), In(Arad)), NoAction) must beEmpty
   }
 
   "going from Arad to Bucharest must return a list of actions" in new context {
-    search(new RomaniaRoadProblem(In(Arad), In(Bucharest))) must_== List(
+    search(new RomaniaRoadProblem(In(Arad), In(Bucharest)), NoAction) must_== List(
       GoTo(Sibiu),
       GoTo(RimnicuVilcea),
       GoTo(Pitesti),
@@ -22,6 +25,10 @@ class RomaniaUniformCostSearchSpec extends Specification {
     )
   }
 
-  trait context extends Scope with UniformCostSearch {}
+  abstract class context extends Scope with UniformCostSearch[RomaniaState, RomaniaAction] {
+    import scala.reflect.classTag
+    override implicit val nCT: ClassTag[CostNode[RomaniaState, RomaniaAction]] =
+      classTag[CostNode[RomaniaState, RomaniaAction]]
+  }
 
 }

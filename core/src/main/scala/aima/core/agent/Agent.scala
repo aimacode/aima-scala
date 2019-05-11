@@ -4,8 +4,8 @@ package aima.core.agent
   * @author Shawn Garner
   */
 trait AgentProgram[Action, Percept] {
-  def actuators: Seq[Actuator[Action, Percept]]
-  def sensors: Seq[Sensor[Action, Percept]]
+  def actuators: List[Actuator[Action, Percept]]
+  def sensors: List[Sensor[Action, Percept]]
   def agent: Agent[Action, Percept]
 
   def run(environment: Environment[Action, Percept]): Environment[Action, Percept] = {
