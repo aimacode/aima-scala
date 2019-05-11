@@ -1,5 +1,6 @@
 package aima.core.agent.basic
 
+import aima.core.agent.StatelessAgent
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED}
 
@@ -164,11 +165,6 @@ object OnlineDFSAgentState {
   }
 }
 
-trait StatelessAgent[PERCEPT, ACTION, AGENT_STATE] {
-  type AgentFunction = (PERCEPT, AGENT_STATE) => (ACTION, AGENT_STATE)
-
-  def agentFunction: AgentFunction
-}
 
 trait OnlineSearchProblem[STATE, ACTION] {
   def actions(s: STATE): List[ACTION]
