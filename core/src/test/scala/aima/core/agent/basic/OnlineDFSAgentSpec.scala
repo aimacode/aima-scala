@@ -2,6 +2,7 @@ package aima.core.agent.basic
 
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.fp.Eqv
+import aima.core.search.api.OnlineSearchProblem
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
@@ -209,7 +210,7 @@ object OnlineDFSAgentSpec {
       case _                 => MazePositionPercept(0) // should not be called
     }
 
-    def mazeProblem(goal: MazeXYState) = new OnlineSearchProblem[MazeXYState, MazeAction] {
+    def mazeProblem(goal: MazeXYState) = new OnlineSearchProblem[MazeAction, MazeXYState] {
       override def actions(s: MazeXYState): List[MazeAction] = s match {
         case MazeXYState(1, 1) => List(Up, Right)
         case MazeXYState(2, 1) => List(Up, Right, Left)

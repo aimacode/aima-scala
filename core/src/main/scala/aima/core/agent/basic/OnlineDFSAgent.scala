@@ -5,6 +5,7 @@ import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED}
 import aima.core.fp.Eqv
 import aima.core.fp.Eqv.Implicits._
+import aima.core.search.api.OnlineSearchProblem
 
 /**
   * <pre>
@@ -32,7 +33,7 @@ import aima.core.fp.Eqv.Implicits._
   */
 final class OnlineDFSAgent[PERCEPT, ACTION, STATE: Eqv](
     identifyStateFor: IdentifyState[PERCEPT, STATE],
-    onlineProblem: OnlineSearchProblem[STATE, ACTION],
+    onlineProblem: OnlineSearchProblem[ACTION, STATE],
     stop: ACTION
 ) extends StatelessAgent[PERCEPT, ACTION, OnlineDFSAgentState[ACTION, STATE]] {
 
@@ -165,12 +166,6 @@ object OnlineDFSAgentState {
     }
 
   }
-}
-
-trait OnlineSearchProblem[STATE, ACTION] {
-  def actions(s: STATE): List[ACTION]
-  def isGoalState(s: STATE): Boolean
-  def stepCost(s: STATE, a: ACTION, sPrime: STATE): Double
 }
 
 object OnlineDFSAgent {
