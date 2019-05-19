@@ -22,12 +22,14 @@ final case class StateNode[State, Action](
     action: Action,
     parent: Option[StateNode[State, Action]]
 ) extends SearchNode[State, Action]
+
 final case class CostNode[State, Action](
     state: State,
     cost: Int,
     action: Action,
     parent: Option[CostNode[State, Action]]
 ) extends SearchNode[State, Action]
+
 final case class HeuristicsNode[State, Action](
     state: State,
     gValue: Double,

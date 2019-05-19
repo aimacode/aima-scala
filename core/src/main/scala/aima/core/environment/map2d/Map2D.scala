@@ -6,12 +6,12 @@ package aima.core.environment.map2d
   * @author Shawn Garner
   */
 trait Map2D {
+
   /**
     *
     * @return a list of all locations in the map.
     */
   def locations: List[String]
-
 
   /**
     * Answers to the question: Where can I get, following one of the
@@ -23,7 +23,6 @@ trait Map2D {
     *         location.
     */
   def locationsLinkedTo(fromLocation: String): List[String]
-
 
   /**
     * Get the travel distance between the two specified locations if they are
@@ -38,7 +37,6 @@ trait Map2D {
     */
   def distance(fromLocation: String, toLocation: String): Option[Distance]
 
-
   /**
     * Get the position of the specified location.
     *
@@ -51,20 +49,21 @@ trait Map2D {
 }
 
 final class LabeledGraph[Vertex, Edge] {
-    import scala.collection.mutable
-    val globalEdgeLookup = new mutable.LinkedHashMap[Vertex, mutable.LinkedHashMap[Vertex, Edge]]() // TODO: get rid of mutability; ListMap should work
-    val vertexLabelsList = new mutable.ArrayBuffer[Vertex]() // TODO: get rid of mutability
+  import scala.collection.mutable
+  val globalEdgeLookup = new mutable.LinkedHashMap[Vertex, mutable.LinkedHashMap[Vertex, Edge]]() // TODO: get rid of mutability; ListMap should work
+  val vertexLabelsList = new mutable.ArrayBuffer[Vertex]()                                        // TODO: get rid of mutability
 
-    def addVertex(v: Vertex): Unit = {
-      checkForNewVertex(v)
-    }
+  def addVertex(v: Vertex): Unit = {
+    checkForNewVertex(v)
+    ()
+  }
 
-    def set(from: Vertex, to: Vertex, edge: Edge): Unit = {
-      val localEdgeLookup = checkForNewVertex(from)
-      localEdgeLookup.put(to, edge)
-      checkForNewVertex(to)
-    }
-
+  def set(from: Vertex, to: Vertex, edge: Edge): Unit = {
+    val localEdgeLookup = checkForNewVertex(from)
+    localEdgeLookup.put(to, edge)
+    checkForNewVertex(to)
+    ()
+  }
 
   def remove(from: Vertex, to: Vertex): Unit = {
     val localEdgeLookup = globalEdgeLookup.get(from)
@@ -72,16 +71,16 @@ final class LabeledGraph[Vertex, Edge] {
   }
 
   def get(from: Vertex, to: Vertex): Option[Edge] = {
-      val localEdgeLookup = globalEdgeLookup.get(from)
-      localEdgeLookup.flatMap(_.get(to))
+    val localEdgeLookup = globalEdgeLookup.get(from)
+    localEdgeLookup.flatMap(_.get(to))
   }
 
   def successors(v: Vertex): List[Vertex] = {
     val localEdgeLookup = globalEdgeLookup.get(v)
-      localEdgeLookup.toList.flatMap(_.keySet.toList)
+    localEdgeLookup.toList.flatMap(_.keySet.toList)
   }
 
-  def vertexLabels  =
+  def vertexLabels =
     vertexLabelsList.toList
 
   def isVertexLabel(v: Vertex): Boolean =
@@ -106,7 +105,6 @@ final class LabeledGraph[Vertex, Edge] {
   }
 }
 
-
 final case class Point2D(x: Double, y: Double)
 final case class Distance(value: Double) extends AnyVal
 object Point2D {
@@ -121,23 +119,20 @@ object Point2D {
   }
 }
 
-
 import scala.collection.mutable
 class ExtendableMap2D(
-                     val links: LabeledGraph[String, Distance],
-                     val locationPositions: mutable.LinkedHashMap[String, Point2D]
-                     ) extends Map2D {
+    val links: LabeledGraph[String, Distance],
+    val locationPositions: mutable.LinkedHashMap[String, Point2D]
+) extends Map2D {
 
   def this() = this(new LabeledGraph[String, Distance], new mutable.LinkedHashMap[String, Point2D])
 
-
   override def locations: List[String] = links.vertexLabels
-
 
   override def locationsLinkedTo(fromLocation: String): List[String] = links.successors(fromLocation)
 
-
-  override def distance(fromLocation: String, toLocation: String): Option[Distance] = links.get(fromLocation, toLocation)
+  override def distance(fromLocation: String, toLocation: String): Option[Distance] =
+    links.get(fromLocation, toLocation)
 
   override def position(location: String): Option[Point2D] = locationPositions.get(location)
 
@@ -186,7 +181,7 @@ class ExtendableMap2D(
     * @param toLocation
     * the to location.
     */
-  def removeUnidirectionalLink(fromLocation: String, toLocation: String): Unit  = {
+  def removeUnidirectionalLink(fromLocation: String, toLocation: String): Unit = {
     links.remove(fromLocation, toLocation)
   }
 
@@ -198,11 +193,10 @@ class ExtendableMap2D(
     * @param toLocation
     * the to location.
     */
-  def removeBidirectionalLink(fromLocation: String, toLocation: String): Unit  = {
+  def removeBidirectionalLink(fromLocation: String, toLocation: String): Unit = {
     links.remove(fromLocation, toLocation)
     links.remove(toLocation, fromLocation)
   }
-
 
   /**
     * Defines the position of a location with respect to a 2 dimensional
@@ -212,8 +206,10 @@ class ExtendableMap2D(
     * the location.
     * @param pos the x, y position
     */
-  def setPosition(loc: String, pos: Point2D): Unit =
+  def setPosition(loc: String, pos: Point2D): Unit = {
     locationPositions.put(loc, pos)
+    ()
+  }
 
   /**
     * Defines the position of a location within the map. Using this method, one
@@ -233,7 +229,7 @@ class ExtendableMap2D(
     val coords = Point2D(-math.sin(dir * math.Pi / 180.0) * dist.value, math.cos(dir * math.Pi / 180.0) * dist.value)
     links.addVertex(loc)
     locationPositions.put(loc, coords)
+    ()
   }
-
 
 }

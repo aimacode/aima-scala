@@ -3,8 +3,6 @@ package aima.core.agent.basic
 import aima.core.agent.StatelessAgent
 import aima.core.agent.basic.LRTAStarAgent.IdentifyState
 import aima.core.agent.basic.LRTAStarAgentState.{COST_ESTIMATES, RESULT}
-import aima.core.fp.Eqv
-import aima.core.fp.Eqv.Implicits._
 import aima.core.search.api.OnlineSearchProblem
 
 /**
@@ -12,7 +10,7 @@ import aima.core.search.api.OnlineSearchProblem
   *
   * @author Shawn Garner
   */
-final class LRTAStarAgent[PERCEPT, ACTION, STATE: Eqv](
+final class LRTAStarAgent[PERCEPT, ACTION, STATE](
     identifyStateFor: IdentifyState[PERCEPT, STATE],
     onlineProblem: OnlineSearchProblem[ACTION, STATE],
     h: STATE => Double,
@@ -26,8 +24,8 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE: Eqv](
 
   def lrtaCost(s: STATE, a: ACTION, sPrime: Option[STATE], H: COST_ESTIMATES_TYPE): Double = {
     val cost: Option[Double] = for {
-      sPrime_ <- sPrime
-      stepCost = onlineProblem.stepCost(s, a, sPrime_)
+      sPrime_         <- sPrime
+      stepCost        = onlineProblem.stepCost(s, a, sPrime_)
       tableLookupCost <- H.get(sPrime_)
     } yield stepCost + tableLookupCost
 
