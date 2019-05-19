@@ -16,8 +16,7 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE: Eqv](
     identifyStateFor: IdentifyState[PERCEPT, STATE],
     onlineProblem: OnlineSearchProblem[ACTION, STATE],
     h: STATE => Double,
-    stop: ACTION,
-    undefinedState: STATE
+    stop: ACTION
 ) extends StatelessAgent[PERCEPT, ACTION, LRTAStarAgentState[ACTION, STATE]] {
 
   import LRTAStarAgentState.Implicits._
@@ -25,12 +24,14 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE: Eqv](
   type RESULT_TYPE         = RESULT[ACTION, STATE]
   type COST_ESTIMATES_TYPE = COST_ESTIMATES[STATE]
 
-  def lrtaCost(s: STATE, a: ACTION, sPrime: STATE, H: COST_ESTIMATES_TYPE): Double = {
-    if (sPrime === undefinedState) {
-      h(s)
-    } else {
-      onlineProblem.stepCost(s, a, sPrime) + H(sPrime) // TODO: unsafe to do apply but should actually be in there
-    }
+  def lrtaCost(s: STATE, a: ACTION, sPrime: Option[STATE], H: COST_ESTIMATES_TYPE): Double = {
+    val cost: Option[Double] = for {
+      sPrime_ <- sPrime
+      stepCost = onlineProblem.stepCost(s, a, sPrime_)
+      tableLookupCost <- H.get(sPrime_)
+    } yield stepCost + tableLookupCost
+
+    cost.getOrElse(h(s))
   }
 
   override val agentFunction: AgentFunction = {
@@ -59,8 +60,8 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE: Eqv](
                 _s,
                 onlineProblem
                   .actions(_s)
-                  .map(b => lrtaCost(_s, b, priorAgentState.result(_s)(b), updatedH))
-                  .min // TODO: should use get and flatMap Option and convert to list
+                  .map(b => lrtaCost(_s, b, priorAgentState.result.get(_s).flatMap(_.get(b)), updatedH))
+                  .min // TODO: Needs checked for Nil
               )
 
               (
@@ -76,7 +77,8 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE: Eqv](
 
         val newAction: ACTION = onlineProblem
           .actions(sPrime)
-          .minBy(b => lrtaCost(sPrime, b, updatedResult(sPrime)(b), updatedH2))
+          .minBy(b => lrtaCost(sPrime, b, updatedResult.get(sPrime).flatMap(_.get(b)), updatedH2))
+        // TODO: needs checked for Nil
 
         val updatedAgentState = priorAgentState.copy(
           result = updatedResult,
