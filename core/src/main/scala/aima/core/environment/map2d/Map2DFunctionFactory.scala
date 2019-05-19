@@ -9,21 +9,25 @@ object Map2DFunctionFactory {
   import aima.core.fp.Eqv
   import Eqv.Implicits._
 
-  def actions(map2D: Map2D): InState => List[GoAction] =
+  def actions(map2D: Map2D): InState => List[Map2DAction] =
     inState => map2D.locationsLinkedTo(inState.location).map(GoAction)
 
-  def stepCost(map2D: Map2D): (InState, GoAction, InState) => Double =
+  def stepCost(map2D: Map2D): (InState, Map2DAction, InState) => Double =
     (s, _, sPrime) => map2D.distance(s.location, sPrime.location).map(_.value).getOrElse(Double.MaxValue)
 
-  val result: (InState, GoAction) => InState =
-    (_, action) => InState(action.gotTo)
+  val result: (InState, Map2DAction) => InState =
+    (s, action) =>
+      action match {
+        case GoAction(goTo) => InState(goTo)
+        case NoAction       => s
+      }
 
   def goalTestPredicate(goalLocations: String*): InState => Boolean =
     inState => goalLocations.exists(location => location === inState.location)
 
   object StraightLineDistanceHeuristic {
 
-    def apply(map2D: Map2D, goals: String*): CostNode[InState, GoAction] => Double =
+    def apply(map2D: Map2D, goals: String*): CostNode[InState, Map2DAction] => Double =
       node => {
 
         def h(state: InState): Double = {
