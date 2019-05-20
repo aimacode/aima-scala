@@ -20,5 +20,10 @@ object Eqv {
       def ===(a2: A): Boolean = eqv(a1, a2)
       def =!=(a2: A): Boolean = !eqv(a1, a2)
     }
+
+    implicit val stringEq: Eqv[String] = new Eqv[String] {
+      override def eqv(a1: String, a2: String): Boolean = a1 == a2
+    }
+
   }
 }
