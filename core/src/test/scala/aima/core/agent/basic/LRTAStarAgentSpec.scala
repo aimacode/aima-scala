@@ -12,6 +12,8 @@ import aima.core.environment.map2d.{
 }
 import aima.core.fp.Eqv
 import aima.core.search.api.OnlineSearchProblem
+import org.scalacheck.{Arbitrary, Gen}
+import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 
 import scala.annotation.tailrec
@@ -19,7 +21,7 @@ import scala.annotation.tailrec
 /**
   * @author Shawn Garner
   */
-class LRTAStarAgentSpec extends Specification {
+class LRTAStarAgentSpec extends Specification with ScalaCheck {
   val distanceOne = Distance(1.0d)
   val mapAtoF = new ExtendableMap2D() {
     addBidirectionalLink("A", "B", distanceOne)
@@ -130,6 +132,41 @@ class LRTAStarAgentSpec extends Specification {
         Go("A"),
         NoOp
       )
+
+  }
+
+  implicit val arbMazeState: Arbitrary[InState] = Arbitrary {
+    for {
+      perceptInt <- Gen.choose(0, 5)
+    } yield alphabetPerceptToState(IntPercept(perceptInt))
+  }
+
+  "find solutions for all start and goal states" >> prop { (initialState: InState, goalState: InState) =>
+    val problem = new OnlineSearchProblem[Map2DAction, InState] {
+      override def actions(s: InState): List[Map2DAction] =
+        Map2DFunctionFactory.actions(mapAtoF)(s)
+
+      import Eqv.Implicits.stringEq
+      override def isGoalState(s: InState): Boolean =
+        Eqv[String].eqv(goalState.location, s.location)
+
+      override def stepCost(s: InState, a: Map2DAction, sPrime: InState): Double =
+        Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
+    }
+
+    val lrtasa = new LRTAStarAgent[IntPercept, Map2DAction, InState](
+      alphabetPerceptToState,
+      problem,
+      inState => math.abs(inState.location.charAt(0) - goalState.location.charAt(0)).toDouble,
+      NoOp
+    )
+
+    val actions = actionSequence(lrtasa, alphabetStateToPercept(initialState))
+    if (initialState == goalState) {
+      actions must_== List(NoOp)
+    } else {
+      actions must contain[Map2DAction](Go(goalState.location))
+    }
 
   }
 
