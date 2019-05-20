@@ -135,7 +135,7 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
 
   }
 
-  implicit val arbMazeState: Arbitrary[InState] = Arbitrary {
+  implicit val arbInState: Arbitrary[InState] = Arbitrary {
     for {
       perceptInt <- Gen.choose(0, 5)
     } yield alphabetPerceptToState(IntPercept(perceptInt))
@@ -162,7 +162,8 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
     )
 
     val actions = actionSequence(lrtasa, alphabetStateToPercept(initialState))
-    if (initialState == goalState) {
+    import Eqv.Implicits.stringEq
+    if (Eqv[String].eqv(initialState.location, goalState.location)) {
       actions must_== List(NoOp)
     } else {
       actions must contain[Map2DAction](Go(goalState.location))
