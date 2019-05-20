@@ -3,11 +3,12 @@ package aima.core.agent.basic
 import aima.core.environment.map2d.{
   Distance,
   ExtendableMap2D,
+  Go,
   InState,
   IntPercept,
   Map2DAction,
   Map2DFunctionFactory,
-  NoAction
+  NoOp
 }
 import aima.core.fp.Eqv
 import aima.core.search.api.OnlineSearchProblem
@@ -49,11 +50,74 @@ class LRTAStarAgentSpec extends Specification {
       alphabetPerceptToState,
       problem,
       _ => 1.0d,
-      NoAction
+      NoOp
     )
 
     val resultAction = lrtasa.agentFunction(IntPercept(0), LRTAStarAgentState[Map2DAction, InState])
-    resultAction._1 must_== NoAction
+    resultAction._1 must_== NoOp
+  }
+
+  "normal search A to F" in {
+    val problem = new OnlineSearchProblem[Map2DAction, InState] {
+      override def actions(s: InState): List[Map2DAction] =
+        Map2DFunctionFactory.actions(mapAtoF)(s)
+
+      import Eqv.Implicits.stringEq
+      override def isGoalState(s: InState): Boolean =
+        Eqv[String].eqv("F", s.location)
+
+      override def stepCost(s: InState, a: Map2DAction, sPrime: InState): Double =
+        Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
+    }
+
+    val lrtasa = new LRTAStarAgent[IntPercept, Map2DAction, InState](
+      alphabetPerceptToState,
+      problem,
+      inState => ('F' - inState.location.charAt(0)).toDouble,
+      NoOp
+    )
+
+    val actions = actionSequence(lrtasa, IntPercept(0))
+    actions must_==
+      List(
+        Go("B"),
+        Go("A"),
+        Go("B"),
+        Go("C"),
+        Go("B"),
+        Go("C"),
+        Go("D"),
+        Go("C"),
+        Go("D"),
+        Go("E"),
+        Go("D"),
+        Go("E"),
+        Go("F"),
+        NoOp
+      )
+
+  }
+
+  def actionSequence(
+      lrtasa: LRTAStarAgent[IntPercept, Map2DAction, InState],
+      initialPercept: IntPercept
+  ): List[Map2DAction] = {
+    def findActions(
+        agentState: LRTAStarAgentState[Map2DAction, InState],
+        percept: IntPercept,
+        acc: List[Map2DAction]
+    ): List[Map2DAction] = {
+      val (action, updatedAgentState) = lrtasa.agentFunction(percept, agentState)
+
+      action match {
+        case NoOp => action :: acc
+        case a @ Go(goTo) =>
+          val nextPercept = alphabetStateToPercept(InState(goTo))
+          findActions(updatedAgentState, nextPercept, a :: acc)
+      }
+    }
+
+    findActions(LRTAStarAgentState[Map2DAction, InState], initialPercept, Nil).reverse
   }
 
 }

@@ -10,7 +10,7 @@ object Map2DFunctionFactory {
   import Eqv.Implicits._
 
   def actions(map2D: Map2D): InState => List[Map2DAction] =
-    inState => map2D.locationsLinkedTo(inState.location).map(GoAction)
+    inState => map2D.locationsLinkedTo(inState.location).map(Go)
 
   def stepCost(map2D: Map2D): (InState, Map2DAction, InState) => Double =
     (s, _, sPrime) => map2D.distance(s.location, sPrime.location).map(_.value).getOrElse(Double.MaxValue)
@@ -18,8 +18,8 @@ object Map2DFunctionFactory {
   val result: (InState, Map2DAction) => InState =
     (s, action) =>
       action match {
-        case GoAction(goTo) => InState(goTo)
-        case NoAction       => s
+        case Go(goTo) => InState(goTo)
+        case NoOp       => s
       }
 
   def goalTestPredicate(goalLocations: String*): InState => Boolean =
