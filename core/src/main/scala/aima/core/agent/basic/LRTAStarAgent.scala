@@ -55,7 +55,7 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
 
               val finalResult = priorAgentState.result.put(_s, updatedResultActionToState)
               val priorActionsCost =
-                onlineProblem.actions(_s).map(b => lrtaCost(_s, b, priorAgentState.result.get2(_s, b), updatedH))
+                onlineProblem.actions(_s).map(b => lrtaCost(_s, b, finalResult.get2(_s, b), updatedH))
               val minPriorActionCost = priorActionsCost match {
                 case Nil => Double.MaxValue
                 case _   => priorActionsCost.min
