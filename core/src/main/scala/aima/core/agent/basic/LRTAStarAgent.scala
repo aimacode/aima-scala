@@ -47,19 +47,22 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
 
         val (updatedResult, updatedH2): (RESULT_TYPE, COST_ESTIMATES_TYPE) =
           (priorAgentState.previousState, priorAgentState.previousAction) match {
-            case (Some(_s), Some(_a)) if !priorAgentState.result.get(_s).flatMap(_.get(_a)).contains(sPrime) =>
+            case (Some(_s), Some(_a)) if !priorAgentState.result.get2(_s, _a).contains(sPrime) =>
               val resultOrigActionToState: Map[ACTION, STATE] =
                 priorAgentState.result.getOrElse(_s, Map.empty[ACTION, STATE])
               val updatedResultActionToState
                   : Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime) // TODO: could be less verbose with lense
 
               val finalResult = priorAgentState.result.put(_s, updatedResultActionToState)
+              val priorActionsCost =
+                onlineProblem.actions(_s).map(b => lrtaCost(_s, b, priorAgentState.result.get2(_s, b), updatedH))
+              val minPriorActionCost = priorActionsCost match {
+                case Nil => Double.MaxValue
+                case _   => priorActionsCost.min
+              }
               val newH = updatedH.put(
                 _s,
-                onlineProblem
-                  .actions(_s)
-                  .map(b => lrtaCost(_s, b, priorAgentState.result.get(_s).flatMap(_.get(b)), updatedH))
-                  .min // TODO: Needs checked for Nil
+                minPriorActionCost
               )
 
               (
@@ -73,10 +76,11 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
               )
           }
 
-        val newAction: ACTION = onlineProblem
-          .actions(sPrime)
-          .minBy(b => lrtaCost(sPrime, b, updatedResult.get(sPrime).flatMap(_.get(b)), updatedH2))
-        // TODO: needs checked for Nil
+        val newActions: List[ACTION] = onlineProblem.actions(sPrime)
+        val newAction: ACTION = newActions match {
+          case Nil => stop
+          case _   => newActions.minBy(b => lrtaCost(sPrime, b, updatedResult.get2(sPrime, b), updatedH2))
+        }
 
         val updatedAgentState = priorAgentState.copy(
           result = updatedResult,
@@ -130,6 +134,12 @@ object LRTAStarAgentState {
         val newValue = fv(oldValue)
         m.updated(k, newValue)
       }
+
+    }
+
+    implicit class Map2Ops[K1, K2, V](m: Map[K1, Map[K2, V]]) {
+      def get2(k1: K1, k2: K2): Option[V] =
+        m.get(k1).flatMap(_.get(k2))
 
     }
 

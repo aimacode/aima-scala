@@ -14,6 +14,8 @@ import aima.core.fp.Eqv
 import aima.core.search.api.OnlineSearchProblem
 import org.specs2.mutable.Specification
 
+import scala.annotation.tailrec
+
 /**
   * @author Shawn Garner
   */
@@ -135,7 +137,7 @@ class LRTAStarAgentSpec extends Specification {
       lrtasa: LRTAStarAgent[IntPercept, Map2DAction, InState],
       initialPercept: IntPercept
   ): List[Map2DAction] = {
-    def findActions(
+    @tailrec def findActions(
         agentState: LRTAStarAgentState[Map2DAction, InState],
         percept: IntPercept,
         acc: List[Map2DAction]
