@@ -19,7 +19,7 @@ object Map2DFunctionFactory {
     (s, action) =>
       action match {
         case Go(goTo) => InState(goTo)
-        case NoOp       => s
+        case NoOp     => s
       }
 
   def goalTestPredicate(goalLocations: String*): InState => Boolean =

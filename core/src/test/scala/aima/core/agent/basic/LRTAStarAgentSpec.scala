@@ -77,7 +77,7 @@ class LRTAStarAgentSpec extends Specification {
       NoOp
     )
 
-    val actions = actionSequence(lrtasa, IntPercept(0))
+    val actions = actionSequence(lrtasa, alphabetStateToPercept(InState("A")))
     actions must_==
       List(
         Go("B"),
@@ -93,6 +93,39 @@ class LRTAStarAgentSpec extends Specification {
         Go("D"),
         Go("E"),
         Go("F"),
+        NoOp
+      )
+
+  }
+
+  "normal search F to A" in {
+    val problem = new OnlineSearchProblem[Map2DAction, InState] {
+      override def actions(s: InState): List[Map2DAction] =
+        Map2DFunctionFactory.actions(mapAtoF)(s)
+
+      import Eqv.Implicits.stringEq
+      override def isGoalState(s: InState): Boolean =
+        Eqv[String].eqv("A", s.location)
+
+      override def stepCost(s: InState, a: Map2DAction, sPrime: InState): Double =
+        Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
+    }
+
+    val lrtasa = new LRTAStarAgent[IntPercept, Map2DAction, InState](
+      alphabetPerceptToState,
+      problem,
+      inState => (inState.location.charAt(0) - 'A').toDouble,
+      NoOp
+    )
+
+    val actions = actionSequence(lrtasa, alphabetStateToPercept(InState("F")))
+    actions must_==
+      List(
+        Go("E"),
+        Go("D"),
+        Go("C"),
+        Go("B"),
+        Go("A"),
         NoOp
       )
 
