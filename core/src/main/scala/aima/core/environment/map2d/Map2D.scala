@@ -48,63 +48,6 @@ trait Map2D {
   def position(location: String): Option[Point2D]
 }
 
-final class LabeledGraph[Vertex, Edge] {
-  import scala.collection.mutable
-  val globalEdgeLookup = new mutable.LinkedHashMap[Vertex, mutable.LinkedHashMap[Vertex, Edge]]() // TODO: get rid of mutability; ListMap should work
-  val vertexLabelsList = new mutable.ArrayBuffer[Vertex]()                                        // TODO: get rid of mutability
-
-  def addVertex(v: Vertex): Unit = {
-    checkForNewVertex(v)
-    ()
-  }
-
-  def set(from: Vertex, to: Vertex, edge: Edge): Unit = {
-    val localEdgeLookup = checkForNewVertex(from)
-    localEdgeLookup.put(to, edge)
-    checkForNewVertex(to)
-    ()
-  }
-
-  def remove(from: Vertex, to: Vertex): Unit = {
-    val localEdgeLookup = globalEdgeLookup.get(from)
-    localEdgeLookup.foreach(l => l.remove(to))
-  }
-
-  def get(from: Vertex, to: Vertex): Option[Edge] = {
-    val localEdgeLookup = globalEdgeLookup.get(from)
-    localEdgeLookup.flatMap(_.get(to))
-  }
-
-  def successors(v: Vertex): List[Vertex] = {
-    val localEdgeLookup = globalEdgeLookup.get(v)
-    localEdgeLookup.toList.flatMap(_.keySet.toList)
-  }
-
-  def vertexLabels =
-    vertexLabelsList.toList
-
-  def isVertexLabel(v: Vertex): Boolean =
-    globalEdgeLookup.get(v).isDefined
-
-  def clear(): Unit = {
-    vertexLabelsList.clear()
-    globalEdgeLookup.clear()
-  }
-
-  private def checkForNewVertex(v: Vertex): mutable.LinkedHashMap[Vertex, Edge] = {
-    val maybeExisting = globalEdgeLookup.get(v)
-    maybeExisting match {
-      case None =>
-        val m = new mutable.LinkedHashMap[Vertex, Edge]
-        globalEdgeLookup.put(v, m)
-        vertexLabelsList.append(v)
-        m
-      case Some(existing) =>
-        existing
-    }
-  }
-}
-
 final case class Point2D(x: Double, y: Double)
 final case class Distance(value: Double) extends AnyVal
 object Point2D {
@@ -141,8 +84,6 @@ class ExtendableMap2D(
     locationPositions.clear()
   }
 
-  def clearLinks(): Unit = links.clear()
-
   /**
     * Add a one-way connection to the map.
     *
@@ -171,44 +112,6 @@ class ExtendableMap2D(
   def addBidirectionalLink(fromLocation: String, toLocation: String, distance: Distance): Unit = {
     links.set(fromLocation, toLocation, distance)
     links.set(toLocation, fromLocation, distance)
-  }
-
-  /**
-    * Remove a one-way connection.
-    *
-    * @param fromLocation
-    * the from location.
-    * @param toLocation
-    * the to location.
-    */
-  def removeUnidirectionalLink(fromLocation: String, toLocation: String): Unit = {
-    links.remove(fromLocation, toLocation)
-  }
-
-  /**
-    * Remove the two corresponding one-way connections.
-    *
-    * @param fromLocation
-    * the from location.
-    * @param toLocation
-    * the to location.
-    */
-  def removeBidirectionalLink(fromLocation: String, toLocation: String): Unit = {
-    links.remove(fromLocation, toLocation)
-    links.remove(toLocation, fromLocation)
-  }
-
-  /**
-    * Defines the position of a location with respect to a 2 dimensional
-    * coordinate system.
-    *
-    * @param loc
-    * the location.
-    * @param pos the x, y position
-    */
-  def setPosition(loc: String, pos: Point2D): Unit = {
-    locationPositions.put(loc, pos)
-    ()
   }
 
   /**
