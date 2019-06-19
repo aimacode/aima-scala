@@ -1,10 +1,12 @@
 package aima.core.search.adversarial
 
+
 final case class UtilityValue(value: Double) extends AnyVal {
   def <(that: UtilityValue) = if (this.value < that.value) true else false
   def >(that: UtilityValue) = if (this.value > that.value) true else false
 
 }
+
 
 /**
   * @author Aditya Lahiri

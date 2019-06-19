@@ -1,6 +1,5 @@
 package aima.core.search.uninformed
 
-import aima.core.agent.{NoAction, Action}
 import aima.core.search._
 
 import scala.annotation.tailrec
@@ -8,14 +7,19 @@ import scala.annotation.tailrec
 /**
   * @author Shawn Garner
   */
-trait UniformCostSearch extends ProblemSearch with FrontierSearch {
+trait UniformCostSearch[State, Action]
+    extends ProblemSearch[State, Action, CostNode[State, Action]]
+    with FrontierSearch[State, Action, CostNode[State, Action]] {
 
-  type Node = CostNode
+  type Node = CostNode[State, Action]
 
-  def search(problem: Problem): List[Action] = {
-    val initialFrontier = newFrontier(problem.initialState)
+  def search(problem: Problem[State, Action], noAction: Action): List[Action] = {
+    val initialFrontier = newFrontier(problem.initialState, noAction)
 
-    @tailrec def searchHelper(frontier: Frontier[Node], exploredSet: Set[State] = Set.empty[State]): List[Action] = {
+    @tailrec def searchHelper(
+        frontier: Frontier[State, Action, Node],
+        exploredSet: Set[State] = Set.empty[State]
+    ): List[Action] = {
       frontier.removeLeaf match {
         case None                                               => List.empty[Action]
         case Some((leaf, _)) if problem.isGoalState(leaf.state) => solution(leaf)
@@ -44,14 +48,14 @@ trait UniformCostSearch extends ProblemSearch with FrontierSearch {
     searchHelper(initialFrontier)
   }
 
-  def newFrontier(state: State) = {
-    val costNodeOrdering: Ordering[CostNode] = new Ordering[CostNode] {
-      def compare(n1: CostNode, n2: CostNode): Int = Ordering.Int.reverse.compare(n1.cost, n2.cost)
+  def newFrontier(state: State, noAction: Action) = {
+    val costNodeOrdering: Ordering[Node] = new Ordering[Node] {
+      def compare(n1: Node, n2: Node): Int = Ordering.Int.reverse.compare(n1.cost, n2.cost)
     }
-    new PriorityQueueHashSetFrontier[CostNode](CostNode(state, 0, NoAction, None), costNodeOrdering)
+    new PriorityQueueHashSetFrontier[State, Action, Node](CostNode(state, 0, noAction, None), costNodeOrdering)
   }
 
-  def newChildNode(problem: Problem, parent: CostNode, action: Action): CostNode = {
+  def newChildNode(problem: Problem[State, Action], parent: Node, action: Action): Node = {
     val childState = problem.result(parent.state, action)
     CostNode(
       state = childState,

@@ -1,7 +1,11 @@
 package aima.core.agent.basic
 
+import aima.core.agent.StatelessAgent
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
 import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED}
+import aima.core.fp.Eqv
+import aima.core.fp.Eqv.Implicits._
+import aima.core.search.api.OnlineSearchProblem
 
 /**
   * <pre>
@@ -27,10 +31,11 @@ import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED
   *
   * @author Shawn Garner
   */
-final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifyState[PERCEPT, STATE],
-                                                   onlineProblem: OnlineSearchProblem[STATE, ACTION],
-                                                   stop: ACTION)
-    extends StatelessAgent[PERCEPT, ACTION, OnlineDFSAgentState[ACTION, STATE]] {
+final class OnlineDFSAgent[PERCEPT, ACTION, STATE: Eqv](
+    identifyStateFor: IdentifyState[PERCEPT, STATE],
+    onlineProblem: OnlineSearchProblem[ACTION, STATE],
+    stop: ACTION
+) extends StatelessAgent[PERCEPT, ACTION, OnlineDFSAgentState[ACTION, STATE]] {
 
   import OnlineDFSAgentState.Implicits._
 
@@ -56,7 +61,8 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
             case (Some(_s), Some(_a)) if !priorAgentState.result.get(_s).flatMap(_.get(_a)).contains(sPrime) =>
               val resultOrigActionToState: Map[ACTION, STATE] =
                 priorAgentState.result.getOrElse(_s, Map.empty[ACTION, STATE])
-              val updatedResultActionToState: Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime) // TODO: could be less verbose with lense
+              val updatedResultActionToState
+                  : Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime) // TODO: could be less verbose with lense
               (
                 priorAgentState.result.put(_s, updatedResultActionToState),
                 priorAgentState.unbacktracked.transformValue(sPrime, fv => fv.fold(List(_s))(st => _s :: st))
@@ -86,7 +92,7 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE](identifyStateFor: IdentifySta
               case popped :: remainingUnbacktracked =>
                 val action: Option[ACTION] =
                   updatedResult.getOrElse(sPrime, Map.empty[ACTION, STATE]).toList.collectFirst {
-                    case (action, state) if popped == state => action //TODO: should use ===
+                    case (action, state) if popped === state => action
                   }
 
                 priorAgentState.copy(
@@ -118,7 +124,7 @@ final case class OnlineDFSAgentState[ACTION, STATE](
     result: RESULT[ACTION, STATE],
     untried: UNTRIED[ACTION, STATE],
     unbacktracked: UNBACKTRACKED[STATE],
-    previousState: Option[STATE], // s
+    previousState: Option[STATE],  // s
     previousAction: Option[ACTION] // a
 )
 
@@ -160,18 +166,6 @@ object OnlineDFSAgentState {
     }
 
   }
-}
-
-trait StatelessAgent[PERCEPT, ACTION, AGENT_STATE] {
-  type AgentFunction = (PERCEPT, AGENT_STATE) => (ACTION, AGENT_STATE)
-
-  def agentFunction: AgentFunction
-}
-
-trait OnlineSearchProblem[STATE, ACTION] {
-  def actions(s: STATE): List[ACTION]
-  def isGoalState(s: STATE): Boolean
-  def stepCost(s: STATE, a: ACTION, sPrime: STATE): Double
 }
 
 object OnlineDFSAgent {

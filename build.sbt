@@ -1,16 +1,16 @@
-import org.scalafmt.sbt.ScalaFmtPlugin.autoImport._
+import org.scalafmt.sbt.ScalafmtPlugin.autoImport._
 
 lazy val commonSettings = Seq(
     organization := "com.github.aimacode.aima-scala",
     version := "0.1.0-SNAPSHOT",
     scalaVersion := "2.12.8",
-    scalafmtConfig := Some(file(".scalafmt")),
-    addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.16"),
+    scalafmtConfig := file(".scalafmt"),
+    scalafmtOnCompile := true,
     coverageEnabled := false,
     coverageMinimum := 70,
     coverageFailOnMinimum := false,
     autoCompilerPlugins := true
-  ) ++ reformatOnCompileSettings
+  ) 
 
 lazy val librarySettings = Seq(
   "org.specs2"     %% "specs2-core"       % "3.8.6"  % Test,
@@ -24,5 +24,3 @@ lazy val core = (project in file("core"))
   .settings(commonSettings: _*)
   .settings(name := "core")
   .settings(libraryDependencies ++= librarySettings)
-  .settings(scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xlint"))
-  .settings(scalacOptions in Test ++= Seq("-Yrangepos", "-Xlint"))

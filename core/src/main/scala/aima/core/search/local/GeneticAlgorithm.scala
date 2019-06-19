@@ -97,9 +97,11 @@ trait GeneticAlgorithm[Individual] {
     val deadline = Deadline.start(timeLimit)
 
     @tailrec def recurse(currentPopulation: Set[Individual], newPopulation: Set[Individual]): Individual = {
-      val x        = randomSelection(currentPopulation, fitnessFunction)(random)
-      val y        = randomSelection(currentPopulation, fitnessFunction)(random)
-      val children = reproduce(x, y, random)
+      val children: List[Individual] = (for {
+        x <- randomSelection(currentPopulation, fitnessFunction)(random)
+        y <- randomSelection(currentPopulation, fitnessFunction)(random)
+      } yield reproduce(x, y, random)).toList.flatten
+
       val mutated = {
         children.map { c =>
           if (isSmallRandomProbabilityOfMutation(mutationProbability, random)) {
@@ -166,19 +168,22 @@ trait GeneticAlgorithm[Individual] {
   def isSmallRandomProbabilityOfMutation(mutationProbability: Probability, random: Random): Boolean =
     random.nextDouble <= mutationProbability.value
 
-  def randomSelection(population: Set[Individual], fitnessFunction: FitnessFunction)(random: Random): Individual = {
+  def randomSelection(population: Set[Individual], fitnessFunction: FitnessFunction)(
+      random: Random
+  ): Option[Individual] = {
     val populationList    = population.toList
     val populationFitness = populationList.map(fitnessFunction)
     val fValues           = Util.normalize(populationFitness.map(_.value))
     val probability       = random.nextDouble()
 
     val popWithFValues = populationList zip fValues
-    @tailrec def selectByProbability(l: List[(Individual, Double)], totalSoFar: Double): Individual = l match {
-      case first :: Nil => first._1 // if we are at end of list or only one element must select it
+    @tailrec def selectByProbability(l: List[(Individual, Double)], totalSoFar: Double): Option[Individual] = l match {
+      case Nil          => None
+      case first :: Nil => Some(first._1) // if we are at end of list or only one element must select it
       case first :: rest =>
         val newTotal = totalSoFar + first._2
         if (probability <= newTotal) { // seems weird
-          first._1
+          Some(first._1)
         } else {
           selectByProbability(rest, newTotal)
         }

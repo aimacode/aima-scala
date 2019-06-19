@@ -1,6 +1,5 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.{NoPercept, NoAction}
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 

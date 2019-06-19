@@ -1,22 +1,25 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.Action
-import aima.core.util.{DefaultRandomness, SetRandomness}
+import aima.core.random.{DefaultRandomness, SetRandomness}
 
 /**
   * @author Shawn Garner
   */
-sealed trait MoveAction     extends Action
+sealed trait VacuumAction
+
+sealed trait MoveAction     extends VacuumAction
 case object LeftMoveAction  extends MoveAction
 case object RightMoveAction extends MoveAction
 
 object MoveAction extends SetRandomness[MoveAction] with DefaultRandomness {
-  lazy val valueSet: Set[MoveAction] = Set(LeftMoveAction, RightMoveAction)
+  val valueSet: Set[MoveAction] = Set(LeftMoveAction, RightMoveAction)
 }
 
-sealed trait SuckerAction extends Action
+sealed trait SuckerAction extends VacuumAction
 case object Suck          extends SuckerAction
 
 object SuckerAction extends SetRandomness[SuckerAction] with DefaultRandomness {
-  lazy val valueSet: Set[SuckerAction] = Set(Suck)
+  val valueSet: Set[SuckerAction] = Set(Suck)
 }
+
+case object NoAction extends VacuumAction

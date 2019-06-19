@@ -3,12 +3,10 @@ package aima.core.agent
 /**
   * @author Shawn Garner
   */
-trait SimpleProblemSolvingAgent extends Agent {
-  type State
-  type Goal
-  type Problem
+trait SimpleProblemSolvingAgent[State, Action, Percept, Goal, Problem] extends Agent[Action, Percept] {
 
   def initialState: State
+  def noAction: Action
 
   var actions = List.empty[Action]
   var state   = initialState
@@ -22,7 +20,7 @@ trait SimpleProblemSolvingAgent extends Agent {
     }
 
     val (firstAction, restOfActions) = actions match {
-      case Nil           => (NoAction, Nil)
+      case Nil           => (noAction, Nil)
       case first :: rest => (first, rest)
     }
 

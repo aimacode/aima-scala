@@ -1,7 +1,6 @@
 package aima.core.search.local
 
-import aima.core.agent.Action
-import aima.core.search.{Problem, State}
+import aima.core.search.Problem
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
@@ -19,15 +18,15 @@ class HillClimbingSpec extends Specification with ScalaCheck {
   }
 
   "must find pi/2 on sin graph between zero and pi" >> prop { xCoord: XCoordinate =>
-    val stateToValue: State => Double = {
+    val stateToValue: XCoordinate => Double = {
       case XCoordinate(x) => math.sin(x)
     }
 
-    val sinProblem = new Problem {
-      override def initialState: State                 = xCoord
-      override def isGoalState(state: State): Boolean  = false // Not used
-      override def actions(state: State): List[Action] = List(StepLeft, StepRight)
-      override def result(state: State, action: Action): State = (state, action) match {
+    val sinProblem = new Problem[XCoordinate, StepAction] {
+      override def initialState: XCoordinate                     = xCoord
+      override def isGoalState(state: XCoordinate): Boolean      = false // Not used
+      override def actions(state: XCoordinate): List[StepAction] = List(StepLeft, StepRight)
+      override def result(state: XCoordinate, action: StepAction): XCoordinate = (state, action) match {
         case (XCoordinate(x), StepLeft) =>
           val newX = x - 0.001d
           if (x < 0) {
@@ -45,7 +44,7 @@ class HillClimbingSpec extends Specification with ScalaCheck {
           }
       }
 
-      override def stepCost(state: State, action: Action, childPrime: State): Int = -1 // Not Used
+      override def stepCost(state: XCoordinate, action: StepAction, childPrime: XCoordinate): Int = -1 // Not Used
     }
 
     val result = HillClimbing(stateToValue)(sinProblem)
@@ -57,8 +56,8 @@ class HillClimbingSpec extends Specification with ScalaCheck {
 }
 
 object HillClimbingSpec {
-  final case class XCoordinate(x: Double) extends State
-  sealed trait StepAction                 extends Action
-  case object StepLeft                    extends StepAction
-  case object StepRight                   extends StepAction
+  final case class XCoordinate(x: Double)
+  sealed trait StepAction
+  case object StepLeft  extends StepAction
+  case object StepRight extends StepAction
 }

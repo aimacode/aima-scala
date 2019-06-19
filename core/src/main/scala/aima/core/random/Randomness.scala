@@ -1,4 +1,4 @@
-package aima.core.util
+package aima.core.random
 
 import scala.util.Random
 
@@ -10,7 +10,7 @@ trait Randomness {
 }
 
 trait DefaultRandomness extends Randomness {
-  lazy val rand = new Random()
+  val rand = new Random()
 }
 
 trait EnumerationRandomness extends Randomness { self: Enumeration =>

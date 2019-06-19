@@ -1,22 +1,23 @@
 package aima.core.search.uninformed
 
-import aima.core.search.{Frontier, State, SearchNode}
+import aima.core.search.{Frontier, SearchNode}
 
 import scala.collection.immutable.{Queue, Iterable}
 import scala.collection.mutable
 import scala.util.Try
 
-class FIFOQueueFrontier[Node <: SearchNode](queue: Queue[Node], stateSet: Set[State]) extends Frontier[Node] { self =>
+class FIFOQueueFrontier[State, Action, Node <: SearchNode[State, Action]](queue: Queue[Node], stateSet: Set[State])
+    extends Frontier[State, Action, Node] { self =>
   def this(n: Node) = this(Queue(n), Set(n.state))
 
-  def removeLeaf: Option[(Node, Frontier[Node])] = queue.dequeueOption.map {
-    case (leaf, updatedQueue) => (leaf, new FIFOQueueFrontier(updatedQueue, stateSet - leaf.state))
+  def removeLeaf: Option[(Node, Frontier[State, Action, Node])] = queue.dequeueOption.map {
+    case (leaf, updatedQueue) => (leaf, new FIFOQueueFrontier[State, Action, Node](updatedQueue, stateSet - leaf.state))
   }
-  def addAll(iterable: Iterable[Node]): Frontier[Node] =
+  def addAll(iterable: Iterable[Node]): Frontier[State, Action, Node] =
     new FIFOQueueFrontier(queue.enqueue(iterable), stateSet ++ iterable.map(_.state))
   def contains(state: State): Boolean = stateSet.contains(state)
 
-  def replaceByState(node: Node): Frontier[Node] = {
+  def replaceByState(node: Node): Frontier[State, Action, Node] = {
     if (contains(node.state)) {
       new FIFOQueueFrontier(queue.filterNot(_.state == node.state).enqueue(node), stateSet)
     } else {
@@ -31,24 +32,26 @@ class FIFOQueueFrontier[Node <: SearchNode](queue: Queue[Node], stateSet: Set[St
     }
   }
 
-  def add(node: Node): Frontier[Node] = new FIFOQueueFrontier[Node](queue.enqueue(node), stateSet + node.state)
+  def add(node: Node): Frontier[State, Action, Node] =
+    new FIFOQueueFrontier[State, Action, Node](queue.enqueue(node), stateSet + node.state)
 }
 
-class PriorityQueueHashSetFrontier[Node <: SearchNode](queue: mutable.PriorityQueue[Node],
-                                                       stateMap: mutable.Map[State, Node])
-    extends Frontier[Node] { self =>
+class PriorityQueueHashSetFrontier[State, Action, Node <: SearchNode[State, Action]](
+    queue: mutable.PriorityQueue[Node],
+    stateMap: mutable.Map[State, Node]
+) extends Frontier[State, Action, Node] { self =>
 
   def this(n: Node, costNodeOrdering: Ordering[Node]) =
     this(mutable.PriorityQueue(n)(costNodeOrdering), mutable.Map(n.state -> n))
 
-  def removeLeaf: Option[(Node, Frontier[Node])] =
+  def removeLeaf: Option[(Node, Frontier[State, Action, Node])] =
     Try {
       val leaf = queue.dequeue
       stateMap -= leaf.state
       (leaf, self)
     }.toOption
 
-  def addAll(iterable: Iterable[Node]): Frontier[Node] = {
+  def addAll(iterable: Iterable[Node]): Frontier[State, Action, Node] = {
     iterable.foreach { costNode =>
       queue += costNode
       stateMap += (costNode.state -> costNode)
@@ -58,7 +61,7 @@ class PriorityQueueHashSetFrontier[Node <: SearchNode](queue: mutable.PriorityQu
 
   def contains(state: State): Boolean = stateMap.contains(state)
 
-  def replaceByState(node: Node): Frontier[Node] = {
+  def replaceByState(node: Node): Frontier[State, Action, Node] = {
     if (contains(node.state)) {
       val updatedElems = node :: queue.toList.filterNot(_.state == node.state)
       queue.clear()
@@ -76,7 +79,7 @@ class PriorityQueueHashSetFrontier[Node <: SearchNode](queue: mutable.PriorityQu
     }
   }
 
-  def add(node: Node): Frontier[Node] = {
+  def add(node: Node): Frontier[State, Action, Node] = {
     val costNode = node
     queue.enqueue(costNode)
     stateMap += (node.state -> costNode)

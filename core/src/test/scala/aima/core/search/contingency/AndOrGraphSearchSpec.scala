@@ -1,9 +1,12 @@
 package aima.core.search.contingency
 
+import aima.core.fp.Show
 import aima.core.search.contingency.AndOrGraphSearchSpec.{Action, VacuumWorldState}
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
+
+import scala.reflect.ClassTag
 
 object AndOrGraphSearchSpec {
   sealed trait Action
@@ -11,10 +14,16 @@ object AndOrGraphSearchSpec {
   case object MoveRight extends Action
   case object Suck      extends Action
 
-  def showAction(action: Action): String = action match {
-    case MoveLeft  => "Left"
-    case MoveRight => "Right"
-    case Suck      => "Suck"
+  object Action {
+    object Implicits {
+      implicit val showAction: Show[Action] = new Show[Action] {
+        override def show(action: Action): String = action match {
+          case MoveLeft  => "Left"
+          case MoveRight => "Right"
+          case Suck      => "Suck"
+        }
+      }
+    }
   }
 
   val allActions = List(MoveLeft, Suck, MoveRight)
@@ -27,9 +36,15 @@ object AndOrGraphSearchSpec {
   case object Dirty extends Status
   case object Clean extends Status
 
-  def statusShow(s: Status): String = s match {
-    case Dirty => "*"
-    case Clean => " "
+  object Status {
+    object Implicits {
+      implicit val statusShow: Show[Status] = new Show[Status] {
+        override def show(s: Status): String = s match {
+          case Dirty => "*"
+          case Clean => " "
+        }
+      }
+    }
   }
 
   final case class VacuumWorldState(vacuumLocation: Location, a: Status, b: Status)
@@ -43,12 +58,17 @@ object AndOrGraphSearchSpec {
           bStatus  <- Gen.oneOf(Dirty, Clean)
         } yield VacuumWorldState(location, aStatus, bStatus)
       }
-    }
-  }
 
-  def stateShow(s: VacuumWorldState): String = s.vacuumLocation match {
-    case LocationA => s"[${statusShow(s.a)}_/][${statusShow(s.b)}  ]"
-    case LocationB => s"[${statusShow(s.a)}  ][${statusShow(s.b)}_/]"
+      import Show.Implicits._
+      implicit def vacuumWorldStateShow(implicit statusShow: Show[Status]): Show[VacuumWorldState] =
+        new Show[VacuumWorldState] {
+          override def show(s: VacuumWorldState): String =
+            s.vacuumLocation match {
+              case LocationA => s"[${s.a.show}_/][${s.b.show}  ]"
+              case LocationB => s"[${s.a.show}  ][${s.b.show}_/]"
+            }
+        }
+    }
   }
 
   def problem(initial: VacuumWorldState) = new NondeterministicProblem[Action, VacuumWorldState] {
@@ -85,6 +105,10 @@ object AndOrGraphSearchSpec {
     override def stepCost(s: VacuumWorldState, a: Action, childPrime: VacuumWorldState): Double =
       ??? // Not used
   }
+
+  import scala.reflect.classTag
+  val aCTag: ClassTag[Action]           = classTag[Action]
+  val sCTag: ClassTag[VacuumWorldState] = classTag[VacuumWorldState]
 }
 
 /**
@@ -93,6 +117,12 @@ object AndOrGraphSearchSpec {
 class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, VacuumWorldState] with ScalaCheck {
   import AndOrGraphSearchSpec._
 
+  import Action.Implicits.showAction
+  import Status.Implicits.statusShow
+  import VacuumWorldState.Implicits.vacuumWorldStateShow
+  implicit def sCP: Show[ConditionalPlan] = ConditionalPlan.Implicits.showConditionalPlan[VacuumWorldState, Action]
+  import Show.Implicits._
+
   "AndOrGraphSearch" should {
     "handle State 1 [*_/][* ]" in {
       val initial = VacuumWorldState(LocationA, Dirty, Dirty)
@@ -100,8 +130,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan
-            .show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Suck, if State = [ _/][*  ] then [Right, Suck] else []]"
+          cp.show must_== "[Suck, if State = [ _/][*  ] then [Right, Suck] else []]"
         case f => ko(f.toString)
       }
     }
@@ -112,8 +141,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan
-            .show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Left, Suck, if State = [ _/][*  ] then [Right, Suck] else []]"
+          cp.show must_== "[Left, Suck, if State = [ _/][*  ] then [Right, Suck] else []]"
         case f => ko(f.toString)
       }
     }
@@ -124,7 +152,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Suck]"
+          cp.show must_== "[Suck]"
         case f => ko(f.toString)
       }
     }
@@ -135,7 +163,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Left, Suck]"
+          cp.show must_== "[Left, Suck]"
         case f => ko(f.toString)
       }
     }
@@ -146,7 +174,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Right, Suck]"
+          cp.show must_== "[Right, Suck]"
         case f => ko(f.toString)
       }
     }
@@ -157,7 +185,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[Suck]"
+          cp.show must_== "[Suck]"
         case f => ko(f.toString)
       }
     }
@@ -168,7 +196,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[]"
+          cp.show must_== "[]"
         case f => ko(f.toString)
       }
     }
@@ -179,7 +207,7 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       val cp      = andOrGraphSearch(prob)
       cp match {
         case cp: ConditionalPlan =>
-          ConditionalPlan.show[VacuumWorldState, Action](cp, stateShow, showAction) must_== "[]"
+          cp.show must_== "[]"
         case f => ko(f.toString)
       }
     }
@@ -194,4 +222,6 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
       }
     }
   }
+  override implicit val aCT: ClassTag[Action]           = aCTag
+  override implicit val sCT: ClassTag[VacuumWorldState] = sCTag
 }
