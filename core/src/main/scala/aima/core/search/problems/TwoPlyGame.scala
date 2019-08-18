@@ -10,23 +10,27 @@ case class State(stateNumber: Int)  extends AnyVal
 case class Action(stateNumber: Int) extends AnyVal
 
 object TwoPlyGame extends Game[Player, State, Action] {
-  val adjacencyMat = Map(0 -> List(Action(1), Action(2), Action(3)),
-                         1 -> List(Action(4), Action(5), Action(6)),
-                         2 -> List(Action(7), Action(8), Action(9)),
-                         3 -> List(Action(10), Action(11), Action(12)))
-  val States = Map(0 -> State(0),
-                   1  -> State(1),
-                   2  -> State(2),
-                   3  -> State(3),
-                   4  -> State(4),
-                   5  -> State(5),
-                   6  -> State(6),
-                   7  -> State(7),
-                   8  -> State(8),
-                   9  -> State(9),
-                   10 -> State(10),
-                   11 -> State(11),
-                   12 -> State(12))
+  val adjacencyMat = Map(
+    0 -> List(Action(1), Action(2), Action(3)),
+    1 -> List(Action(4), Action(5), Action(6)),
+    2 -> List(Action(7), Action(8), Action(9)),
+    3 -> List(Action(10), Action(11), Action(12))
+  )
+  val States = Map(
+    0  -> State(0),
+    1  -> State(1),
+    2  -> State(2),
+    3  -> State(3),
+    4  -> State(4),
+    5  -> State(5),
+    6  -> State(6),
+    7  -> State(7),
+    8  -> State(8),
+    9  -> State(9),
+    10 -> State(10),
+    11 -> State(11),
+    12 -> State(12)
+  )
   val Players = Map(1 -> Player("MAX"), 0 -> Player("MIN"))
 
   def initialState: State = States(0)
