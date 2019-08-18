@@ -7,8 +7,10 @@ import scala.annotation.tailrec
   * @author Shawn Garner
   */
 object MinimaxDecision {
-  def minMaxDecision[PLAYER, STATE, ACTION](g: Game[PLAYER, STATE, ACTION],
-                                            noAction: ACTION): (STATE, PLAYER) => ACTION = { (s: STATE, p: PLAYER) =>
+  def minMaxDecision[PLAYER, STATE, ACTION](
+      g: Game[PLAYER, STATE, ACTION],
+      noAction: ACTION
+  ): (STATE, PLAYER) => ACTION = { (s: STATE, p: PLAYER) =>
     @tailrec def maxMinValue(Actions: List[ACTION], p: PLAYER): ACTION = Actions match {
       case Nil      => noAction
       case a :: Nil => a
