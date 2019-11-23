@@ -1,6 +1,7 @@
 package aima.core.environment.map2d
 
 import aima.core.search.CostNode
+import Ordering.Double.TotalOrdering
 
 /**
   * @author Shawn Garner
