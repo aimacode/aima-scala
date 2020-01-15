@@ -34,24 +34,39 @@ class OnlineDFSAgentSpec extends Specification with ScalaCheck {
 
     "find action solution from example" >> {
       val goalState = MazeXYState(3, 3)
-      val agent = new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
-        idStateFn,
-        mazeProblem(goalState),
-        StopAction
-      )
+      val agent =
+        new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
+          idStateFn,
+          mazeProblem(goalState),
+          StopAction
+        )
 
       val initialState = MazeXYState(1, 1)
       val actions      = determineActions(initialState, agent)
-      actions must_== List(Up, Down, Right, Up, Up, Left, Right, Down, Down, Right, Up, Up)
+      actions must_== List(
+        Up,
+        Down,
+        Right,
+        Up,
+        Up,
+        Left,
+        Right,
+        Down,
+        Down,
+        Right,
+        Up,
+        Up
+      )
     }
 
     "find moveTO action solution from example" >> {
       val goalState = MazeXYState(3, 3)
-      val agent = new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
-        idStateFn,
-        mazeProblem(goalState),
-        StopAction
-      )
+      val agent =
+        new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
+          idStateFn,
+          mazeProblem(goalState),
+          StopAction
+        )
 
       val initialState = MazeXYState(1, 1)
       val states       = determineMoveToStates(initialState, agent)
@@ -63,19 +78,21 @@ class OnlineDFSAgentSpec extends Specification with ScalaCheck {
     }
 
     import aima.core.agent.basic.OnlineDFSAgentSpec.Maze.MazeState.Implicits.arbMazeState
-    "find solutions for all start and goal states" >> prop { (initialState: MazeXYState, goalState: MazeXYState) =>
-      val agent = new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
-        idStateFn,
-        mazeProblem(goalState),
-        StopAction
-      )
+    "find solutions for all start and goal states" >> prop {
+      (initialState: MazeXYState, goalState: MazeXYState) =>
+        val agent =
+          new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
+            idStateFn,
+            mazeProblem(goalState),
+            StopAction
+          )
 
-      val states = determineMoveToStates(initialState, agent)
+        val states = determineMoveToStates(initialState, agent)
 
-      states must beLike {
-        case Nil => ok // already on goal
-        case ls  => ls must contain[MazeXYState](goalState)
-      }
+        states must beLike {
+          case Nil => ok // already on goal
+          case ls  => ls must contain[MazeXYState](goalState)
+        }
     }
 
   }
@@ -136,8 +153,9 @@ object OnlineDFSAgentSpec {
           currentAgentState: OnlineDFSAgentState[MazeAction, MazeXYState],
           acc: List[MazeAction]
       ): List[MazeAction] = {
-        val p                           = stateToPerceptFn(s)
-        val (action, updatedAgentState) = agent.agentFunction(p, currentAgentState)
+        val p = stateToPerceptFn(s)
+        val (action, updatedAgentState) =
+          agent.agentFunction(p, currentAgentState)
         if (action == StopAction) {
           acc.reverse
         } else {
@@ -161,8 +179,9 @@ object OnlineDFSAgentSpec {
           currentAgentState: OnlineDFSAgentState[MazeAction, MazeXYState],
           acc: List[MazeXYState]
       ): List[MazeXYState] = {
-        val p                           = stateToPerceptFn(s)
-        val (action, updatedAgentState) = agent.agentFunction(p, currentAgentState)
+        val p = stateToPerceptFn(s)
+        val (action, updatedAgentState) =
+          agent.agentFunction(p, currentAgentState)
         if (action == StopAction) {
           acc.reverse
         } else {
@@ -189,13 +208,14 @@ object OnlineDFSAgentSpec {
       case _                      => MazeXYState(1, 1) // should not be called
     }
 
-    def nextState(state: MazeXYState, action: MazeAction): MazeXYState = action match {
-      case Up         => MazeXYState(state.x, state.y + 1)
-      case Down       => MazeXYState(state.x, state.y - 1)
-      case Right      => MazeXYState(state.x + 1, state.y)
-      case Left       => MazeXYState(state.x - 1, state.y)
-      case StopAction => state
-    }
+    def nextState(state: MazeXYState, action: MazeAction): MazeXYState =
+      action match {
+        case Up         => MazeXYState(state.x, state.y + 1)
+        case Down       => MazeXYState(state.x, state.y - 1)
+        case Right      => MazeXYState(state.x + 1, state.y)
+        case Left       => MazeXYState(state.x - 1, state.y)
+        case StopAction => state
+      }
 
     val stateToPerceptFn: MazeXYState => MazePositionPercept = {
       case MazeXYState(1, 1) => MazePositionPercept(0)
@@ -210,24 +230,29 @@ object OnlineDFSAgentSpec {
       case _                 => MazePositionPercept(0) // should not be called
     }
 
-    def mazeProblem(goal: MazeXYState) = new OnlineSearchProblem[MazeAction, MazeXYState] {
-      override def actions(s: MazeXYState): List[MazeAction] = s match {
-        case MazeXYState(1, 1) => List(Up, Right)
-        case MazeXYState(2, 1) => List(Up, Right, Left)
-        case MazeXYState(3, 1) => List(Up, Left)
-        case MazeXYState(1, 2) => List(Down)
-        case MazeXYState(2, 2) => List(Up, Down)
-        case MazeXYState(3, 2) => List(Up, Down)
-        case MazeXYState(1, 3) => List(Right)
-        case MazeXYState(2, 3) => List(Left, Down)
-        case MazeXYState(3, 3) => List(Down)
-        case _                 => List()
-      }
-      override def isGoalState(s: MazeXYState): Boolean = s == goal
+    def mazeProblem(goal: MazeXYState) =
+      new OnlineSearchProblem[MazeAction, MazeXYState] {
+        override def actions(s: MazeXYState): List[MazeAction] = s match {
+          case MazeXYState(1, 1) => List(Up, Right)
+          case MazeXYState(2, 1) => List(Up, Right, Left)
+          case MazeXYState(3, 1) => List(Up, Left)
+          case MazeXYState(1, 2) => List(Down)
+          case MazeXYState(2, 2) => List(Up, Down)
+          case MazeXYState(3, 2) => List(Up, Down)
+          case MazeXYState(1, 3) => List(Right)
+          case MazeXYState(2, 3) => List(Left, Down)
+          case MazeXYState(3, 3) => List(Down)
+          case _                 => List()
+        }
+        override def isGoalState(s: MazeXYState): Boolean = s == goal
 
-      override def stepCost(s: MazeXYState, a: MazeAction, sPrime: MazeXYState): Double =
-        ??? // not used
-    }
+        override def stepCost(
+            s: MazeXYState,
+            a: MazeAction,
+            sPrime: MazeXYState
+        ): Double =
+          ??? // not used
+      }
 
   }
 }

@@ -14,7 +14,11 @@ object Map2DFunctionFactory {
     inState => map2D.locationsLinkedTo(inState.location).map(Go)
 
   def stepCost(map2D: Map2D): (InState, Map2DAction, InState) => Double =
-    (s, _, sPrime) => map2D.distance(s.location, sPrime.location).map(_.value).getOrElse(Double.MaxValue)
+    (s, _, sPrime) =>
+      map2D
+        .distance(s.location, sPrime.location)
+        .map(_.value)
+        .getOrElse(Double.MaxValue)
 
   val result: (InState, Map2DAction) => InState =
     (s, action) =>
@@ -28,7 +32,10 @@ object Map2DFunctionFactory {
 
   object StraightLineDistanceHeuristic {
 
-    def apply(map2D: Map2D, goals: String*): CostNode[InState, Map2DAction] => Double =
+    def apply(
+        map2D: Map2D,
+        goals: String*
+    ): CostNode[InState, Map2DAction] => Double =
       node => {
 
         def h(state: InState): Double = {

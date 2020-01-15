@@ -23,7 +23,12 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
   type RESULT_TYPE         = RESULT[ACTION, STATE]
   type COST_ESTIMATES_TYPE = COST_ESTIMATES[STATE]
 
-  def lrtaCost(s: STATE, a: ACTION, sPrime: Option[STATE], H: COST_ESTIMATES_TYPE): Double = {
+  def lrtaCost(
+      s: STATE,
+      a: ACTION,
+      sPrime: Option[STATE],
+      H: COST_ESTIMATES_TYPE
+  ): Double = {
     val cost: Option[Double] = for {
       sPrime_         <- sPrime
       stepCost        = onlineProblem.stepCost(s, a, sPrime_)
@@ -48,15 +53,20 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
 
         val (updatedResult, updatedH2): (RESULT_TYPE, COST_ESTIMATES_TYPE) =
           (priorAgentState.previousState, priorAgentState.previousAction) match {
-            case (Some(_s), Some(_a)) if !priorAgentState.result.get2(_s, _a).contains(sPrime) =>
+            case (Some(_s), Some(_a))
+                if !priorAgentState.result.get2(_s, _a).contains(sPrime) =>
               val resultOrigActionToState: Map[ACTION, STATE] =
                 priorAgentState.result.getOrElse(_s, Map.empty[ACTION, STATE])
-              val updatedResultActionToState
-                  : Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime) // TODO: could be less verbose with lense
+              val updatedResultActionToState: Map[ACTION, STATE] =
+                resultOrigActionToState
+                  .put(_a, sPrime) // TODO: could be less verbose with lense
 
-              val finalResult = priorAgentState.result.put(_s, updatedResultActionToState)
+              val finalResult =
+                priorAgentState.result.put(_s, updatedResultActionToState)
               val priorActionsCost =
-                onlineProblem.actions(_s).map(b => lrtaCost(_s, b, finalResult.get2(_s, b), updatedH))
+                onlineProblem
+                  .actions(_s)
+                  .map(b => lrtaCost(_s, b, finalResult.get2(_s, b), updatedH))
               val minPriorActionCost = priorActionsCost match {
                 case Nil => None
                 case _   => Some(priorActionsCost.min)
@@ -80,7 +90,10 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
         val newActions: List[ACTION] = onlineProblem.actions(sPrime)
         val newAction: ACTION = newActions match {
           case Nil => stop
-          case _   => newActions.minBy(b => lrtaCost(sPrime, b, updatedResult.get2(sPrime, b), updatedH2))
+          case _ =>
+            newActions.minBy(
+              b => lrtaCost(sPrime, b, updatedResult.get2(sPrime, b), updatedH2)
+            )
         }
 
         val updatedAgentState = priorAgentState.copy(

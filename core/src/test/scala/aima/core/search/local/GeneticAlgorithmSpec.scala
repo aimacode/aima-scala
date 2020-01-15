@@ -10,7 +10,10 @@ import scala.concurrent.duration._
 /**
   * @author Shawn Garner
   */
-class GeneticAlgorithmSpec extends Specification with GeneticAlgorithm[String] with ScalaCheck {
+class GeneticAlgorithmSpec
+    extends Specification
+    with GeneticAlgorithm[String]
+    with ScalaCheck {
 
   import GeneticAlgorithm.StringIndividual._
 
@@ -27,28 +30,40 @@ class GeneticAlgorithmSpec extends Specification with GeneticAlgorithm[String] w
     }
   }
 
-  "must find strings of at least 50% vowels" >> prop { population: NonEmptySet[String] =>
-    def vowelFitness(individual: String): Fitness = {
-      val u = individual.foldLeft(0.0d) {
-        case (acc, 'a' | 'e' | 'i' | 'o' | 'u' | 'y' | 'A' | 'E' | 'I' | 'O' | 'U' | 'Y') => acc + 1.0d
-        case (acc, _)                                                                     => acc
+  "must find strings of at least 50% vowels" >> prop {
+    population: NonEmptySet[String] =>
+      def vowelFitness(individual: String): Fitness = {
+        val u = individual.foldLeft(0.0d) {
+          case (
+              acc,
+              'a' | 'e' | 'i' | 'o' | 'u' | 'y' | 'A' | 'E' | 'I' | 'O' | 'U' |
+              'Y'
+              ) =>
+            acc + 1.0d
+          case (acc, _) => acc
+        }
+        Fitness(u)
       }
-      Fitness(u)
-    }
 
-    def fitEnough(individual: String): Boolean = {
-      val length = individual.length
-      if (length != 0) {
-        vowelFitness(individual).value / length >= 0.50d
-      } else {
-        false
+      def fitEnough(individual: String): Boolean = {
+        val length = individual.length
+        if (length != 0) {
+          vowelFitness(individual).value / length >= 0.50d
+        } else {
+          false
+        }
       }
-    }
 
-    val fitIndividual =
-      geneticAlgorithm(population, vowelFitness)(fitEnough, 2.minutes, reproduce2, Probability(0.05), mutate)
-    val fitness = vowelFitness(fitIndividual).value / fitIndividual.length
-    fitness aka fitIndividual must be greaterThanOrEqualTo 0.50d
+      val fitIndividual =
+        geneticAlgorithm(population, vowelFitness)(
+          fitEnough,
+          2.minutes,
+          reproduce2,
+          Probability(0.05),
+          mutate
+        )
+      val fitness = vowelFitness(fitIndividual).value / fitIndividual.length
+      fitness aka fitIndividual must be greaterThanOrEqualTo 0.50d
   }
 
 }

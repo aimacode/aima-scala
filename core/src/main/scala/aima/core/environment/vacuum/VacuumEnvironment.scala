@@ -26,7 +26,9 @@ case class VacuumMapNode(
     maybeAgent: Option[Agent[VacuumEnvironment, VacuumPercept, VacuumAction]] = None
 )
 
-case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode())) extends DefaultRandomness {
+case class VacuumMap(
+    nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode())
+) extends DefaultRandomness {
   self =>
 
   def isClean(): Boolean = {
@@ -87,7 +89,9 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
   def removeAgent(agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction]): VacuumMap =
     updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = None))
 
-  private def updateByIndex(index: Int)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
+  private def updateByIndex(
+      index: Int
+  )(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
     val node         = nodes.apply(index)
     val updatedNodes = nodes.updated(index, f(node))
     VacuumMap(updatedNodes)
@@ -96,7 +100,9 @@ case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode
   def addAgent(agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction]): VacuumMap = {
     if (nodes.count(_.maybeAgent.isDefined) == 0) {
       val selection = rand.nextInt(nodes.size)
-      updateByIndex(selection)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent)))
+      updateByIndex(selection)(
+        vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent))
+      )
     } else {
       self
     }

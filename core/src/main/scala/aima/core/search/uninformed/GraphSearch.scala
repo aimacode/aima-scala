@@ -16,7 +16,10 @@ trait GraphSearch[State, Action]
 
   type Node = StateNode[State, Action]
 
-  def search(problem: Problem[State, Action], noAction: Action): List[Action] = {
+  def search(
+      problem: Problem[State, Action],
+      noAction: Action
+  ): List[Action] = {
     val initialFrontier = newFrontier(problem.initialState, noAction)
 
     @tailrec def searchHelper(
@@ -24,8 +27,9 @@ trait GraphSearch[State, Action]
         exploredSet: Set[State] = Set.empty[State]
     ): List[Action] = {
       frontier.removeLeaf match {
-        case None                                               => List.empty[Action]
-        case Some((leaf, _)) if problem.isGoalState(leaf.state) => solution(leaf)
+        case None => List.empty[Action]
+        case Some((leaf, _)) if problem.isGoalState(leaf.state) =>
+          solution(leaf)
         case Some((leaf, updatedFrontier)) =>
           val updatedExploredSet = exploredSet + leaf.state
           val childNodes = for {
@@ -44,7 +48,11 @@ trait GraphSearch[State, Action]
     searchHelper(initialFrontier)
   }
 
-  def newChildNode(problem: Problem[State, Action], parent: Node, action: Action): Node = {
+  def newChildNode(
+      problem: Problem[State, Action],
+      parent: Node,
+      action: Action
+  ): Node = {
     val childState = problem.result(parent.state, action)
     StateNode(childState, action, Some(parent))
   }
