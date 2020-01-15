@@ -3,13 +3,13 @@ package aima.core.agent
 /**
   * @author Shawn Garner
   */
-trait Agent[E, P, A] {
-  def actuators: List[Actuator[E, A]]
-  def sensors: List[Sensor[E, P]]
-  def agentProgram: AgentProgram[P, A]
+trait Agent[ENVIRONMENT, PERCEPT, ACTION] {
+  def actuators: List[Actuator[ENVIRONMENT, ACTION]]
+  def sensors: List[Sensor[ENVIRONMENT, PERCEPT]]
+  def agentProgram: AgentProgram[PERCEPT, ACTION]
 
-  def run(e: E): E = {
-    val actions: Seq[A] = for {
+  def run(e: ENVIRONMENT): ENVIRONMENT = {
+    val actions: Seq[ACTION] = for {
       sensor <- sensors
     } yield agentProgram.agentFunction(sensor.perceive(e))
 
@@ -21,8 +21,8 @@ trait Agent[E, P, A] {
   }
 }
 
-trait AgentProgram[P, A] {
-  type AgentFunction = P => A
+trait AgentProgram[PERCEPT, ACTION] {
+  type AgentFunction = PERCEPT => ACTION
 
   def agentFunction: AgentFunction
 }

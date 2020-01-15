@@ -3,17 +3,17 @@ package aima.core.agent
 /**
   * @author Shawn Garner
   */
-trait ModelBasedReflexAgentProgram[P, A, S] extends AgentProgram[P, A] {
-  type Model       = (S, A) => S //a description of how the next state depends on the current state and action
-  type UpdateState = (S, A, P, Model) => S
-  type RuleMatch   = S => A
+trait ModelBasedReflexAgentProgram[PERCEPT, ACTION, STATE]
+    extends AgentProgram[PERCEPT, ACTION] {
+  type Model       = (STATE, ACTION) => STATE //a description of how the next state depends on the current state and action
+  type UpdateState = (STATE, ACTION, PERCEPT, Model) => STATE
+  type RuleMatch   = STATE => ACTION
 
-  def initialState: S
-  def noAction: A
+  def initialState: STATE
+  def noAction: ACTION
 
-  var state
-      : S       = initialState // the agent's current conception of the world state
-  var action: A = noAction     //most recent action
+  var state: STATE   = initialState // the agent's current conception of the world state
+  var action: ACTION = noAction     //most recent action
 
   val agentFunction: AgentFunction = { percept =>
     state = updateState(state, action, percept, model)
@@ -24,7 +24,7 @@ trait ModelBasedReflexAgentProgram[P, A, S] extends AgentProgram[P, A] {
   def rules: RuleMatch
   def model: Model // Figure depicts as persistent but doesn't define how to update it?
 
-  def ruleMatch(state: S): A = {
+  def ruleMatch(state: STATE): ACTION = {
     rules(state)
   }
 

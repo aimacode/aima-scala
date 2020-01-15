@@ -5,10 +5,11 @@ import scala.collection.mutable
 /**
   * @author Shawn Garner
   */
-trait TableDrivenAgentProgram[P, A] extends AgentProgram[P, A] {
-  type LookupTable = List[P] => A
+trait TableDrivenAgentProgram[PERCEPT, ACTION]
+    extends AgentProgram[PERCEPT, ACTION] {
+  type LookupTable = List[PERCEPT] => ACTION
 
-  val percepts = new mutable.ListBuffer[P]()
+  val percepts = new mutable.ListBuffer[PERCEPT]()
 
   def lookupTable: LookupTable
 
@@ -17,7 +18,7 @@ trait TableDrivenAgentProgram[P, A] extends AgentProgram[P, A] {
     lookup(lookupTable, percepts.toList)
   }
 
-  def lookup(lt: LookupTable, percepts: List[P]): A = {
+  def lookup(lt: LookupTable, percepts: List[PERCEPT]): ACTION = {
     lt(percepts)
   }
 }
