@@ -2,7 +2,11 @@ package aima.core.agent.basic
 
 import aima.core.agent.StatelessAgent
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
-import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED}
+import aima.core.agent.basic.OnlineDFSAgentState.{
+  RESULT,
+  UNBACKTRACKED,
+  UNTRIED
+}
 import aima.core.fp.Eqv
 import aima.core.fp.Eqv.Implicits._
 import aima.core.search.api.OnlineSearchProblem
@@ -54,18 +58,30 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE: Eqv](
       } else {
 
         val updatedUntried: UNTRIED_TYPE =
-          priorAgentState.untried.computeIfAbsent(sPrime, _ => onlineProblem.actions(sPrime))
+          priorAgentState.untried
+            .computeIfAbsent(sPrime, _ => onlineProblem.actions(sPrime))
 
-        val (updatedResult, updatedUnbacktracked): (RESULT_TYPE, UNBACKTRACKED_TYPE) =
+        val (updatedResult, updatedUnbacktracked): (
+            RESULT_TYPE,
+            UNBACKTRACKED_TYPE
+        ) =
           (priorAgentState.previousState, priorAgentState.previousAction) match {
-            case (Some(_s), Some(_a)) if !priorAgentState.result.get(_s).flatMap(_.get(_a)).contains(sPrime) =>
+            case (Some(_s), Some(_a))
+                if !priorAgentState.result
+                  .get(_s)
+                  .flatMap(_.get(_a))
+                  .contains(sPrime) =>
               val resultOrigActionToState: Map[ACTION, STATE] =
                 priorAgentState.result.getOrElse(_s, Map.empty[ACTION, STATE])
-              val updatedResultActionToState
-                  : Map[ACTION, STATE] = resultOrigActionToState.put(_a, sPrime) // TODO: could be less verbose with lense
+              val updatedResultActionToState: Map[ACTION, STATE] =
+                resultOrigActionToState
+                  .put(_a, sPrime) // TODO: could be less verbose with lense
               (
                 priorAgentState.result.put(_s, updatedResultActionToState),
-                priorAgentState.unbacktracked.transformValue(sPrime, fv => fv.fold(List(_s))(st => _s :: st))
+                priorAgentState.unbacktracked.transformValue(
+                  sPrime,
+                  fv => fv.fold(List(_s))(st => _s :: st)
+                )
               )
             case _ =>
               (
@@ -74,45 +90,52 @@ final class OnlineDFSAgent[PERCEPT, ACTION, STATE: Eqv](
               )
           }
 
-        val updatedUntriedList: List[ACTION] = updatedUntried.get(sPrime).toList.flatten
+        val updatedUntriedList: List[ACTION] =
+          updatedUntried.get(sPrime).toList.flatten
 
-        val updatedAgentState: OnlineDFSAgentState[ACTION, STATE] = updatedUntriedList match {
-          case Nil =>
-            val unbacktrackedList: List[STATE] = updatedUnbacktracked.get(sPrime).toList.flatten
-            unbacktrackedList match {
-              case Nil =>
-                priorAgentState.copy(
-                  previousAction = Some(stop),
-                  previousState = Some(sPrime),
-                  untried = updatedUntried,
-                  result = updatedResult,
-                  unbacktracked = updatedUnbacktracked
-                )
+        val updatedAgentState: OnlineDFSAgentState[ACTION, STATE] =
+          updatedUntriedList match {
+            case Nil =>
+              val unbacktrackedList: List[STATE] =
+                updatedUnbacktracked.get(sPrime).toList.flatten
+              unbacktrackedList match {
+                case Nil =>
+                  priorAgentState.copy(
+                    previousAction = Some(stop),
+                    previousState = Some(sPrime),
+                    untried = updatedUntried,
+                    result = updatedResult,
+                    unbacktracked = updatedUnbacktracked
+                  )
 
-              case popped :: remainingUnbacktracked =>
-                val action: Option[ACTION] =
-                  updatedResult.getOrElse(sPrime, Map.empty[ACTION, STATE]).toList.collectFirst {
-                    case (action, state) if popped === state => action
-                  }
+                case popped :: remainingUnbacktracked =>
+                  val action: Option[ACTION] =
+                    updatedResult
+                      .getOrElse(sPrime, Map.empty[ACTION, STATE])
+                      .toList
+                      .collectFirst {
+                        case (action, state) if popped === state => action
+                      }
 
-                priorAgentState.copy(
-                  previousAction = action,
-                  previousState = Some(sPrime),
-                  untried = updatedUntried,
-                  result = updatedResult,
-                  unbacktracked = updatedUnbacktracked.updated(sPrime, remainingUnbacktracked)
-                )
-            }
+                  priorAgentState.copy(
+                    previousAction = action,
+                    previousState = Some(sPrime),
+                    untried = updatedUntried,
+                    result = updatedResult,
+                    unbacktracked = updatedUnbacktracked
+                      .updated(sPrime, remainingUnbacktracked)
+                  )
+              }
 
-          case popped :: remainingUntried =>
-            priorAgentState.copy(
-              previousAction = Some(popped),
-              previousState = Some(sPrime),
-              untried = updatedUntried.updated(sPrime, remainingUntried),
-              result = updatedResult,
-              unbacktracked = updatedUnbacktracked
-            )
-        }
+            case popped :: remainingUntried =>
+              priorAgentState.copy(
+                previousAction = Some(popped),
+                previousState = Some(sPrime),
+                untried = updatedUntried.updated(sPrime, remainingUntried),
+                result = updatedResult,
+                unbacktracked = updatedUnbacktracked
+              )
+          }
 
         (updatedAgentState.previousAction.getOrElse(stop), updatedAgentState)
       }

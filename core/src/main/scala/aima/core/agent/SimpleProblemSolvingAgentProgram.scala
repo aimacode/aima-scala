@@ -3,12 +3,13 @@ package aima.core.agent
 /**
   * @author Shawn Garner
   */
-trait SimpleProblemSolvingAgent[State, Action, Percept, Goal, Problem] extends Agent[Action, Percept] {
+trait SimpleProblemSolvingAgentProgram[P, A, S, G, PB]
+    extends AgentProgram[P, A] {
 
-  def initialState: State
-  def noAction: Action
+  def initialState: S
+  def noAction: A
 
-  var actions = List.empty[Action]
+  var actions = List.empty[A]
   var state   = initialState
 
   def agentFunction: AgentFunction = { percept =>
@@ -28,8 +29,8 @@ trait SimpleProblemSolvingAgent[State, Action, Percept, Goal, Problem] extends A
     firstAction
   }
 
-  def updateState(state: State, percept: Percept): State
-  def formulateGoal(state: State): Goal
-  def formulateProblem(state: State, goal: Goal): Problem
-  def search(problem: Problem): List[Action]
+  def updateState(state: S, percept: P): S
+  def formulateGoal(state: S): G
+  def formulateProblem(state: S, goal: G): PB
+  def search(problem: PB): List[A]
 }

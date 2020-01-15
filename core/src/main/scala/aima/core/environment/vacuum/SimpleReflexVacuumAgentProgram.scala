@@ -1,11 +1,13 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.SimpleReflexAgent
+import aima.core.agent.SimpleReflexAgentProgram
 
 /**
   * @author Shawn Garner
   */
-class SimpleReflexVacuumAgent extends SimpleReflexAgent[VacuumPercept, VacuumAction, VacuumPercept] {
+class SimpleReflexVacuumAgentProgram
+    extends SimpleReflexAgentProgram[VacuumPercept, VacuumAction] {
+  override type State = VacuumPercept
   val interpretInput: InterpretInput = identity
 
   val rules: RuleMatch = {

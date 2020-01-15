@@ -98,11 +98,17 @@ object Romania {
   val snCTag: ClassTag[StateNode[RomaniaState, RomaniaAction]] =
     classTag[StateNode[RomaniaState, RomaniaAction]]
 
-  val cnCTag: ClassTag[CostNode[RomaniaState, RomaniaAction]] = classTag[CostNode[RomaniaState, RomaniaAction]]
+  val cnCTag: ClassTag[CostNode[RomaniaState, RomaniaAction]] =
+    classTag[CostNode[RomaniaState, RomaniaAction]]
 
-  class RomaniaRoadProblem(val initialState: RomaniaState, val goalState: RomaniaState)
-      extends Problem[RomaniaState, RomaniaAction] {
-    def result(currentState: RomaniaState, action: RomaniaAction): RomaniaState = action match {
+  class RomaniaRoadProblem(
+      val initialState: RomaniaState,
+      val goalState: RomaniaState
+  ) extends Problem[RomaniaState, RomaniaAction] {
+    def result(
+        currentState: RomaniaState,
+        action: RomaniaAction
+    ): RomaniaState = action match {
       case GoTo(city) => In(city)
       case NoAction   => currentState
     }
@@ -116,7 +122,11 @@ object Romania {
       case _                    => false
     }
 
-    def stepCost(state: RomaniaState, action: RomaniaAction, statePrime: RomaniaState): Int =
+    def stepCost(
+        state: RomaniaState,
+        action: RomaniaAction,
+        statePrime: RomaniaState
+    ): Int =
       (state, statePrime) match {
         case (In(city), In(cityPrime)) =>
           val maybeCost = roadsFromCity(city) collectFirst {

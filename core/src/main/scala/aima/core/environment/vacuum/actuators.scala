@@ -6,19 +6,19 @@ import aima.core.random.DefaultRandomness
 /**
   * @author Shawn Garner
   */
-class SuckerActuator[Action, Percept](val agent: Agent[Action, Percept])
-    extends UnreliableActuator[Action, Percept]
+class SuckerActuator(val agent: Agent[Vacuum, VacuumPercept, VacuumAction])
+    extends UnreliableActuator[Vacuum, VacuumAction]
     with DefaultRandomness { self =>
-  def act(action: Action, environment: Environment[Action, Percept]): Environment[Action, Percept] = {
+  def act(action: VacuumAction, environment: Vacuum): Vacuum = {
     unreliably(environment) {
       environment.actuate(self, action)
     }
   }
 }
-class MoveActuator[Action, Percept](val agent: Agent[Action, Percept])
-    extends UnreliableActuator[Action, Percept]
+class MoveActuator(val agent: Agent[Vacuum, VacuumPercept, VacuumAction])
+    extends UnreliableActuator[Vacuum, VacuumAction]
     with DefaultRandomness { self =>
-  def act(action: Action, environment: Environment[Action, Percept]): Environment[Action, Percept] = {
+  def act(action: VacuumAction, environment: Vacuum): Vacuum = {
     unreliably(environment) {
       environment.actuate(self, action)
     }

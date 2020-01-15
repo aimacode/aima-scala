@@ -30,21 +30,26 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
 
     "lower limit check" in {
       schedule()(TimeStep.start) match {
-        case Temperature(t) => t must beCloseTo(19.1d within 3.significantFigures)
-        case other          => ko(other.toString)
+        case Temperature(t) =>
+          t must beCloseTo(19.1d within 3.significantFigures)
+        case other => ko(other.toString)
       }
     }
 
     "upper limit check" in {
       increment(TimeStep.start, 98).map(schedule()(_)) match {
-        case Success(Temperature(t)) => t must beCloseTo(0.232d within 3.significantFigures)
-        case other                   => ko(other.toString)
+        case Success(Temperature(t)) =>
+          t must beCloseTo(0.232d within 3.significantFigures)
+        case other => ko(other.toString)
       }
 
     }
 
     "over limit check" in {
-      increment(TimeStep.start, 99).map(schedule()(_)) must beSuccessfulTry[TemperatureResult](OverTimeStepLimit)
+      increment(TimeStep.start, 99)
+        .map(schedule()(_)) must beSuccessfulTry[TemperatureResult](
+        OverTimeStepLimit
+      )
     }
 
     implicit val arbTimeStep: Arbitrary[TimeStep] = Arbitrary {
@@ -82,55 +87,72 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
         q6row <- Gen.oneOf(l6)
         l7    = l6.filterNot(_ == q6row)
         q7row <- Gen.oneOf(l7)
-      } yield
-        EightQueensState(
-          List(
-            QueenPosition(q0row),
-            QueenPosition(q1row),
-            QueenPosition(q2row),
-            QueenPosition(q3row),
-            QueenPosition(q4row),
-            QueenPosition(q5row),
-            QueenPosition(q6row),
-            QueenPosition(q7row)
-          )
+      } yield EightQueensState(
+        List(
+          QueenPosition(q0row),
+          QueenPosition(q1row),
+          QueenPosition(q2row),
+          QueenPosition(q3row),
+          QueenPosition(q4row),
+          QueenPosition(q5row),
+          QueenPosition(q6row),
+          QueenPosition(q7row)
         )
+      )
     }
 
     "find solution" >> prop { s: EightQueensState =>
-      val eightQueensProblem = new Problem[EightQueensState, EightQueensAction] {
-        override def initialState = s
+      val eightQueensProblem =
+        new Problem[EightQueensState, EightQueensAction] {
+          override def initialState = s
 
-        override def isGoalState(state: EightQueensState): Boolean = false // Not used
+          override def isGoalState(state: EightQueensState): Boolean =
+            false // Not used
 
-        override def actions(state: EightQueensState): List[EightQueensAction] = state match {
-          case EightQueensState(cols) =>
-            cols.zipWithIndex.flatMap {
-              case (QueenPosition(rowIndex), colIndex) =>
-                (0 to 7).toList.filterNot(r => rowIndex == r).map(newRowIndex => MoveTo(colIndex, newRowIndex))
-            }
-        }
-
-        override def result(state: EightQueensState, action: EightQueensAction): EightQueensState =
-          (state, action) match {
-            case (EightQueensState(cols), MoveTo(colIndex, newRowIndex)) =>
-              EightQueensState(cols.updated(colIndex, QueenPosition(newRowIndex)))
-
+          override def actions(
+              state: EightQueensState
+          ): List[EightQueensAction] = state match {
+            case EightQueensState(cols) =>
+              cols.zipWithIndex.flatMap {
+                case (QueenPosition(rowIndex), colIndex) =>
+                  (0 to 7).toList
+                    .filterNot(r => rowIndex == r)
+                    .map(newRowIndex => MoveTo(colIndex, newRowIndex))
+              }
           }
 
-        override def stepCost(state: EightQueensState, action: EightQueensAction, childPrime: EightQueensState): Int =
-          -1 // Not used
-      }
+          override def result(
+              state: EightQueensState,
+              action: EightQueensAction
+          ): EightQueensState =
+            (state, action) match {
+              case (EightQueensState(cols), MoveTo(colIndex, newRowIndex)) =>
+                EightQueensState(
+                  cols.updated(colIndex, QueenPosition(newRowIndex))
+                )
+
+            }
+
+          override def stepCost(
+              state: EightQueensState,
+              action: EightQueensAction,
+              childPrime: EightQueensState
+          ): Int =
+            -1 // Not used
+        }
 
       val result =
         SimulatedAnnealingSearch.apply(
           queenStateToValue,
           eightQueensProblem,
-          BasicSchedule.schedule(BasicSchedule.defaultScheduleParams.copy(limit = 10000))
+          BasicSchedule.schedule(
+            BasicSchedule.defaultScheduleParams.copy(limit = 10000)
+          )
         )
 
       result must beSuccessfulTry.like {
-        case s @ EightQueensState(_) => queenStateToValue(s) must be beCloseTo (8.00d within 2.significantFigures)
+        case s @ EightQueensState(_) =>
+          queenStateToValue(s) must be beCloseTo (8.00d within 2.significantFigures)
       }
 
       result.foreach {
@@ -159,25 +181,28 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
 
 object SimulatedAnnealingSearchSpec {
   sealed trait EightQueensAction
-  final case class MoveTo(columnIndex: Int, newRowIndex: Int) extends EightQueensAction
+  final case class MoveTo(columnIndex: Int, newRowIndex: Int)
+      extends EightQueensAction
 
   final case class QueenPosition(row: Int) extends AnyVal
   final case class EightQueensState(columns: List[QueenPosition])
 
   def canAttackHorizontal(columnIndex: Int, s: EightQueensState): Boolean = {
-    val currentRow      = s.columns(columnIndex).row
-    val rows: List[Int] = s.columns.zipWithIndex.filterNot(_._2 == columnIndex).map(_._1.row)
+    val currentRow = s.columns(columnIndex).row
+    val rows: List[Int] =
+      s.columns.zipWithIndex.filterNot(_._2 == columnIndex).map(_._1.row)
     rows.contains(currentRow)
   }
 
   def canAttackDiagonal(columnIndex: Int, s: EightQueensState): Boolean = {
     val currentRow = s.columns(columnIndex).row
-    val rows: List[Boolean] = s.columns.zipWithIndex.filterNot(_._2 == columnIndex).map {
-      case (QueenPosition(rowIdx), colIdx) =>
-        val run  = math.abs(colIdx - columnIndex)
-        val rise = math.abs(rowIdx - currentRow)
-        rise == run
-    }
+    val rows: List[Boolean] =
+      s.columns.zipWithIndex.filterNot(_._2 == columnIndex).map {
+        case (QueenPosition(rowIdx), colIdx) =>
+          val run  = math.abs(colIdx - columnIndex)
+          val rise = math.abs(rowIdx - currentRow)
+          rise == run
+      }
 
     rows.contains(true)
   }
@@ -187,7 +212,10 @@ object SimulatedAnnealingSearchSpec {
       cols.zipWithIndex.foldLeft(0.0d) {
         case (acc, elem) =>
           val currentColumnIndex = elem._2
-          if (canAttackHorizontal(currentColumnIndex, state) || canAttackDiagonal(currentColumnIndex, state)) {
+          if (canAttackHorizontal(currentColumnIndex, state) || canAttackDiagonal(
+                currentColumnIndex,
+                state
+              )) {
             acc
           } else {
             acc + 1.0d

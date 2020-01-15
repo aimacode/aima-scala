@@ -5,8 +5,11 @@ package aima.core.environment.map2d
   */
 final class LabeledGraph[Vertex, Edge] {
   import scala.collection.mutable
-  val globalEdgeLookup = new mutable.LinkedHashMap[Vertex, mutable.LinkedHashMap[Vertex, Edge]]() // TODO: get rid of mutability; ListMap should work
-  val vertexLabelsList = new mutable.ArrayBuffer[Vertex]()                                        // TODO: get rid of mutability
+  val globalEdgeLookup = new mutable.LinkedHashMap[
+    Vertex,
+    mutable.LinkedHashMap[Vertex, Edge]
+  ]() // TODO: get rid of mutability; ListMap should work
+  val vertexLabelsList = new mutable.ArrayBuffer[Vertex]() // TODO: get rid of mutability
 
   def addVertex(v: Vertex): Unit = {
     checkForNewVertex(v)
@@ -46,7 +49,9 @@ final class LabeledGraph[Vertex, Edge] {
     globalEdgeLookup.clear()
   }
 
-  private def checkForNewVertex(v: Vertex): mutable.LinkedHashMap[Vertex, Edge] = {
+  private def checkForNewVertex(
+      v: Vertex
+  ): mutable.LinkedHashMap[Vertex, Edge] = {
     val maybeExisting = globalEdgeLookup.get(v)
     maybeExisting match {
       case None =>

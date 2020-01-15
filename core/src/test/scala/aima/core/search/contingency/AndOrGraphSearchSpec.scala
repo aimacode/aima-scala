@@ -1,7 +1,10 @@
 package aima.core.search.contingency
 
 import aima.core.fp.Show
-import aima.core.search.contingency.AndOrGraphSearchSpec.{Action, VacuumWorldState}
+import aima.core.search.contingency.AndOrGraphSearchSpec.{
+  Action,
+  VacuumWorldState
+}
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
@@ -47,7 +50,11 @@ object AndOrGraphSearchSpec {
     }
   }
 
-  final case class VacuumWorldState(vacuumLocation: Location, a: Status, b: Status)
+  final case class VacuumWorldState(
+      vacuumLocation: Location,
+      a: Status,
+      b: Status
+  )
 
   object VacuumWorldState {
     object Implicits {
@@ -60,7 +67,9 @@ object AndOrGraphSearchSpec {
       }
 
       import Show.Implicits._
-      implicit def vacuumWorldStateShow(implicit statusShow: Show[Status]): Show[VacuumWorldState] =
+      implicit def vacuumWorldStateShow(
+          implicit statusShow: Show[Status]
+      ): Show[VacuumWorldState] =
         new Show[VacuumWorldState] {
           override def show(s: VacuumWorldState): String =
             s.vacuumLocation match {
@@ -71,40 +80,48 @@ object AndOrGraphSearchSpec {
     }
   }
 
-  def problem(initial: VacuumWorldState) = new NondeterministicProblem[Action, VacuumWorldState] {
-    override def initialState(): VacuumWorldState = initial
+  def problem(initial: VacuumWorldState) =
+    new NondeterministicProblem[Action, VacuumWorldState] {
+      override def initialState(): VacuumWorldState = initial
 
-    override def actions(s: VacuumWorldState): List[Action] = allActions
+      override def actions(s: VacuumWorldState): List[Action] = allActions
 
-    override def results(s: VacuumWorldState, a: Action): List[VacuumWorldState] = (s, a) match {
-      case (_, MoveRight) => List(s.copy(vacuumLocation = LocationB))
-      case (_, MoveLeft)  => List(s.copy(vacuumLocation = LocationA))
+      override def results(
+          s: VacuumWorldState,
+          a: Action
+      ): List[VacuumWorldState] = (s, a) match {
+        case (_, MoveRight) => List(s.copy(vacuumLocation = LocationB))
+        case (_, MoveLeft)  => List(s.copy(vacuumLocation = LocationA))
 
-      case (VacuumWorldState(LocationA, Clean, _), Suck) =>
-        List(s, s.copy(a = Dirty)) // if current location is clean suck can sometimes deposit dirt
-      case (VacuumWorldState(LocationB, _, Clean), Suck) =>
-        List(s, s.copy(b = Dirty)) // if current location is clean suck can sometimes deposit dirt
+        case (VacuumWorldState(LocationA, Clean, _), Suck) =>
+          List(s, s.copy(a = Dirty)) // if current location is clean suck can sometimes deposit dirt
+        case (VacuumWorldState(LocationB, _, Clean), Suck) =>
+          List(s, s.copy(b = Dirty)) // if current location is clean suck can sometimes deposit dirt
 
-      case (VacuumWorldState(LocationA, Dirty, Dirty), Suck) =>
-        List(s.copy(a = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
-      case (VacuumWorldState(LocationB, Dirty, Dirty), Suck) =>
-        List(s.copy(b = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
+        case (VacuumWorldState(LocationA, Dirty, Dirty), Suck) =>
+          List(s.copy(a = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
+        case (VacuumWorldState(LocationB, Dirty, Dirty), Suck) =>
+          List(s.copy(b = Clean), s.copy(a = Clean, b = Clean)) // if current location is dirty sometimes also cleans up adjacent location
 
-      case (VacuumWorldState(LocationA, Dirty, _), Suck) =>
-        List(s.copy(a = Clean))
-      case (VacuumWorldState(LocationB, _, Dirty), Suck) =>
-        List(s.copy(b = Clean))
+        case (VacuumWorldState(LocationA, Dirty, _), Suck) =>
+          List(s.copy(a = Clean))
+        case (VacuumWorldState(LocationB, _, Dirty), Suck) =>
+          List(s.copy(b = Clean))
 
+      }
+
+      override def isGoalState(s: VacuumWorldState): Boolean = s match {
+        case VacuumWorldState(_, Clean, Clean) => true
+        case _                                 => false
+      }
+
+      override def stepCost(
+          s: VacuumWorldState,
+          a: Action,
+          childPrime: VacuumWorldState
+      ): Double =
+        ??? // Not used
     }
-
-    override def isGoalState(s: VacuumWorldState): Boolean = s match {
-      case VacuumWorldState(_, Clean, Clean) => true
-      case _                                 => false
-    }
-
-    override def stepCost(s: VacuumWorldState, a: Action, childPrime: VacuumWorldState): Double =
-      ??? // Not used
-  }
 
   import scala.reflect.classTag
   val aCTag: ClassTag[Action]           = classTag[Action]
@@ -114,13 +131,17 @@ object AndOrGraphSearchSpec {
 /**
   * @author Shawn Garner
   */
-class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, VacuumWorldState] with ScalaCheck {
+class AndOrGraphSearchSpec
+    extends Specification
+    with AndOrGraphSearch[Action, VacuumWorldState]
+    with ScalaCheck {
   import AndOrGraphSearchSpec._
 
   import Action.Implicits.showAction
   import Status.Implicits.statusShow
   import VacuumWorldState.Implicits.vacuumWorldStateShow
-  implicit def sCP: Show[ConditionalPlan] = ConditionalPlan.Implicits.showConditionalPlan[VacuumWorldState, Action]
+  implicit def sCP: Show[ConditionalPlan] =
+    ConditionalPlan.Implicits.showConditionalPlan[VacuumWorldState, Action]
   import Show.Implicits._
 
   "AndOrGraphSearch" should {
@@ -213,13 +234,14 @@ class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, V
     }
 
     import VacuumWorldState.Implicits.arbVacuumWorldState
-    "find solutions for all initial states" >> prop { initial: VacuumWorldState =>
-      val prob = problem(initial)
-      val cp   = andOrGraphSearch(prob)
-      cp match {
-        case _: ConditionalPlan => ok
-        case f                  => ko(f.toString)
-      }
+    "find solutions for all initial states" >> prop {
+      initial: VacuumWorldState =>
+        val prob = problem(initial)
+        val cp   = andOrGraphSearch(prob)
+        cp match {
+          case _: ConditionalPlan => ok
+          case f                  => ko(f.toString)
+        }
     }
   }
   override implicit val aCT: ClassTag[Action]           = aCTag

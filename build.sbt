@@ -13,7 +13,7 @@ lazy val commonSettings = Seq(
     autoCompilerPlugins := true
   )
 
-lazy val root = (project in file("."))
+lazy val aima = (project in file("."))
   .settings(commonSettings: _*)
   .aggregate(core.jvm, core.js)
 

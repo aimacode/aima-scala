@@ -27,7 +27,7 @@ class SimpleReflexVacuumAgentSpec extends Specification {
   }
 
   trait context extends Scope {
-    val agent = new SimpleReflexVacuumAgent
+    val agent = new SimpleReflexVacuumAgentProgram
 
   }
 }
