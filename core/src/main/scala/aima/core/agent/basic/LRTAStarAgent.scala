@@ -4,6 +4,7 @@ import aima.core.agent.StatelessAgent
 import aima.core.agent.basic.LRTAStarAgent.IdentifyState
 import aima.core.agent.basic.LRTAStarAgentState.{COST_ESTIMATES, RESULT}
 import aima.core.search.api.OnlineSearchProblem
+import Ordering.Double.TotalOrdering
 
 /**
   *

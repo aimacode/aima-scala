@@ -1,6 +1,7 @@
 package aima.core.search.local
 
 import aima.core.search.Problem
+import Ordering.Double.TotalOrdering
 
 import scala.annotation.tailrec
 

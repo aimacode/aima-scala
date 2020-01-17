@@ -14,7 +14,7 @@ class FIFOQueueFrontier[State, Action, Node <: SearchNode[State, Action]](queue:
     case (leaf, updatedQueue) => (leaf, new FIFOQueueFrontier[State, Action, Node](updatedQueue, stateSet - leaf.state))
   }
   def addAll(iterable: Iterable[Node]): Frontier[State, Action, Node] =
-    new FIFOQueueFrontier(queue.enqueue(iterable), stateSet ++ iterable.map(_.state))
+    new FIFOQueueFrontier(queue.enqueueAll(iterable), stateSet ++ iterable.map(_.state))
   def contains(state: State): Boolean = stateSet.contains(state)
 
   def replaceByState(node: Node): Frontier[State, Action, Node] = {

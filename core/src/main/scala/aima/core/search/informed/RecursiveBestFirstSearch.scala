@@ -1,6 +1,7 @@
 package aima.core.search.informed
 
 import aima.core.search.{HeuristicsNode, Problem, ProblemSearch}
+import Ordering.Double.TotalOrdering
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
