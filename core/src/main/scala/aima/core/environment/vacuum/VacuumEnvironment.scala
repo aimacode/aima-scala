@@ -28,14 +28,13 @@ case class Vacuum(map: VacuumMap = VacuumMap()) extends Environment[Vacuum, Vacu
       case _ => this
     }
 
-  def perceive(sensor: Sensor[Vacuum, VacuumPercept]): VacuumPercept =
-    sensor match {
-      case ls: AgentLocationSensor =>
-        map.getAgentLocation(ls.agent).getOrElse(NoPercept)
+  def perceive(sensor: Sensor[Vacuum, VacuumPercept]): VacuumPercept = sensor match {
+    case ls: AgentLocationSensor =>
+      map.getAgentLocation(ls.agent).getOrElse(NoPercept)
 
-      case ds: DirtSensor =>
-        map.getDirtStatus(ds.agent).getOrElse(NoPercept)
-    }
+    case ds: DirtSensor =>
+      map.getDirtStatus(ds.agent).getOrElse(NoPercept)
+  }
 
   def isClean(): Boolean = {
     map.isClean()
@@ -47,9 +46,7 @@ case class VacuumMapNode(
     maybeAgent: Option[Agent[Vacuum, VacuumPercept, VacuumAction]] = None
 )
 
-case class VacuumMap(
-    nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode())
-) extends DefaultRandomness {
+case class VacuumMap(nodes: Vector[VacuumMapNode] = Vector.fill(2)(VacuumMapNode())) extends DefaultRandomness {
   self =>
 
   def isClean(): Boolean = {
@@ -61,20 +58,14 @@ case class VacuumMap(
     }
   }
 
-  def getAgentNode(
-      agent: Agent[Vacuum, VacuumPercept, VacuumAction]
-  ): Option[VacuumMapNode] = nodes.collectFirst {
+  def getAgentNode(agent: Agent[Vacuum, VacuumPercept, VacuumAction]): Option[VacuumMapNode] = nodes.collectFirst {
     case VacuumMapNode(dirtStatus, Some(a)) if agent == a =>
       VacuumMapNode(dirtStatus, Some(a))
   }
-  def getDirtStatus(
-      agent: Agent[Vacuum, VacuumPercept, VacuumAction]
-  ): Option[VacuumPercept] =
+  def getDirtStatus(agent: Agent[Vacuum, VacuumPercept, VacuumAction]): Option[VacuumPercept] =
     getAgentNode(agent).map(_.dirtStatus)
 
-  def getAgentLocation(
-      agent: Agent[Vacuum, VacuumPercept, VacuumAction]
-  ): Option[VacuumPercept] = {
+  def getAgentLocation(agent: Agent[Vacuum, VacuumPercept, VacuumAction]): Option[VacuumPercept] = {
     val maybeIndex = nodes.zipWithIndex.collectFirst {
       case (VacuumMapNode(_, Some(a)), index) if agent == a => index
     }
@@ -94,10 +85,7 @@ case class VacuumMap(
       case RightMoveAction => 1
     }
 
-  def moveAgent(
-      agent: Agent[Vacuum, VacuumPercept, VacuumAction],
-      direction: MoveAction
-  ): VacuumMap = {
+  def moveAgent(agent: Agent[Vacuum, VacuumPercept, VacuumAction], direction: MoveAction): VacuumMap = {
     removeAgent(agent).updateByIndex(directionToMapIndex(direction))(vacuumMapNode =>
       vacuumMapNode.copy(maybeAgent = Some(agent))
     )
@@ -113,20 +101,13 @@ case class VacuumMap(
     VacuumMap(updatedNodes)
   }
 
-  def updateStatus(
-      agent: Agent[Vacuum, VacuumPercept, VacuumAction],
-      dirtStatusPercepts: DirtPercept
-  ): VacuumMap =
+  def updateStatus(agent: Agent[Vacuum, VacuumPercept, VacuumAction], dirtStatusPercepts: DirtPercept): VacuumMap =
     updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(dirtStatus = dirtStatusPercepts))
 
-  def removeAgent(
-      agent: Agent[Vacuum, VacuumPercept, VacuumAction]
-  ): VacuumMap =
+  def removeAgent(agent: Agent[Vacuum, VacuumPercept, VacuumAction]): VacuumMap =
     updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = None))
 
-  private def updateByIndex(
-      index: Int
-  )(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
+  private def updateByIndex(index: Int)(f: VacuumMapNode => VacuumMapNode): VacuumMap = {
     val node         = nodes.apply(index)
     val updatedNodes = nodes.updated(index, f(node))
     VacuumMap(updatedNodes)

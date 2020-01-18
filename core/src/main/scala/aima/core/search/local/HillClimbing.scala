@@ -24,19 +24,12 @@ object HillClimbing {
 
   final case class StateValueNode[State](state: State, value: Double)
 
-  def apply[State, Action](
-      stateToValue: State => Double
-  )(problem: Problem[State, Action]): State = {
+  def apply[State, Action](stateToValue: State => Double)(problem: Problem[State, Action]): State = {
 
     def makeNode(state: State) = StateValueNode(state, stateToValue(state))
 
-    def highestValuedSuccessor(
-        current: StateValueNode[State]
-    ): StateValueNode[State] = {
-      val successors = problem
-        .actions(current.state)
-        .map(a => problem.result(current.state, a))
-        .map(makeNode)
+    def highestValuedSuccessor(current: StateValueNode[State]): StateValueNode[State] = {
+      val successors = problem.actions(current.state).map(a => problem.result(current.state, a)).map(makeNode)
 
       if (successors.isEmpty) {
         current

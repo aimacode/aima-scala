@@ -82,38 +82,27 @@ class VacuumMapSpec extends Specification with ScalaCheck {
 
   "moving right will put in spot B" in prop { map: VacuumMap =>
     val agent = noopAgent
-    map
-      .addAgent(agent)
-      .moveAgent(agent, RightMoveAction)
-      .getAgentLocation(agent) must beSome[VacuumPercept](
+    map.addAgent(agent).moveAgent(agent, RightMoveAction).getAgentLocation(agent) must beSome[VacuumPercept](
       LocationBPercept
     )
   }
 
   "moving left will put in spot A" in prop { map: VacuumMap =>
     val agent = noopAgent
-    map
-      .addAgent(agent)
-      .moveAgent(agent, LeftMoveAction)
-      .getAgentLocation(agent) must beSome[VacuumPercept](
+    map.addAgent(agent).moveAgent(agent, LeftMoveAction).getAgentLocation(agent) must beSome[VacuumPercept](
       LocationAPercept
     )
   }
 
   "updating dirt status of dirty will return dirt percept of dirty" in prop { map: VacuumMap =>
     val agent = noopAgent
-    map
-      .addAgent(agent)
-      .updateStatus(agent, DirtyPercept)
-      .getDirtStatus(agent) must beSome[VacuumPercept](DirtyPercept)
+    map.addAgent(agent).updateStatus(agent, DirtyPercept).getDirtStatus(agent) must beSome[VacuumPercept](DirtyPercept)
   }
 
   "updating dirt status of clean will return clean percept of dirty" in prop { map: VacuumMap =>
     val agent = noopAgent
-    map
-      .addAgent(agent)
-      .updateStatus(agent, CleanPercept)
-      .getDirtStatus(agent) must beSome[VacuumPercept](CleanPercept)
+    map.addAgent(agent).updateStatus(agent, CleanPercept).getDirtStatus(agent) must
+      beSome[VacuumPercept](CleanPercept)
   }
 
   "removing agent must have no location percept" in prop { map: VacuumMap =>

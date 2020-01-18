@@ -48,10 +48,8 @@ package time {
 object SimulatedAnnealingSearch {
 
   sealed trait TemperatureResult
-  final case class Temperature private[SimulatedAnnealingSearch] (
-      double: Double
-  ) extends TemperatureResult
-  case object OverTimeStepLimit extends TemperatureResult
+  final case class Temperature private[SimulatedAnnealingSearch] (double: Double) extends TemperatureResult
+  case object OverTimeStepLimit                                                   extends TemperatureResult
 
   type Schedule = TimeStep => TemperatureResult
 
@@ -76,10 +74,7 @@ object SimulatedAnnealingSearch {
 
   final case class StateValueNode[State](state: State, value: Double)
 
-  def apply[State, Action](
-      stateToValue: State => Double,
-      problem: Problem[State, Action]
-  ): Try[State] =
+  def apply[State, Action](stateToValue: State => Double, problem: Problem[State, Action]): Try[State] =
     apply(stateToValue, problem, BasicSchedule.schedule())
 
   def apply[State, Action](
@@ -89,12 +84,9 @@ object SimulatedAnnealingSearch {
   ): Try[State] = {
     val random = new Random()
 
-    def makeNode(state: State): StateValueNode[State] =
-      StateValueNode(state, stateToValue(state))
+    def makeNode(state: State): StateValueNode[State] = StateValueNode(state, stateToValue(state))
 
-    def randomlySelectSuccessor(
-        current: StateValueNode[State]
-    ): StateValueNode[State] = {
+    def randomlySelectSuccessor(current: StateValueNode[State]): StateValueNode[State] = {
       // Default successor to current, so that in the case we reach a dead-end
       // state i.e. one without reversible actions we will return something.
       // This will not break the code above as the loop will exit when the
@@ -102,9 +94,7 @@ object SimulatedAnnealingSearch {
       val actions = problem.actions(current.state)
       val successor = {
         if (actions.nonEmpty) {
-          makeNode(
-            problem.result(current.state, actions(random.nextInt(actions.size)))
-          )
+          makeNode(problem.result(current.state, actions(random.nextInt(actions.size))))
         } else {
           current
         }
@@ -113,10 +103,7 @@ object SimulatedAnnealingSearch {
       successor
     }
 
-    @tailrec def recurse(
-        current: StateValueNode[State],
-        t: Try[TimeStep]
-    ): Try[StateValueNode[State]] = {
+    @tailrec def recurse(current: StateValueNode[State], t: Try[TimeStep]): Try[StateValueNode[State]] = {
       import time.TimeStep.Implicits._
       t match {
         case Failure(f) => Failure(f)
@@ -126,10 +113,9 @@ object SimulatedAnnealingSearch {
             case OverTimeStepLimit => Success(current)
 
             case Temperature(temperatureT) =>
-              val randomSuccessor = randomlySelectSuccessor(current)
-              val DeltaE          = randomSuccessor.value - current.value
-              lazy val acceptDownHillMove = math.exp(DeltaE / temperatureT) > random
-                .nextDouble()
+              val randomSuccessor         = randomlySelectSuccessor(current)
+              val DeltaE                  = randomSuccessor.value - current.value
+              lazy val acceptDownHillMove = math.exp(DeltaE / temperatureT) > random.nextDouble()
 
               val nextNode = {
                 if (DeltaE > 0.0d || acceptDownHillMove) {
@@ -147,7 +133,6 @@ object SimulatedAnnealingSearch {
 
     }
 
-    recurse(makeNode(problem.initialState), Success(TimeStep.start))
-      .map(_.state)
+    recurse(makeNode(problem.initialState), Success(TimeStep.start)).map(_.state)
   }
 }

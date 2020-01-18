@@ -45,17 +45,10 @@ final case class HeuristicsNode[State, Action](
 trait ProblemSearch[State, Action, Node <: SearchNode[State, Action]] {
   implicit val nCT: ClassTag[Node]
 
-  def newChildNode(
-      problem: Problem[State, Action],
-      parent: Node,
-      action: Action
-  ): Node
+  def newChildNode(problem: Problem[State, Action], parent: Node, action: Action): Node
 
   def solution(node: Node): List[Action] = {
-    @tailrec def solutionHelper(
-        n: Node,
-        actions: List[Action]
-    ): List[Action] = {
+    @tailrec def solutionHelper(n: Node, actions: List[Action]): List[Action] = {
       n.parent match {
         case None               => actions
         case Some(parent: Node) => solutionHelper(parent, n.action :: actions)

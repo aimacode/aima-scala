@@ -19,12 +19,8 @@ final case class VacuumWorldState(
   * @author Shawn Garner
   */
 class ModelBasedReflexVacuumAgentProgram
-    extends ModelBasedReflexAgentProgram[
-      VacuumPercept,
-      VacuumAction,
-      VacuumWorldState
-    ] {
-//  override type State = VacuumWorldState
+    extends ModelBasedReflexAgentProgram[VacuumPercept, VacuumAction, VacuumWorldState] {
+
   val model: Model = {
     case (currentState, RightMoveAction) =>
       currentState.copy(
@@ -41,21 +37,17 @@ class ModelBasedReflexVacuumAgentProgram
         batteryLife = currentState.batteryLife - MOVE_BATTERY_COST
       )
     case (currentState, Suck) =>
-      currentState.copy(
-        dirty = false,
-        batteryLife = currentState.batteryLife - SUCK_BATTERY_COST
-      )
+      currentState.copy(dirty = false, batteryLife = currentState.batteryLife - SUCK_BATTERY_COST)
     case (currentState, NoAction) => currentState
   }
 
   lazy val noAction: VacuumAction = NoAction
 
   val rules: RuleMatch = {
-    case VacuumWorldState(_, _, _, batteryLife) if batteryLife < 10 =>
-      NoAction //too costly to continue
-    case VacuumWorldState(_, _, dirty, _) if dirty         => Suck
-    case VacuumWorldState(locationA, _, _, _) if locationA => RightMoveAction
-    case VacuumWorldState(_, locationB, _, _) if locationB => LeftMoveAction
+    case VacuumWorldState(_, _, _, batteryLife) if batteryLife < 10 => NoAction //too costly to continue
+    case VacuumWorldState(_, _, dirty, _) if dirty                  => Suck
+    case VacuumWorldState(locationA, _, _, _) if locationA          => RightMoveAction
+    case VacuumWorldState(_, locationB, _, _) if locationB          => LeftMoveAction
   }
 
   lazy val initialState: VacuumWorldState = VacuumWorldState()

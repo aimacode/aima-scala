@@ -57,8 +57,7 @@ class ModelBasedReflexVacuumAgentSpec extends Specification {
   }
 
   "should do nothing if low on power" in new context {
-    val resultStream =
-      LazyList.continually(agent.agentFunction.apply(DirtyPercept))
+    val resultStream = LazyList.continually(agent.agentFunction.apply(DirtyPercept))
     resultStream.take(100).last must beLike {
       case NoAction => ok
     }

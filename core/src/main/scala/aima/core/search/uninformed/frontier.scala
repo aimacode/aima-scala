@@ -6,36 +6,20 @@ import scala.collection.immutable.{Queue, Iterable}
 import scala.collection.mutable
 import scala.util.Try
 
-class FIFOQueueFrontier[State, Action, Node <: SearchNode[State, Action]](
-    queue: Queue[Node],
-    stateSet: Set[State]
-) extends Frontier[State, Action, Node] { self =>
+class FIFOQueueFrontier[State, Action, Node <: SearchNode[State, Action]](queue: Queue[Node], stateSet: Set[State])
+    extends Frontier[State, Action, Node] { self =>
   def this(n: Node) = this(Queue(n), Set(n.state))
 
-  def removeLeaf: Option[(Node, Frontier[State, Action, Node])] =
-    queue.dequeueOption.map {
-      case (leaf, updatedQueue) =>
-        (
-          leaf,
-          new FIFOQueueFrontier[State, Action, Node](
-            updatedQueue,
-            stateSet - leaf.state
-          )
-        )
-    }
+  def removeLeaf: Option[(Node, Frontier[State, Action, Node])] = queue.dequeueOption.map {
+    case (leaf, updatedQueue) => (leaf, new FIFOQueueFrontier[State, Action, Node](updatedQueue, stateSet - leaf.state))
+  }
   def addAll(iterable: Iterable[Node]): Frontier[State, Action, Node] =
-    new FIFOQueueFrontier(
-      queue.enqueueAll(iterable),
-      stateSet ++ iterable.map(_.state)
-    )
+    new FIFOQueueFrontier(queue.enqueueAll(iterable), stateSet ++ iterable.map(_.state))
   def contains(state: State): Boolean = stateSet.contains(state)
 
   def replaceByState(node: Node): Frontier[State, Action, Node] = {
     if (contains(node.state)) {
-      new FIFOQueueFrontier(
-        queue.filterNot(_.state == node.state).enqueue(node),
-        stateSet
-      )
+      new FIFOQueueFrontier(queue.filterNot(_.state == node.state).enqueue(node), stateSet)
     } else {
       self
     }
@@ -49,16 +33,10 @@ class FIFOQueueFrontier[State, Action, Node <: SearchNode[State, Action]](
   }
 
   def add(node: Node): Frontier[State, Action, Node] =
-    new FIFOQueueFrontier[State, Action, Node](
-      queue.enqueue(node),
-      stateSet + node.state
-    )
+    new FIFOQueueFrontier[State, Action, Node](queue.enqueue(node), stateSet + node.state)
 }
 
-class PriorityQueueHashSetFrontier[State, Action, Node <: SearchNode[
-  State,
-  Action
-]](
+class PriorityQueueHashSetFrontier[State, Action, Node <: SearchNode[State, Action]](
     queue: mutable.PriorityQueue[Node],
     stateMap: mutable.Map[State, Node]
 ) extends Frontier[State, Action, Node] { self =>
