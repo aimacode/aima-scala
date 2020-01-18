@@ -68,25 +68,16 @@ class ExtendableMap2D(
     val locationPositions: mutable.LinkedHashMap[String, Point2D]
 ) extends Map2D {
 
-  def this() =
-    this(
-      new LabeledGraph[String, Distance],
-      new mutable.LinkedHashMap[String, Point2D]
-    )
+  def this() = this(new LabeledGraph[String, Distance], new mutable.LinkedHashMap[String, Point2D])
 
   override def locations: List[String] = links.vertexLabels
 
-  override def locationsLinkedTo(fromLocation: String): List[String] =
-    links.successors(fromLocation)
+  override def locationsLinkedTo(fromLocation: String): List[String] = links.successors(fromLocation)
 
-  override def distance(
-      fromLocation: String,
-      toLocation: String
-  ): Option[Distance] =
+  override def distance(fromLocation: String, toLocation: String): Option[Distance] =
     links.get(fromLocation, toLocation)
 
-  override def position(location: String): Option[Point2D] =
-    locationPositions.get(location)
+  override def position(location: String): Option[Point2D] = locationPositions.get(location)
 
   def clear(): Unit = {
     links.clear()
@@ -103,11 +94,7 @@ class ExtendableMap2D(
     * @param distance
     * the distance between the two given locations.
     */
-  def addUnidirectionalLink(
-      fromLocation: String,
-      toLocation: String,
-      distance: Distance
-  ): Unit = {
+  def addUnidirectionalLink(fromLocation: String, toLocation: String, distance: Distance): Unit = {
     links.set(fromLocation, toLocation, distance)
   }
 
@@ -122,11 +109,7 @@ class ExtendableMap2D(
     * @param distance
     * the distance between the two given locations.
     */
-  def addBidirectionalLink(
-      fromLocation: String,
-      toLocation: String,
-      distance: Distance
-  ): Unit = {
+  def addBidirectionalLink(fromLocation: String, toLocation: String, distance: Distance): Unit = {
     links.set(fromLocation, toLocation, distance)
     links.set(toLocation, fromLocation, distance)
   }
@@ -145,15 +128,8 @@ class ExtendableMap2D(
     * bearing (compass direction) in which the location is seen from
     * the reference position
     */
-  def setDistAndDirToRefLocation(
-      loc: String,
-      dist: Distance,
-      dir: Int
-  ): Unit = {
-    val coords = Point2D(
-      -math.sin(dir * math.Pi / 180.0) * dist.value,
-      math.cos(dir * math.Pi / 180.0) * dist.value
-    )
+  def setDistAndDirToRefLocation(loc: String, dist: Distance, dir: Int): Unit = {
+    val coords = Point2D(-math.sin(dir * math.Pi / 180.0) * dist.value, math.cos(dir * math.Pi / 180.0) * dist.value)
     links.addVertex(loc)
     locationPositions.put(loc, coords)
     ()

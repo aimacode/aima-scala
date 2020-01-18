@@ -26,8 +26,7 @@ class RomaniaUniformCostSearchSpec extends Specification {
   }
 
   trait context extends Scope with UniformCostSearch[RomaniaState, RomaniaAction] {
-    override implicit val nCT: ClassTag[CostNode[RomaniaState, RomaniaAction]] =
-      cnCTag
+    override implicit val nCT: ClassTag[CostNode[RomaniaState, RomaniaAction]] = cnCTag
   }
 
 }

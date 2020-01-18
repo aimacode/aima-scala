@@ -19,11 +19,7 @@ trait DepthLimitedTreeSearch[State, Action] extends ProblemSearch[State, Action,
 
   type Node = StateNode[State, Action]
 
-  def search(
-      problem: Problem[State, Action],
-      initialLimit: Int,
-      noAction: Action
-  ): Try[DLSResult[Action]] =
+  def search(problem: Problem[State, Action], initialLimit: Int, noAction: Action): Try[DLSResult[Action]] =
     Try {
 
       def recursiveDLS(node: Node, currentLimit: Int): Try[DLSResult[Action]] =
@@ -37,14 +33,9 @@ trait DepthLimitedTreeSearch[State, Action] extends ProblemSearch[State, Action,
               action <- problem.actions(node.state)
             } yield newChildNode(problem, node, action)
 
-            @tailrec def shortCircuitChildSearch(
-                children: List[Node]
-            ): Try[DLSResult[Action]] = {
+            @tailrec def shortCircuitChildSearch(children: List[Node]): Try[DLSResult[Action]] = {
               children match {
-                case Nil =>
-                  Failure[DLSResult[Action]](
-                    new Exception("Exhausted child nodes")
-                  )
+                case Nil => Failure[DLSResult[Action]](new Exception("Exhausted child nodes"))
                 case lastChild :: Nil =>
                   recursiveDLS(lastChild, currentLimit - 1)
                 case firstChild :: rest =>
@@ -62,14 +53,9 @@ trait DepthLimitedTreeSearch[State, Action] extends ProblemSearch[State, Action,
       recursiveDLS(makeNode(problem.initialState, noAction), initialLimit)
     }.flatten
 
-  def makeNode(state: State, noAction: Action): Node =
-    StateNode(state, noAction, None)
+  def makeNode(state: State, noAction: Action): Node = StateNode(state, noAction, None)
 
-  def newChildNode(
-      problem: Problem[State, Action],
-      parent: Node,
-      action: Action
-  ): Node = {
+  def newChildNode(problem: Problem[State, Action], parent: Node, action: Action): Node = {
     val childState = problem.result(parent.state, action)
     StateNode(childState, action, Some(parent))
   }

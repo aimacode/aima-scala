@@ -81,16 +81,12 @@ object Util {
   */
 trait GeneticAlgorithm[Individual] {
 
-  type FitnessFunction = Individual => Fitness
-  type FitEnough       = Individual => Boolean
-  type ReproductionFunction =
-    (Individual, Individual, Random) => List[Individual]
-  type MutationFunction = (Individual, Random) => Individual
+  type FitnessFunction      = Individual => Fitness
+  type FitEnough            = Individual => Boolean
+  type ReproductionFunction = (Individual, Individual, Random) => List[Individual]
+  type MutationFunction     = (Individual, Random) => Individual
 
-  def geneticAlgorithm(
-      initialPopulation: NonEmptySet[Individual],
-      fitnessFunction: FitnessFunction
-  )(
+  def geneticAlgorithm(initialPopulation: NonEmptySet[Individual], fitnessFunction: FitnessFunction)(
       fitEnough: FitEnough,
       timeLimit: FiniteDuration,
       reproduce: ReproductionFunction,
@@ -100,10 +96,7 @@ trait GeneticAlgorithm[Individual] {
     val random   = new Random()
     val deadline = Deadline.start(timeLimit)
 
-    @tailrec def recurse(
-        currentPopulation: Set[Individual],
-        newPopulation: Set[Individual]
-    ): Individual = {
+    @tailrec def recurse(currentPopulation: Set[Individual], newPopulation: Set[Individual]): Individual = {
       val children: List[Individual] = (for {
         x <- randomSelection(currentPopulation, fitnessFunction)(random)
         y <- randomSelection(currentPopulation, fitnessFunction)(random)
@@ -124,10 +117,7 @@ trait GeneticAlgorithm[Individual] {
       if (updatedNewPop.size < currentPopulation.size) {
         recurse(currentPopulation, updatedNewPop)
       } else {
-        val selected = selectBestIndividualIfReady(
-          updatedNewPop,
-          fitnessFunction
-        )(fitEnough, deadline, random)
+        val selected = selectBestIndividualIfReady(updatedNewPop, fitnessFunction)(fitEnough, deadline, random)
         selected match {
           case Some(ind) => ind
           case None      => recurse(updatedNewPop, Set.empty[Individual])
@@ -140,20 +130,14 @@ trait GeneticAlgorithm[Individual] {
 
   }
 
-  def selectBestIndividualIfReady(
-      population: Set[Individual],
-      fitnessFunction: FitnessFunction
-  )(
+  def selectBestIndividualIfReady(population: Set[Individual], fitnessFunction: FitnessFunction)(
       fitEnough: FitEnough,
       deadline: Deadline,
       random: Random
   ): Option[Individual] = {
     if (deadline.isOverDeadline || population.exists(fitEnough)) {
 
-      @tailrec def findBest(
-          pop: List[Individual],
-          best: Option[(Individual, Fitness)]
-      ): Option[Individual] =
+      @tailrec def findBest(pop: List[Individual], best: Option[(Individual, Fitness)]): Option[Individual] =
         (pop, best) match {
           case (Nil, b) => b.map(_._1)
           case (current :: rest, None) =>
@@ -181,16 +165,10 @@ trait GeneticAlgorithm[Individual] {
 
   }
 
-  def isSmallRandomProbabilityOfMutation(
-      mutationProbability: Probability,
-      random: Random
-  ): Boolean =
+  def isSmallRandomProbabilityOfMutation(mutationProbability: Probability, random: Random): Boolean =
     random.nextDouble <= mutationProbability.value
 
-  def randomSelection(
-      population: Set[Individual],
-      fitnessFunction: FitnessFunction
-  )(
+  def randomSelection(population: Set[Individual], fitnessFunction: FitnessFunction)(
       random: Random
   ): Option[Individual] = {
     val populationList    = population.toList
@@ -199,13 +177,9 @@ trait GeneticAlgorithm[Individual] {
     val probability       = random.nextDouble()
 
     val popWithFValues = populationList zip fValues
-    @tailrec def selectByProbability(
-        l: List[(Individual, Double)],
-        totalSoFar: Double
-    ): Option[Individual] = l match {
-      case Nil => None
-      case first :: Nil =>
-        Some(first._1) // if we are at end of list or only one element must select it
+    @tailrec def selectByProbability(l: List[(Individual, Double)], totalSoFar: Double): Option[Individual] = l match {
+      case Nil          => None
+      case first :: Nil => Some(first._1) // if we are at end of list or only one element must select it
       case first :: rest =>
         val newTotal = totalSoFar + first._2
         if (probability <= newTotal) { // seems weird

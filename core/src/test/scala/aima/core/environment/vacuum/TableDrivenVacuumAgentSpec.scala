@@ -15,17 +15,11 @@ class TableDrivenVacuumAgentSpec extends Specification {
   }
 
   "first level A and Clean moves Right" in new context {
-    invokeAgent(List(LocationAPercept, CleanPercept)) must_== List(
-      NoAction,
-      RightMoveAction
-    )
+    invokeAgent(List(LocationAPercept, CleanPercept)) must_== List(NoAction, RightMoveAction)
   }
 
   "first level B and Clean moves Right" in new context {
-    invokeAgent(List(LocationBPercept, CleanPercept)) must_== List(
-      NoAction,
-      LeftMoveAction
-    )
+    invokeAgent(List(LocationBPercept, CleanPercept)) must_== List(NoAction, LeftMoveAction)
   }
 
   "second level dirty sucks" in new context {
@@ -35,26 +29,14 @@ class TableDrivenVacuumAgentSpec extends Specification {
   }
 
   "second level A and Clean moves Right" in new context {
-    val givenPercepts = List.fill(2)(NoPercept) ++ List(
-      LocationAPercept,
-      CleanPercept
-    )
-    val expectedActions = List.fill(2)(NoAction) ++ List(
-      NoAction,
-      RightMoveAction
-    )
+    val givenPercepts   = List.fill(2)(NoPercept) ++ List(LocationAPercept, CleanPercept)
+    val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, RightMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "second level B and Clean moves Right" in new context {
-    val givenPercepts = List.fill(2)(NoPercept) ++ List(
-      LocationBPercept,
-      CleanPercept
-    )
-    val expectedActions = List.fill(2)(NoAction) ++ List(
-      NoAction,
-      LeftMoveAction
-    )
+    val givenPercepts   = List.fill(2)(NoPercept) ++ List(LocationBPercept, CleanPercept)
+    val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, LeftMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
@@ -65,26 +47,14 @@ class TableDrivenVacuumAgentSpec extends Specification {
   }
 
   "fourth level A and Clean moves Right" in new context {
-    val givenPercepts = List.fill(6)(NoPercept) ++ List(
-      LocationAPercept,
-      CleanPercept
-    )
-    val expectedActions = List.fill(6)(NoAction) ++ List(
-      NoAction,
-      RightMoveAction
-    )
+    val givenPercepts   = List.fill(6)(NoPercept) ++ List(LocationAPercept, CleanPercept)
+    val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, RightMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "fourth level B and Clean moves Right" in new context {
-    val givenPercepts = List.fill(6)(NoPercept) ++ List(
-      LocationBPercept,
-      CleanPercept
-    )
-    val expectedActions = List.fill(6)(NoAction) ++ List(
-      NoAction,
-      LeftMoveAction
-    )
+    val givenPercepts   = List.fill(6)(NoPercept) ++ List(LocationBPercept, CleanPercept)
+    val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, LeftMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 

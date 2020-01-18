@@ -46,11 +46,7 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
       override def isGoalState(s: InState): Boolean =
         Eqv[String].eqv("A", s.location)
 
-      override def stepCost(
-          s: InState,
-          a: Map2DAction,
-          sPrime: InState
-      ): Double =
+      override def stepCost(s: InState, a: Map2DAction, sPrime: InState): Double =
         Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
     }
 
@@ -61,10 +57,7 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
       NoOp
     )
 
-    val resultAction = lrtasa.agentFunction(
-      IntPercept(0),
-      LRTAStarAgentState[Map2DAction, InState]
-    )
+    val resultAction = lrtasa.agentFunction(IntPercept(0), LRTAStarAgentState[Map2DAction, InState])
     resultAction._1 must_== NoOp
   }
 
@@ -77,11 +70,7 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
       override def isGoalState(s: InState): Boolean =
         Eqv[String].eqv("F", s.location)
 
-      override def stepCost(
-          s: InState,
-          a: Map2DAction,
-          sPrime: InState
-      ): Double =
+      override def stepCost(s: InState, a: Map2DAction, sPrime: InState): Double =
         Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
     }
 
@@ -122,11 +111,7 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
       override def isGoalState(s: InState): Boolean =
         Eqv[String].eqv("A", s.location)
 
-      override def stepCost(
-          s: InState,
-          a: Map2DAction,
-          sPrime: InState
-      ): Double =
+      override def stepCost(s: InState, a: Map2DAction, sPrime: InState): Double =
         Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
     }
 
@@ -165,21 +150,14 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
       override def isGoalState(s: InState): Boolean =
         Eqv[String].eqv(goalState.location, s.location)
 
-      override def stepCost(
-          s: InState,
-          a: Map2DAction,
-          sPrime: InState
-      ): Double =
+      override def stepCost(s: InState, a: Map2DAction, sPrime: InState): Double =
         Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
     }
 
     val lrtasa = new LRTAStarAgent[IntPercept, Map2DAction, InState](
       alphabetPerceptToState,
       problem,
-      inState =>
-        math
-          .abs(inState.location.charAt(0) - goalState.location.charAt(0))
-          .toDouble,
+      inState => math.abs(inState.location.charAt(0) - goalState.location.charAt(0)).toDouble,
       NoOp
     )
 
@@ -202,8 +180,7 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
         percept: IntPercept,
         acc: List[Map2DAction]
     ): List[Map2DAction] = {
-      val (action, updatedAgentState) =
-        lrtasa.agentFunction(percept, agentState)
+      val (action, updatedAgentState) = lrtasa.agentFunction(percept, agentState)
 
       action match {
         case NoOp => action :: acc
