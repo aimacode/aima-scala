@@ -9,15 +9,13 @@ sealed trait DLSResult[Action] {
   def actions: List[Action]
 }
 
-final case class Solution[Action](actions: List[Action])
-    extends DLSResult[Action]
-final case class CutOff[Action](actions: List[Action]) extends DLSResult[Action]
+final case class Solution[Action](actions: List[Action]) extends DLSResult[Action]
+final case class CutOff[Action](actions: List[Action])   extends DLSResult[Action]
 
 /**
   * @author Shawn Garner
   */
-trait DepthLimitedTreeSearch[State, Action]
-    extends ProblemSearch[State, Action, StateNode[State, Action]] {
+trait DepthLimitedTreeSearch[State, Action] extends ProblemSearch[State, Action, StateNode[State, Action]] {
 
   type Node = StateNode[State, Action]
 

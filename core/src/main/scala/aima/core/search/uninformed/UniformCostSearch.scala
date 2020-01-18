@@ -33,20 +33,17 @@ trait UniformCostSearch[State, Action]
             action <- problem.actions(leaf.state)
           } yield newChildNode(problem, leaf, action)
 
-          val frontierWithChildNodes = childNodes.foldLeft(updatedFrontier) {
-            (accFrontier, childNode) =>
-              if (!(updatedExploredSet.contains(childNode.state) || accFrontier
-                    .contains(childNode.state))) {
-                accFrontier.add(childNode)
-              } else if (accFrontier
-                           .getNode(childNode.state)
-                           .exists(
-                             existingNode => existingNode.cost > childNode.cost
-                           )) {
-                accFrontier.replaceByState(childNode)
-              } else {
-                accFrontier
-              }
+          val frontierWithChildNodes = childNodes.foldLeft(updatedFrontier) { (accFrontier, childNode) =>
+            if (!(updatedExploredSet.contains(childNode.state) || accFrontier
+                  .contains(childNode.state))) {
+              accFrontier.add(childNode)
+            } else if (accFrontier
+                         .getNode(childNode.state)
+                         .exists(existingNode => existingNode.cost > childNode.cost)) {
+              accFrontier.replaceByState(childNode)
+            } else {
+              accFrontier
+            }
           }
 
           searchHelper(frontierWithChildNodes, updatedExploredSet)

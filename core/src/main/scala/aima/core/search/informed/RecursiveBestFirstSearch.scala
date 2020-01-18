@@ -13,8 +13,7 @@ final case class SearchFailure(updatedFCost: Double)     extends RBFSearchResult
 /**
   * @author Shawn Garner
   */
-trait RecursiveBestFirstSearch[State, Action]
-    extends ProblemSearch[State, Action, HeuristicsNode[State, Action]] {
+trait RecursiveBestFirstSearch[State, Action] extends ProblemSearch[State, Action, HeuristicsNode[State, Action]] {
   implicit val sCT: ClassTag[State]
   implicit val aCT: ClassTag[Action]
 
@@ -39,9 +38,7 @@ trait RecursiveBestFirstSearch[State, Action]
         else {
           val updated = successors.collect {
             case s @ HeuristicsNode(_, gValue, Some(hValue), _, _, _) =>
-              val updatedFValue = node.fValue.map(
-                nodeFValue => math.max(gValue + hValue, nodeFValue)
-              )
+              val updatedFValue = node.fValue.map(nodeFValue => math.max(gValue + hValue, nodeFValue))
               s.copy(fValue = updatedFValue)
           }
 
@@ -51,8 +48,7 @@ trait RecursiveBestFirstSearch[State, Action]
             val sortedSuccessors =
               updatedSuccessors.sortBy(_.fValue.getOrElse(Double.MaxValue))
             sortedSuccessors match {
-              case HeuristicsNode(_, _, _, Some(fValue), _, _) :: _
-                  if fValue > fLimit =>
+              case HeuristicsNode(_, _, _, Some(fValue), _, _) :: _ if fValue > fLimit =>
                 SearchFailure(fValue)
               case best :: (second @ HeuristicsNode(
                     _,

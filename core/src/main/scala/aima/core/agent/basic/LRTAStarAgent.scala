@@ -53,8 +53,7 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
 
         val (updatedResult, updatedH2): (RESULT_TYPE, COST_ESTIMATES_TYPE) =
           (priorAgentState.previousState, priorAgentState.previousAction) match {
-            case (Some(_s), Some(_a))
-                if !priorAgentState.result.get2(_s, _a).contains(sPrime) =>
+            case (Some(_s), Some(_a)) if !priorAgentState.result.get2(_s, _a).contains(sPrime) =>
               val resultOrigActionToState: Map[ACTION, STATE] =
                 priorAgentState.result.getOrElse(_s, Map.empty[ACTION, STATE])
               val updatedResultActionToState: Map[ACTION, STATE] =
@@ -91,9 +90,7 @@ final class LRTAStarAgent[PERCEPT, ACTION, STATE](
         val newAction: ACTION = newActions match {
           case Nil => stop
           case _ =>
-            newActions.minBy(
-              b => lrtaCost(sPrime, b, updatedResult.get2(sPrime, b), updatedH2)
-            )
+            newActions.minBy(b => lrtaCost(sPrime, b, updatedResult.get2(sPrime, b), updatedH2))
         }
 
         val updatedAgentState = priorAgentState.copy(

@@ -139,8 +139,7 @@ object ConditionalPlan {
               recurse(Nil, acc + a.show, true)
             case ActionStep(a: ACTION) :: rest =>
               recurse(rest, acc + a.show + ", ", true)
-            case ConditionedSubPlan(state: STATE, subPlan) :: rest
-                if lastStepAction =>
+            case ConditionedSubPlan(state: STATE, subPlan) :: rest if lastStepAction =>
               recurse(
                 rest,
                 acc + s"if State = ${state.show} then ${show(subPlan)}",

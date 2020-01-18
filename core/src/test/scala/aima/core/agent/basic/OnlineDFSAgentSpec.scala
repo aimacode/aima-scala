@@ -78,21 +78,20 @@ class OnlineDFSAgentSpec extends Specification with ScalaCheck {
     }
 
     import aima.core.agent.basic.OnlineDFSAgentSpec.Maze.MazeState.Implicits.arbMazeState
-    "find solutions for all start and goal states" >> prop {
-      (initialState: MazeXYState, goalState: MazeXYState) =>
-        val agent =
-          new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
-            idStateFn,
-            mazeProblem(goalState),
-            StopAction
-          )
+    "find solutions for all start and goal states" >> prop { (initialState: MazeXYState, goalState: MazeXYState) =>
+      val agent =
+        new OnlineDFSAgent[MazePositionPercept, MazeAction, MazeXYState](
+          idStateFn,
+          mazeProblem(goalState),
+          StopAction
+        )
 
-        val states = determineMoveToStates(initialState, agent)
+      val states = determineMoveToStates(initialState, agent)
 
-        states must beLike {
-          case Nil => ok // already on goal
-          case ls  => ls must contain[MazeXYState](goalState)
-        }
+      states must beLike {
+        case Nil => ok // already on goal
+        case ls  => ls must contain[MazeXYState](goalState)
+      }
     }
 
   }

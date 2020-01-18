@@ -1,10 +1,7 @@
 package aima.core.search.contingency
 
 import aima.core.fp.Show
-import aima.core.search.contingency.AndOrGraphSearchSpec.{
-  Action,
-  VacuumWorldState
-}
+import aima.core.search.contingency.AndOrGraphSearchSpec.{Action, VacuumWorldState}
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
@@ -131,10 +128,7 @@ object AndOrGraphSearchSpec {
 /**
   * @author Shawn Garner
   */
-class AndOrGraphSearchSpec
-    extends Specification
-    with AndOrGraphSearch[Action, VacuumWorldState]
-    with ScalaCheck {
+class AndOrGraphSearchSpec extends Specification with AndOrGraphSearch[Action, VacuumWorldState] with ScalaCheck {
   import AndOrGraphSearchSpec._
 
   import Action.Implicits.showAction
@@ -234,14 +228,13 @@ class AndOrGraphSearchSpec
     }
 
     import VacuumWorldState.Implicits.arbVacuumWorldState
-    "find solutions for all initial states" >> prop {
-      initial: VacuumWorldState =>
-        val prob = problem(initial)
-        val cp   = andOrGraphSearch(prob)
-        cp match {
-          case _: ConditionalPlan => ok
-          case f                  => ko(f.toString)
-        }
+    "find solutions for all initial states" >> prop { initial: VacuumWorldState =>
+      val prob = problem(initial)
+      val cp   = andOrGraphSearch(prob)
+      cp match {
+        case _: ConditionalPlan => ok
+        case f                  => ko(f.toString)
+      }
     }
   }
   override implicit val aCT: ClassTag[Action]           = aCTag

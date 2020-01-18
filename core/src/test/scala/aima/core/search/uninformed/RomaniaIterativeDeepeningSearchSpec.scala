@@ -27,14 +27,11 @@ class RomaniaIterativeDeepeningSearchSpec extends Specification {
       }
   }
 
-  trait context
-      extends Scope
-      with IterativeDeepeningSearch[RomaniaState, RomaniaAction] {
+  trait context extends Scope with IterativeDeepeningSearch[RomaniaState, RomaniaAction] {
 
     val depthLimitedTreeSearch =
       new DepthLimitedTreeSearch[RomaniaState, RomaniaAction] {
-        override implicit val nCT
-            : ClassTag[StateNode[RomaniaState, RomaniaAction]] = snCTag
+        override implicit val nCT: ClassTag[StateNode[RomaniaState, RomaniaAction]] = snCTag
       }
   }
 
