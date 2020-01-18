@@ -1,4 +1,4 @@
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.2.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.0")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.6")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.31")

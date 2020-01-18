@@ -6,9 +6,7 @@ trait Sensor[ENVIRONMENT, PERCEPT] {
   def perceive(e: ENVIRONMENT): PERCEPT
 }
 
-trait UnreliableSensor[ENVIRONMENT, PERCEPT]
-    extends Sensor[ENVIRONMENT, PERCEPT]
-    with Randomness {
+trait UnreliableSensor[ENVIRONMENT, PERCEPT] extends Sensor[ENVIRONMENT, PERCEPT] with Randomness {
   def unreliably(
       reliability: Int = 50
   )(perceive: => PERCEPT)(noPercept: PERCEPT): PERCEPT = {

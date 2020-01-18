@@ -100,22 +100,20 @@ class VacuumMapSpec extends Specification with ScalaCheck {
     )
   }
 
-  "updating dirt status of dirty will return dirt percept of dirty" in prop {
-    map: VacuumMap =>
-      val agent = noopAgent
-      map
-        .addAgent(agent)
-        .updateStatus(agent, DirtyPercept)
-        .getDirtStatus(agent) must beSome[VacuumPercept](DirtyPercept)
+  "updating dirt status of dirty will return dirt percept of dirty" in prop { map: VacuumMap =>
+    val agent = noopAgent
+    map
+      .addAgent(agent)
+      .updateStatus(agent, DirtyPercept)
+      .getDirtStatus(agent) must beSome[VacuumPercept](DirtyPercept)
   }
 
-  "updating dirt status of clean will return clean percept of dirty" in prop {
-    map: VacuumMap =>
-      val agent = noopAgent
-      map
-        .addAgent(agent)
-        .updateStatus(agent, CleanPercept)
-        .getDirtStatus(agent) must beSome[VacuumPercept](CleanPercept)
+  "updating dirt status of clean will return clean percept of dirty" in prop { map: VacuumMap =>
+    val agent = noopAgent
+    map
+      .addAgent(agent)
+      .updateStatus(agent, CleanPercept)
+      .getDirtStatus(agent) must beSome[VacuumPercept](CleanPercept)
   }
 
   "removing agent must have no location percept" in prop { map: VacuumMap =>
@@ -128,10 +126,9 @@ class VacuumMapSpec extends Specification with ScalaCheck {
     map.addAgent(agent).removeAgent(agent).getDirtStatus(agent) must beNone
   }
 
-  "adding an agent and then removing them should be the original input, eg f'(f(x)) = x" in prop {
-    map: VacuumMap =>
-      val agent = noopAgent
-      map.addAgent(agent).removeAgent(agent) must_== map
+  "adding an agent and then removing them should be the original input, eg f'(f(x)) = x" in prop { map: VacuumMap =>
+    val agent = noopAgent
+    map.addAgent(agent).removeAgent(agent) must_== map
   }
 
   def noopAgentProgram = new AgentProgram[VacuumPercept, VacuumAction] {

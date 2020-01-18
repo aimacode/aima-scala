@@ -6,8 +6,7 @@ import aima.core.random.DefaultRandomness
 /**
   * @author Shawn Garner
   */
-case class Vacuum(map: VacuumMap = VacuumMap())
-    extends Environment[Vacuum, VacuumPercept, VacuumAction] {
+case class Vacuum(map: VacuumMap = VacuumMap()) extends Environment[Vacuum, VacuumPercept, VacuumAction] {
 
   def addAgent(agent: Agent[Vacuum, VacuumPercept, VacuumAction]): Vacuum = {
     Vacuum(map.addAgent(agent))
@@ -99,8 +98,8 @@ case class VacuumMap(
       agent: Agent[Vacuum, VacuumPercept, VacuumAction],
       direction: MoveAction
   ): VacuumMap = {
-    removeAgent(agent).updateByIndex(directionToMapIndex(direction))(
-      vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent))
+    removeAgent(agent).updateByIndex(directionToMapIndex(direction))(vacuumMapNode =>
+      vacuumMapNode.copy(maybeAgent = Some(agent))
     )
   }
 
@@ -118,9 +117,7 @@ case class VacuumMap(
       agent: Agent[Vacuum, VacuumPercept, VacuumAction],
       dirtStatusPercepts: DirtPercept
   ): VacuumMap =
-    updateByAgent(agent)(
-      vacuumMapNode => vacuumMapNode.copy(dirtStatus = dirtStatusPercepts)
-    )
+    updateByAgent(agent)(vacuumMapNode => vacuumMapNode.copy(dirtStatus = dirtStatusPercepts))
 
   def removeAgent(
       agent: Agent[Vacuum, VacuumPercept, VacuumAction]
@@ -138,9 +135,7 @@ case class VacuumMap(
   def addAgent(agent: Agent[Vacuum, VacuumPercept, VacuumAction]): VacuumMap = {
     if (nodes.count(_.maybeAgent.isDefined) == 0) {
       val selection = rand.nextInt(nodes.size)
-      updateByIndex(selection)(
-        vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent))
-      )
+      updateByIndex(selection)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent)))
     } else {
       self
     }

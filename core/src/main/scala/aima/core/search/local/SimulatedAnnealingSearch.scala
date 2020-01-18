@@ -64,14 +64,13 @@ object SimulatedAnnealingSearch {
       limit = 100
     )
 
-    def schedule(params: ScheduleParams = defaultScheduleParams): Schedule = {
-      t: TimeStep =>
-        import params._
-        if (t.value < limit) {
-          Temperature(k * math.exp((-1) * lam * t.value))
-        } else {
-          OverTimeStepLimit
-        }
+    def schedule(params: ScheduleParams = defaultScheduleParams): Schedule = { t: TimeStep =>
+      import params._
+      if (t.value < limit) {
+        Temperature(k * math.exp((-1) * lam * t.value))
+      } else {
+        OverTimeStepLimit
+      }
     }
   }
 

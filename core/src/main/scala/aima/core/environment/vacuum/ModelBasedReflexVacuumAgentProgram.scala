@@ -59,15 +59,14 @@ class ModelBasedReflexVacuumAgentProgram
   }
 
   lazy val initialState: VacuumWorldState = VacuumWorldState()
-  val updateState: UpdateState = {
-    (s: VacuumWorldState, a: VacuumAction, p: VacuumPercept, m: Model) =>
-      val s2 = m(s, a)
-      p match {
-        case CleanPercept     => s2.copy(dirty = false)
-        case DirtyPercept     => s2.copy(dirty = true)
-        case LocationAPercept => s2.copy(locationA = true, locationB = false)
-        case LocationBPercept => s2.copy(locationB = true, locationA = false)
-        case _                => s2
-      }
+  val updateState: UpdateState = { (s: VacuumWorldState, a: VacuumAction, p: VacuumPercept, m: Model) =>
+    val s2 = m(s, a)
+    p match {
+      case CleanPercept     => s2.copy(dirty = false)
+      case DirtyPercept     => s2.copy(dirty = true)
+      case LocationAPercept => s2.copy(locationA = true, locationB = false)
+      case LocationBPercept => s2.copy(locationB = true, locationA = false)
+      case _                => s2
+    }
   }
 }

@@ -5,8 +5,7 @@ import aima.core.agent._
 /**
   * @author Shawn Garner
   */
-class TableDrivenVacuumAgentProgram
-    extends TableDrivenAgentProgram[VacuumPercept, VacuumAction] {
+class TableDrivenVacuumAgentProgram extends TableDrivenAgentProgram[VacuumPercept, VacuumAction] {
   val lookupTable: LookupTable = {
     case List(_, DirtyPercept)                            => Suck
     case List(LocationAPercept, CleanPercept)             => RightMoveAction

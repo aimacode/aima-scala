@@ -181,8 +181,7 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
 
 object SimulatedAnnealingSearchSpec {
   sealed trait EightQueensAction
-  final case class MoveTo(columnIndex: Int, newRowIndex: Int)
-      extends EightQueensAction
+  final case class MoveTo(columnIndex: Int, newRowIndex: Int) extends EightQueensAction
 
   final case class QueenPosition(row: Int) extends AnyVal
   final case class EightQueensState(columns: List[QueenPosition])

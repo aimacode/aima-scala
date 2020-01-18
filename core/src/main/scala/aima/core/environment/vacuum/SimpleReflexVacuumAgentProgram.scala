@@ -5,8 +5,7 @@ import aima.core.agent.SimpleReflexAgentProgram
 /**
   * @author Shawn Garner
   */
-class SimpleReflexVacuumAgentProgram
-    extends SimpleReflexAgentProgram[VacuumPercept, VacuumAction] {
+class SimpleReflexVacuumAgentProgram extends SimpleReflexAgentProgram[VacuumPercept, VacuumAction] {
   override type State = VacuumPercept
   val interpretInput: InterpretInput = identity
 

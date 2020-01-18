@@ -1,2 +1,3 @@
-version = "2.2.1"
-align=most
+version = "2.3.2"
+align = most
+maxColumn = 120

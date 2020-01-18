@@ -3,8 +3,7 @@ package aima.core.agent
 /**
   * @author Shawn Garner
   */
-trait ModelBasedReflexAgentProgram[PERCEPT, ACTION, STATE]
-    extends AgentProgram[PERCEPT, ACTION] {
+trait ModelBasedReflexAgentProgram[PERCEPT, ACTION, STATE] extends AgentProgram[PERCEPT, ACTION] {
   type Model       = (STATE, ACTION) => STATE //a description of how the next state depends on the current state and action
   type UpdateState = (STATE, ACTION, PERCEPT, Model) => STATE
   type RuleMatch   = STATE => ACTION

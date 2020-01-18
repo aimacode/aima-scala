@@ -156,41 +156,40 @@ class LRTAStarAgentSpec extends Specification with ScalaCheck {
     } yield alphabetPerceptToState(IntPercept(perceptInt))
   }
 
-  "find solutions for all start and goal states" >> prop {
-    (initialState: InState, goalState: InState) =>
-      val problem = new OnlineSearchProblem[Map2DAction, InState] {
-        override def actions(s: InState): List[Map2DAction] =
-          Map2DFunctionFactory.actions(mapAtoF)(s)
+  "find solutions for all start and goal states" >> prop { (initialState: InState, goalState: InState) =>
+    val problem = new OnlineSearchProblem[Map2DAction, InState] {
+      override def actions(s: InState): List[Map2DAction] =
+        Map2DFunctionFactory.actions(mapAtoF)(s)
 
-        import Eqv.Implicits.stringEq
-        override def isGoalState(s: InState): Boolean =
-          Eqv[String].eqv(goalState.location, s.location)
-
-        override def stepCost(
-            s: InState,
-            a: Map2DAction,
-            sPrime: InState
-        ): Double =
-          Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
-      }
-
-      val lrtasa = new LRTAStarAgent[IntPercept, Map2DAction, InState](
-        alphabetPerceptToState,
-        problem,
-        inState =>
-          math
-            .abs(inState.location.charAt(0) - goalState.location.charAt(0))
-            .toDouble,
-        NoOp
-      )
-
-      val actions = actionSequence(lrtasa, alphabetStateToPercept(initialState))
       import Eqv.Implicits.stringEq
-      if (Eqv[String].eqv(initialState.location, goalState.location)) {
-        actions must_== List(NoOp)
-      } else {
-        actions must contain[Map2DAction](Go(goalState.location))
-      }
+      override def isGoalState(s: InState): Boolean =
+        Eqv[String].eqv(goalState.location, s.location)
+
+      override def stepCost(
+          s: InState,
+          a: Map2DAction,
+          sPrime: InState
+      ): Double =
+        Map2DFunctionFactory.stepCost(mapAtoF)(s, a, sPrime)
+    }
+
+    val lrtasa = new LRTAStarAgent[IntPercept, Map2DAction, InState](
+      alphabetPerceptToState,
+      problem,
+      inState =>
+        math
+          .abs(inState.location.charAt(0) - goalState.location.charAt(0))
+          .toDouble,
+      NoOp
+    )
+
+    val actions = actionSequence(lrtasa, alphabetStateToPercept(initialState))
+    import Eqv.Implicits.stringEq
+    if (Eqv[String].eqv(initialState.location, goalState.location)) {
+      actions must_== List(NoOp)
+    } else {
+      actions must contain[Map2DAction](Go(goalState.location))
+    }
 
   }
 

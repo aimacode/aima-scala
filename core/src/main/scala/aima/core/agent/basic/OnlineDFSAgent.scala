@@ -2,11 +2,7 @@ package aima.core.agent.basic
 
 import aima.core.agent.StatelessAgent
 import aima.core.agent.basic.OnlineDFSAgent.IdentifyState
-import aima.core.agent.basic.OnlineDFSAgentState.{
-  RESULT,
-  UNBACKTRACKED,
-  UNTRIED
-}
+import aima.core.agent.basic.OnlineDFSAgentState.{RESULT, UNBACKTRACKED, UNTRIED}
 import aima.core.fp.Eqv
 import aima.core.fp.Eqv.Implicits._
 import aima.core.search.api.OnlineSearchProblem

@@ -3,8 +3,7 @@ package aima.core.agent
 /**
   * @author Shawn Garner
   */
-trait SimpleProblemSolvingAgentProgram[PERCEPT, ACTION, STATE, GOAL, PROBLEM]
-    extends AgentProgram[PERCEPT, ACTION] {
+trait SimpleProblemSolvingAgentProgram[PERCEPT, ACTION, STATE, GOAL, PROBLEM] extends AgentProgram[PERCEPT, ACTION] {
 
   def initialState: STATE
   def noAction: ACTION
