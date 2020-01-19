@@ -16,18 +16,6 @@ case class Vacuum(map: VacuumMap = VacuumMap()) extends Environment[Vacuum, Vacu
     Vacuum(map.removeAgent(agent))
   }
 
-  def actuate(
-      actuator: Actuator[Vacuum, VacuumAction],
-      action: VacuumAction
-  ): Vacuum =
-    (action, actuator) match {
-      case (Suck, sa: SuckerActuator) =>
-        Vacuum(map.updateStatus(sa.agent, CleanPercept))
-      case (moveAction: MoveAction, actuator: MoveActuator) =>
-        Vacuum(map.moveAgent(actuator.agent, moveAction))
-      case _ => this
-    }
-
   def perceive(sensor: Sensor[Vacuum, VacuumPercept]): VacuumPercept = sensor match {
     case ls: AgentLocationSensor =>
       map.getAgentLocation(ls.agent).getOrElse(NoPercept)
