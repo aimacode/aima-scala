@@ -5,7 +5,10 @@ import aima.core.search.adversarial.{Game, UtilityValue}
 /**
   * @author Aditya Lahiri
   */
-case class Player(name: String)     extends AnyVal
+sealed abstract class Player
+object PlayerMax extends Player //PlayerMax aims to obtain maximum value
+object PlayerMin extends Player
+
 case class State(stateNumber: Int)  extends AnyVal
 case class Action(stateNumber: Int) extends AnyVal
 
@@ -31,13 +34,12 @@ object TwoPlyGame extends Game[Player, State, Action] {
     11 -> State(11),
     12 -> State(12)
   )
-  val Players = Map(1 -> Player("MAX"), 0 -> Player("MIN"))
 
   def initialState: State = States(0)
 
   def getPlayer(state: State): Player = state.stateNumber match {
-    case 0 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 => Players(1)
-    case 1 | 2 | 3                                => Players(0)
+    case 0 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 => PlayerMax
+    case 1 | 2 | 3                                => PlayerMin
   }
 
   def getActions(state: State): List[Action] = adjacencyMat(state.stateNumber)
