@@ -6,5 +6,4 @@ package aima.core.agent
 trait Environment[ENVIRONMENT, PERCEPT, ACTION] {
   def addAgent(agent: Agent[ENVIRONMENT, PERCEPT, ACTION]): ENVIRONMENT
   def removeAgent(agent: Agent[ENVIRONMENT, PERCEPT, ACTION]): ENVIRONMENT
-  def perceive(sensor: Sensor[ENVIRONMENT, PERCEPT]): PERCEPT
 }

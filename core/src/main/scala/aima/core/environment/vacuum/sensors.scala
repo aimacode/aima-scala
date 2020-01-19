@@ -8,18 +8,18 @@ import aima.core.random.DefaultRandomness
   */
 class AgentLocationSensor(val agent: Agent[Vacuum, VacuumPercept, VacuumAction], noPercept: VacuumPercept)
     extends UnreliableSensor[Vacuum, VacuumPercept]
-    with DefaultRandomness { self =>
-  def perceive(environment: Vacuum): VacuumPercept =
+    with DefaultRandomness {
+  def perceive(vacuum: Vacuum): VacuumPercept =
     unreliably() {
-      environment.perceive(self)
+      vacuum.map.getAgentLocation(agent).getOrElse(NoPercept)
     }(noPercept)
 }
 
 class DirtSensor(val agent: Agent[Vacuum, VacuumPercept, VacuumAction], noPercept: VacuumPercept)
     extends UnreliableSensor[Vacuum, VacuumPercept]
     with DefaultRandomness { self =>
-  def perceive(environment: Vacuum): VacuumPercept =
+  def perceive(vacuum: Vacuum): VacuumPercept =
     unreliably() {
-      environment.perceive(self)
+      vacuum.map.getDirtStatus(agent).getOrElse(NoPercept)
     }(noPercept)
 }

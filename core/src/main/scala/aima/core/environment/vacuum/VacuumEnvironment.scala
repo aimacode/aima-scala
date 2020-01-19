@@ -16,14 +16,6 @@ case class Vacuum(map: VacuumMap = VacuumMap()) extends Environment[Vacuum, Vacu
     Vacuum(map.removeAgent(agent))
   }
 
-  def perceive(sensor: Sensor[Vacuum, VacuumPercept]): VacuumPercept = sensor match {
-    case ls: AgentLocationSensor =>
-      map.getAgentLocation(ls.agent).getOrElse(NoPercept)
-
-    case ds: DirtSensor =>
-      map.getDirtStatus(ds.agent).getOrElse(NoPercept)
-  }
-
   def isClean(): Boolean = {
     map.isClean()
   }
