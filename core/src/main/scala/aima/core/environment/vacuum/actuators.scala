@@ -1,22 +1,21 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.{Actuator, Agent, UnreliableActuator}
-import aima.core.random.DefaultRandomness
+import aima.core.agent.{Actuator, Agent}
 
 /**
   * @author Shawn Garner
   */
 class SuckerActuator(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction]) extends Actuator[VacuumEnvironment, VacuumAction] {
-  def act(action: VacuumAction, vacuum: VacuumEnvironment): Vacuum = action match {
+  def act(action: VacuumAction, vacuum: VacuumEnvironment): Option[VacuumEnvironment] = action match {
     case Suck =>
-      vacuum.copy(vacuum.map.updateStatus(agent, CleanPercept))
-    case _ => vacuum
+      Some(vacuum.copy(vacuum.map.updateStatus(agent, CleanPercept)))
+    case _ => None
   }
 }
 class MoveActuator(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction]) extends Actuator[VacuumEnvironment, VacuumAction] {
-  def act(action: VacuumAction, vacuum: VacuumEnvironment): Vacuum = action match {
+  def act(action: VacuumAction, vacuum: VacuumEnvironment): Option[VacuumEnvironment] = action match {
     case move: MoveAction =>
-      vacuum.copy(vacuum.map.moveAgent(agent, move))
-    case _ => vacuum
+      Some(vacuum.copy(vacuum.map.moveAgent(agent, move)))
+    case _ => None
   }
 }

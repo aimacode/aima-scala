@@ -15,12 +15,12 @@ trait Agent[ENVIRONMENT, PERCEPT, ACTION] {
   )
 
   def run(e: ENVIRONMENT): (ENVIRONMENT, RunDetail) = {
-    val percepts = sensors.map(_.perceive(e))
-    val actions  = percepts.map(agentProgram.agentFunction)
+    val percepts: List[PERCEPT] = sensors.flatMap(_.perceive(e))
+    val actions: List[ACTION]   = percepts.map(agentProgram.agentFunction)
 
     val newEnvironment = actions.foldLeft(e) { (env, action) =>
       actuators.foldLeft(env) { (env2, actuator) =>
-        actuator.act(action, env2)
+        actuator.act(action, env2).getOrElse(env2)
       }
     }
     (newEnvironment, RunDetail(percepts, actions))
