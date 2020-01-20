@@ -6,8 +6,16 @@ trait Sensor[ENVIRONMENT, PERCEPT] {
   def perceive(e: ENVIRONMENT): PERCEPT
 }
 
-trait UnreliableSensor[ENVIRONMENT, PERCEPT] extends Sensor[ENVIRONMENT, PERCEPT] with Randomness {
-  def unreliably(reliability: Int = 50)(perceive: => PERCEPT)(noPercept: PERCEPT): PERCEPT = {
-    if (rand.nextInt(100) < reliability) perceive else noPercept
+object UnreliableSensor {
+  def fromSensor[ENVIRONMENT, PERCEPT](
+      sensor: Sensor[ENVIRONMENT, PERCEPT]
+  )(
+      noPercept: PERCEPT,
+      randomness: Randomness,
+      reliability: Int = 50
+  ): Sensor[ENVIRONMENT, PERCEPT] = new Sensor[ENVIRONMENT, PERCEPT] {
+    override def perceive(e: ENVIRONMENT): PERCEPT =
+      if (randomness.rand.nextInt(100) < reliability) sensor.perceive(e)
+      else noPercept
   }
 }

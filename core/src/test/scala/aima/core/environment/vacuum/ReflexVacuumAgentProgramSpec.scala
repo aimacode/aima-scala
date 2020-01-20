@@ -19,8 +19,8 @@ class ReflexVacuumAgentProgramSpec extends Specification with ScalaCheck {
       val agentProgram = new SimpleReflexVacuumAgentProgram
       val actuators    = List[Actuator[VacuumEnvironment, VacuumAction]](new SuckerActuator(this), new MoveActuator(this))
       lazy val sensors = List[Sensor[VacuumEnvironment, VacuumPercept]](
-        new DirtSensor(this, NoPercept),
-        new AgentLocationSensor(this, NoPercept)
+        new DirtSensor(this),
+        new AgentLocationSensor(this)
       )
     }
 
