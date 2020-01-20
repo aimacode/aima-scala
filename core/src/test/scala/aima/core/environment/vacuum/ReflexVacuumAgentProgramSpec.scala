@@ -27,7 +27,7 @@ class ReflexVacuumAgentProgramSpec extends Specification with ScalaCheck {
     @tailrec def eventuallyClean(currentEnv: VacuumEnvironment): Boolean = {
       currentEnv match {
         case ve: VacuumEnvironment if ve.isClean() => true
-        case _                          => eventuallyClean(agent.run(currentEnv))
+        case _                          => eventuallyClean(agent.run(currentEnv)._1)
       }
     }
 
