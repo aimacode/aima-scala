@@ -7,38 +7,44 @@ import scala.annotation.tailrec
   * @author Shawn Garner
   */
 object MinimaxDecision {
-  def minMaxDecision[PLAYER, STATE, ACTION](
+  def minMaxDecision[PLAYER <: Player, STATE <: State, ACTION <: Action](
       g: Game[PLAYER, STATE, ACTION],
       noAction: ACTION
-  ): (STATE, PLAYER) => ACTION = { (s: STATE, p: PLAYER) =>
-    @tailrec def maxMinValue(Actions: List[ACTION], p: PLAYER): ACTION = Actions match {
-      case Nil      => noAction
-      case a :: Nil => a
-      case a1 :: a2 :: rest =>
-        maxMinValue((if (minValue(g.result(s, a1), p) > minValue(g.result(s, a2), p)) a1 else a2) :: rest, p)
+  ): (STATE) => ACTION = { (state: STATE) =>
+    @tailrec def maxMinValue(Actions: List[ACTION]): ACTION = Actions match {
+      case Nil                   => noAction
+      case singularAction :: Nil => singularAction
+      case action1 :: action2 :: rest =>
+        maxMinValue(
+          (if (minValue(g.result(state, action1)) > minValue(g.result(state, action2))) action1
+           else action2) :: rest
+        )
     }
 
-    @tailrec def minMaxValue(Actions: List[ACTION], p: PLAYER): ACTION = Actions match {
-      case Nil      => noAction
-      case a :: Nil => a
-      case a1 :: a2 :: rest =>
-        minMaxValue((if (maxValue(g.result(s, a1), p) < maxValue(g.result(s, a2), p)) a1 else a2) :: rest, p)
+    @tailrec def minMaxValue(Actions: List[ACTION]): ACTION = Actions match {
+      case Nil                   => noAction
+      case singularAction :: Nil => singularAction
+      case action1 :: action2 :: rest =>
+        minMaxValue(
+          (if (maxValue(g.result(state, action1)) < maxValue(g.result(state, action2))) action1
+           else action2) :: rest
+        )
     }
 
-    def maxValue(s: STATE, p: PLAYER): UtilityValue = {
-      if (g.isTerminalState(s))
-        g.getUtility(s, p)
+    def maxValue(state: STATE): UtilityValue = {
+      if (g.isTerminalState(state))
+        g.getUtility(state)
       else
-        minValue(g.result(s, maxMinValue(g.getActions(s), p)), p)
+        minValue(g.result(state, maxMinValue(g.getActions(state))))
     }
 
-    def minValue(s: STATE, p: PLAYER): UtilityValue = {
-      if (g.isTerminalState(s))
-        g.getUtility(s, p)
+    def minValue(state: STATE): UtilityValue = {
+      if (g.isTerminalState(state))
+        g.getUtility(state)
       else
-        maxValue(g.result(s, minMaxValue(g.getActions(s), p)), p)
+        maxValue(g.result(state, minMaxValue(g.getActions(state))))
     }
 
-    maxMinValue(g.getActions(s), p)
+    maxMinValue(g.getActions(g.initialState))
   }
 }

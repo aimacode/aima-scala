@@ -1,66 +1,70 @@
 package aima.core.search.problems
 
-import aima.core.search.adversarial.{Game, UtilityValue}
+import aima.core.search.adversarial._
 
 /**
   * @author Aditya Lahiri
   */
-sealed abstract class Player
-object PlayerMax extends Player //PlayerMax aims to obtain maximum value
-object PlayerMin extends Player
+case class TwoPlyPlayer(name: String) extends Player
 
-case class State(stateNumber: Int)  extends AnyVal
-case class Action(stateNumber: Int) extends AnyVal
+case class TwoPlyState(name: String)  extends State
+case class TwoPlyAction(name: String) extends Action
 
-object TwoPlyGame extends Game[Player, State, Action] {
+object TwoPlyGame extends Game[TwoPlyPlayer, TwoPlyState, TwoPlyAction] {
   val adjacencyMat = Map(
-    0 -> List(Action(1), Action(2), Action(3)),
-    1 -> List(Action(4), Action(5), Action(6)),
-    2 -> List(Action(7), Action(8), Action(9)),
-    3 -> List(Action(10), Action(11), Action(12))
+    "A" -> List(TwoPlyAction("B"), TwoPlyAction("C"), TwoPlyAction("D")),
+    "B" -> List(TwoPlyAction("E"), TwoPlyAction("F"), TwoPlyAction("G")),
+    "C" -> List(TwoPlyAction("H"), TwoPlyAction("I"), TwoPlyAction("J")),
+    "D" -> List(TwoPlyAction("K"), TwoPlyAction("L"), TwoPlyAction("M"))
   )
-  val States = Map(
-    0  -> State(0),
-    1  -> State(1),
-    2  -> State(2),
-    3  -> State(3),
-    4  -> State(4),
-    5  -> State(5),
-    6  -> State(6),
-    7  -> State(7),
-    8  -> State(8),
-    9  -> State(9),
-    10 -> State(10),
-    11 -> State(11),
-    12 -> State(12)
+  val TwoPlyStates = Map(
+    "A" -> TwoPlyState("A"),
+    "B" -> TwoPlyState("B"),
+    "C" -> TwoPlyState("C"),
+    "D" -> TwoPlyState("D"),
+    "E" -> TwoPlyState("E"),
+    "F" -> TwoPlyState("F"),
+    "G" -> TwoPlyState("G"),
+    "H" -> TwoPlyState("H"),
+    "I" -> TwoPlyState("I"),
+    "J" -> TwoPlyState("J"),
+    "K" -> TwoPlyState("K"),
+    "L" -> TwoPlyState("L"),
+    "M" -> TwoPlyState("M")
   )
 
-  def initialState: State = States(0)
+  @Override
+  def initialState: TwoPlyState = TwoPlyStates("A")
 
-  def getPlayer(state: State): Player = state.stateNumber match {
-    case 0 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 => PlayerMax
-    case 1 | 2 | 3                                => PlayerMin
+  @Override
+  def getPlayer(state: TwoPlyState): TwoPlyPlayer = state.name match {
+    case "B" | "C" | "D" => TwoPlyPlayer("MIN")
+    case _               => TwoPlyPlayer("MAX")
   }
 
-  def getActions(state: State): List[Action] = adjacencyMat(state.stateNumber)
+  @Override
+  def getActions(state: TwoPlyState): List[TwoPlyAction] = adjacencyMat(state.name)
 
-  def result(state: State, action: Action): State = States(action.stateNumber)
+  @Override
+  def result(state: TwoPlyState, action: TwoPlyAction): TwoPlyState = TwoPlyStates(action.name)
 
-  def isTerminalState(state: State): Boolean = state.stateNumber match {
-    case 0 | 1 | 2 | 3                        => false
-    case 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 => true
+  @Override
+  def isTerminalState(state: TwoPlyState): Boolean = state.name match {
+    case "A" | "B" | "C" | "D" => false
+    case _                     => true
 
   }
 
-  def getUtility(state: State, player: Player): UtilityValue = state.stateNumber match {
-    case 4  => UtilityValue(3)
-    case 5  => UtilityValue(12)
-    case 6  => UtilityValue(8)
-    case 7  => UtilityValue(2)
-    case 8  => UtilityValue(4)
-    case 9  => UtilityValue(6)
-    case 10 => UtilityValue(14)
-    case 11 => UtilityValue(5)
-    case 12 => UtilityValue(2)
+  @Override
+  def getUtility(state: TwoPlyState): UtilityValue = state.name match {
+    case "E" => UtilityValue(3)
+    case "F" => UtilityValue(12)
+    case "G" => UtilityValue(8)
+    case "H" => UtilityValue(2)
+    case "I" => UtilityValue(4)
+    case "J" => UtilityValue(6)
+    case "K" => UtilityValue(14)
+    case "L" => UtilityValue(5)
+    case "M" => UtilityValue(2)
   }
 }
