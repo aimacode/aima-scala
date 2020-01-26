@@ -66,7 +66,7 @@ class TableDrivenVacuumAgentSpec extends Specification {
 
   "table driven agent must persist all percepts" in new context {
     val rnd = new Random()
-    val randomPerceptStream: Stream[VacuumPercept] = Stream.continually {
+    val randomPerceptStream: LazyList[VacuumPercept] = LazyList.continually {
       val selector = rnd.nextInt(3)
       if (selector == 0)
         LocationPercept.randomValue
