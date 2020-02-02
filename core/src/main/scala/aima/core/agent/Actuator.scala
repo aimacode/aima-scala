@@ -4,6 +4,7 @@ import aima.core.random.Randomness
 
 /**
   * @author Shawn Garner
+  * @author Damien Favre
   */
 trait Actuator[ENVIRONMENT, ACTION] {
   def act(action: ACTION, e: ENVIRONMENT): ENVIRONMENT //could be Action => E => E

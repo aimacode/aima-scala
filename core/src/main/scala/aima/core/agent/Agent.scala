@@ -2,6 +2,7 @@ package aima.core.agent
 
 /**
   * @author Shawn Garner
+  * @author Damien Favre
   */
 trait Agent[ENVIRONMENT, PERCEPT, ACTION] {
   def actuators: List[Actuator[ENVIRONMENT, ACTION]]
