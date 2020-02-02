@@ -9,7 +9,7 @@ trait Agent[ENVIRONMENT, PERCEPT, ACTION] {
   def sensors: List[Sensor[ENVIRONMENT, PERCEPT]]
   def agentProgram: AgentProgram[PERCEPT, ACTION]
 
-  def run(e: ENVIRONMENT): (ENVIRONMENT, RunDetail[PERCEPT, ACTION]) = {
+  def run(e: ENVIRONMENT): (ENVIRONMENT, AgentRunSummary[PERCEPT, ACTION]) = {
     val percepts: List[PERCEPT] = sensors.flatMap(_.perceive(e))
     val actions: List[ACTION]   = percepts.map(agentProgram.agentFunction)
 
@@ -18,11 +18,11 @@ trait Agent[ENVIRONMENT, PERCEPT, ACTION] {
         actuator.act(action, env2).getOrElse(env2)
       }
     }
-    (newEnvironment, RunDetail(percepts, actions))
+    (newEnvironment, AgentRunSummary(percepts, actions))
   }
 }
 
-case class RunDetail[PERCEPT, ACTION](
+case class AgentRunSummary[PERCEPT, ACTION](
     percepts: List[PERCEPT],
     actions: List[ACTION]
 )
