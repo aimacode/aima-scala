@@ -126,16 +126,16 @@ class VacuumMapSpec extends Specification with ScalaCheck {
     }
   }
 
-  def noopAgent: Agent[Vacuum, VacuumPercept, VacuumAction] =
-    new Agent[Vacuum, VacuumPercept, VacuumAction] {
-      override def actuators: List[Actuator[Vacuum, VacuumAction]] = List.empty
-      override def sensors: List[Sensor[Vacuum, VacuumPercept]]    = List.empty
+  def noopAgent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction] =
+    new Agent[VacuumEnvironment, VacuumPercept, VacuumAction] {
+      override def actuators: List[Actuator[VacuumEnvironment, VacuumAction]] = List.empty
+      override def sensors: List[Sensor[VacuumEnvironment, VacuumPercept]]    = List.empty
       override def agentProgram: AgentProgram[VacuumPercept, VacuumAction] =
         noopAgentProgram
 
     }
 
-  def agentNode(agent: Agent[Vacuum, VacuumPercept, VacuumAction] = noopAgent) =
+  def agentNode(agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction] = noopAgent) =
     VacuumMapNode(maybeAgent = Some(agent))
   def dirtyNode = VacuumMapNode(DirtyPercept, None)
   def cleanNode = VacuumMapNode(CleanPercept, None)

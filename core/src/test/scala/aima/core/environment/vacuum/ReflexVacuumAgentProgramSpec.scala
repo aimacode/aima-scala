@@ -12,21 +12,21 @@ import scala.annotation.tailrec
   */
 class ReflexVacuumAgentProgramSpec extends Specification with ScalaCheck {
 
-  implicit val arbVacuumEnvironment = Arbitrary(Vacuum())
+  implicit val arbVacuumEnvironment = Arbitrary(VacuumEnvironment())
 
-  "should eventually clean environment" in prop { env: Vacuum =>
-    val agent = new Agent[Vacuum, VacuumPercept, VacuumAction] {
+  "should eventually clean environment" in prop { env: VacuumEnvironment =>
+    val agent = new Agent[VacuumEnvironment, VacuumPercept, VacuumAction] {
       val agentProgram = new SimpleReflexVacuumAgentProgram
-      val actuators    = List[Actuator[Vacuum, VacuumAction]](new SuckerActuator(this), new MoveActuator(this))
-      lazy val sensors = List[Sensor[Vacuum, VacuumPercept]](
+      val actuators    = List[Actuator[VacuumEnvironment, VacuumAction]](new SuckerActuator(this), new MoveActuator(this))
+      lazy val sensors = List[Sensor[VacuumEnvironment, VacuumPercept]](
         new DirtSensor(this, NoPercept),
         new AgentLocationSensor(this, NoPercept)
       )
     }
 
-    @tailrec def eventuallyClean(currentEnv: Vacuum): Boolean = {
+    @tailrec def eventuallyClean(currentEnv: VacuumEnvironment): Boolean = {
       currentEnv match {
-        case ve: Vacuum if ve.isClean() => true
+        case ve: VacuumEnvironment if ve.isClean() => true
         case _                          => eventuallyClean(agent.run(currentEnv))
       }
     }

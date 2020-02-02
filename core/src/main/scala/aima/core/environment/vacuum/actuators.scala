@@ -6,10 +6,10 @@ import aima.core.random.DefaultRandomness
 /**
   * @author Shawn Garner
   */
-class SuckerActuator(val agent: Agent[Vacuum, VacuumPercept, VacuumAction])
-    extends UnreliableActuator[Vacuum, VacuumAction]
+class SuckerActuator(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction])
+    extends UnreliableActuator[VacuumEnvironment, VacuumAction]
     with DefaultRandomness {
-  def act(action: VacuumAction, vacuum: Vacuum): Vacuum = {
+  def act(action: VacuumAction, vacuum: VacuumEnvironment): VacuumEnvironment = {
     unreliably(vacuum) {
       action match {
         case Suck =>
@@ -19,10 +19,10 @@ class SuckerActuator(val agent: Agent[Vacuum, VacuumPercept, VacuumAction])
     }
   }
 }
-class MoveActuator(val agent: Agent[Vacuum, VacuumPercept, VacuumAction])
-    extends UnreliableActuator[Vacuum, VacuumAction]
+class MoveActuator(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction])
+    extends UnreliableActuator[VacuumEnvironment, VacuumAction]
     with DefaultRandomness { self =>
-  def act(action: VacuumAction, vacuum: Vacuum): Vacuum = {
+  def act(action: VacuumAction, vacuum: VacuumEnvironment): VacuumEnvironment = {
     unreliably(vacuum) {
       action match {
         case move: MoveAction =>
