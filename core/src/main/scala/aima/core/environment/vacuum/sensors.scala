@@ -8,11 +8,11 @@ import aima.core.agent.{Agent, Sensor}
 class AgentLocationSensor(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction])
     extends Sensor[VacuumEnvironment, VacuumPercept] {
   def perceive(vacuum: VacuumEnvironment): Option[VacuumPercept] =
-    Some(vacuum.map.getAgentLocation(agent).getOrElse(NoPercept))
+    vacuum.map.getAgentLocation(agent)
 }
 
 class DirtSensor(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction])
     extends Sensor[VacuumEnvironment, VacuumPercept] {
   def perceive(vacuum: VacuumEnvironment): Option[VacuumPercept] =
-    Some(vacuum.map.getDirtStatus(agent).getOrElse(NoPercept))
+    vacuum.map.getDirtStatus(agent)
 }

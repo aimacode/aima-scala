@@ -22,5 +22,3 @@ case object DirtyPercept extends DirtPercept
 object DirtPercept extends SetRandomness[DirtPercept] with DefaultRandomness {
   lazy val valueSet: Set[DirtPercept] = Set(CleanPercept, DirtyPercept)
 }
-
-case object NoPercept extends VacuumPercept

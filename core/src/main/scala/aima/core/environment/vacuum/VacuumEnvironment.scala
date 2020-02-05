@@ -105,9 +105,7 @@ case class VacuumMap(
   def addAgent(agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction]): VacuumMap = {
     if (nodes.count(_.maybeAgent.isDefined) == 0) {
       val selection = rand.nextInt(nodes.size)
-      updateByIndex(selection)(
-        vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent))
-      )
+      updateByIndex(selection)(vacuumMapNode => vacuumMapNode.copy(maybeAgent = Some(agent)))
     } else {
       self
     }

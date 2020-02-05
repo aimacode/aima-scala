@@ -13,6 +13,5 @@ class SimpleReflexVacuumAgentProgram extends SimpleReflexAgentProgram[VacuumPerc
     case LocationAPercept => RightMoveAction
     case LocationBPercept => LeftMoveAction
     case CleanPercept     => NoAction
-    case NoPercept        => NoAction
   }
 }
