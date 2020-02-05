@@ -1,6 +1,6 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.Agent
+import aima.core.agent.{Actuator, Agent, AgentProgram, Sensor}
 import org.scalacheck.Arbitrary
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
@@ -101,7 +101,8 @@ class VacuumMapSpec extends Specification with ScalaCheck {
 
   "updating dirt status of clean will return clean percept of dirty" in prop { map: VacuumMap =>
     val agent = noopAgent
-    map.addAgent(agent).updateStatus(agent, CleanPercept).getDirtStatus(agent) must beSome[VacuumPercept](CleanPercept)
+    map.addAgent(agent).updateStatus(agent, CleanPercept).getDirtStatus(agent) must
+      beSome[VacuumPercept](CleanPercept)
   }
 
   "removing agent must have no location percept" in prop { map: VacuumMap =>
@@ -119,13 +120,23 @@ class VacuumMapSpec extends Specification with ScalaCheck {
     map.addAgent(agent).removeAgent(agent) must_== map
   }
 
-  def noopAgent = new Agent[VacuumAction, VacuumPercept] {
+  def noopAgentProgram = new AgentProgram[VacuumPercept, VacuumAction] {
     def agentFunction: AgentFunction = { _ =>
       NoAction
     }
   }
 
-  def agentNode(agent: Agent[VacuumAction, VacuumPercept] = noopAgent) = VacuumMapNode(maybeAgent = Some(agent))
-  def dirtyNode                                                        = VacuumMapNode(DirtyPercept, None)
-  def cleanNode                                                        = VacuumMapNode(CleanPercept, None)
+  def noopAgent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction] =
+    new Agent[VacuumEnvironment, VacuumPercept, VacuumAction] {
+      override def actuators: List[Actuator[VacuumEnvironment, VacuumAction]] = List.empty
+      override def sensors: List[Sensor[VacuumEnvironment, VacuumPercept]]    = List.empty
+      override def agentProgram: AgentProgram[VacuumPercept, VacuumAction] =
+        noopAgentProgram
+
+    }
+
+  def agentNode(agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction] = noopAgent) =
+    VacuumMapNode(maybeAgent = Some(agent))
+  def dirtyNode = VacuumMapNode(DirtyPercept, None)
+  def cleanNode = VacuumMapNode(CleanPercept, None)
 }

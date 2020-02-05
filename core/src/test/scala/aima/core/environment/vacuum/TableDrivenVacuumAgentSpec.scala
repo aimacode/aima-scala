@@ -84,7 +84,7 @@ class TableDrivenVacuumAgentSpec extends Specification {
   }
 
   trait context extends Scope {
-    val agent = new TableDrivenVacuumAgent
+    val agent = new TableDrivenVacuumAgentProgram
     def invokeAgent(percepts: List[VacuumPercept]): List[VacuumAction] = {
       percepts.map(agent.agentFunction)
     }

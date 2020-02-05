@@ -64,6 +64,6 @@ class ModelBasedReflexVacuumAgentSpec extends Specification {
   }
 
   trait context extends Scope {
-    val agent = new ModelBasedReflexVacuumAgent
+    val agent = new ModelBasedReflexVacuumAgentProgram
   }
 }

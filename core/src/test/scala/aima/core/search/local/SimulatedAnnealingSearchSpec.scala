@@ -82,19 +82,18 @@ class SimulatedAnnealingSearchSpec extends Specification with ScalaCheck {
         q6row <- Gen.oneOf(l6)
         l7    = l6.filterNot(_ == q6row)
         q7row <- Gen.oneOf(l7)
-      } yield
-        EightQueensState(
-          List(
-            QueenPosition(q0row),
-            QueenPosition(q1row),
-            QueenPosition(q2row),
-            QueenPosition(q3row),
-            QueenPosition(q4row),
-            QueenPosition(q5row),
-            QueenPosition(q6row),
-            QueenPosition(q7row)
-          )
+      } yield EightQueensState(
+        List(
+          QueenPosition(q0row),
+          QueenPosition(q1row),
+          QueenPosition(q2row),
+          QueenPosition(q3row),
+          QueenPosition(q4row),
+          QueenPosition(q5row),
+          QueenPosition(q6row),
+          QueenPosition(q7row)
         )
+      )
     }
 
     "find solution" >> prop { s: EightQueensState =>

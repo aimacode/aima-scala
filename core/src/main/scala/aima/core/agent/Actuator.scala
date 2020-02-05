@@ -4,16 +4,16 @@ import aima.core.random.Randomness
 
 /**
   * @author Shawn Garner
+  * @author Damien Favre
   */
-trait Actuator[Action, Percept] {
-  def agent: Agent[Action, Percept]
-  def act(action: Action, environment: Environment[Action, Percept]): Environment[Action, Percept]
+trait Actuator[ENVIRONMENT, ACTION] {
+  def act(action: ACTION, e: ENVIRONMENT): ENVIRONMENT //could be Action => E => E
 }
 
-trait UnreliableActuator[Action, Percept] extends Actuator[Action, Percept] with Randomness {
-  def unreliably(original: Environment[Action, Percept], reliability: Int = 50)(
-      act: => Environment[Action, Percept]
-  ): Environment[Action, Percept] = {
+trait UnreliableActuator[ENVIRONMENT, ACTION] extends Actuator[ENVIRONMENT, ACTION] with Randomness {
+  def unreliably(original: ENVIRONMENT, reliability: Int = 50)(
+      act: => ENVIRONMENT
+  ): ENVIRONMENT = {
     if (rand.nextInt(100) < reliability) act else original
   }
 }

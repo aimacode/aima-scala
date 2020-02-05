@@ -1,9 +1,9 @@
 package aima.core.environment.vacuum
 
-import aima.core.agent.ModelBasedReflexAgent
-import ModelBasedReflexVacuumAgent._
+import aima.core.agent.{ModelBasedReflexAgentProgram}
+import ModelBasedReflexVacuumAgentProgram._
 
-object ModelBasedReflexVacuumAgent {
+object ModelBasedReflexVacuumAgentProgram {
   val MOVE_BATTERY_COST = 2
   val SUCK_BATTERY_COST = 1
 }
@@ -18,7 +18,8 @@ final case class VacuumWorldState(
 /**
   * @author Shawn Garner
   */
-class ModelBasedReflexVacuumAgent extends ModelBasedReflexAgent[VacuumWorldState, VacuumAction, VacuumPercept] {
+class ModelBasedReflexVacuumAgentProgram
+    extends ModelBasedReflexAgentProgram[VacuumPercept, VacuumAction, VacuumWorldState] {
 
   val model: Model = {
     case (currentState, RightMoveAction) =>

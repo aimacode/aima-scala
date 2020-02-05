@@ -3,10 +3,10 @@ package aima.core.agent
 /**
   * @author Shawn Garner
   */
-trait SimpleReflexAgent[State, Action, Percept] extends Agent[Action, Percept] {
-  type InterpretInput = Percept => State
+trait SimpleReflexAgentProgram[PERCEPT, ACTION, STATE] extends AgentProgram[PERCEPT, ACTION] {
+  type InterpretInput = PERCEPT => STATE
 
-  type RuleMatch = State => Action
+  type RuleMatch = STATE => ACTION
 
   val agentFunction: AgentFunction = { percept =>
     val state = interpretInput(percept)
@@ -15,7 +15,7 @@ trait SimpleReflexAgent[State, Action, Percept] extends Agent[Action, Percept] {
 
   def rules: RuleMatch
 
-  def ruleMatch(state: State): Action = {
+  def ruleMatch(state: STATE): ACTION = {
     rules(state)
   }
 
