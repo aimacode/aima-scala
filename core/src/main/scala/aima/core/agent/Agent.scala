@@ -15,7 +15,7 @@ trait Agent[ENVIRONMENT, PERCEPT, ACTION] {
 
     val newEnvironment = actions.foldLeft(e) { (env, action) =>
       actuators.foldLeft(env) { (env2, actuator) =>
-        actuator.act(action, env2).getOrElse(env2)
+        actuator.act(action, env2)
       }
     }
     (newEnvironment, AgentRunSummary(percepts, actions))

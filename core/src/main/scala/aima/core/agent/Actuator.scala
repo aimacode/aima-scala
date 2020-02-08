@@ -7,7 +7,7 @@ import aima.core.random.{DefaultRandomness, Randomness}
   * @author Damien Favre
   */
 trait Actuator[ENVIRONMENT, ACTION] {
-  def act(action: ACTION, e: ENVIRONMENT): Option[ENVIRONMENT]
+  def act(action: ACTION, e: ENVIRONMENT): ENVIRONMENT
 }
 
 object UnreliableActuator {
@@ -17,7 +17,7 @@ object UnreliableActuator {
       reliability: Int = 50,
       randomness: Randomness = new DefaultRandomness {}
   ): Actuator[ENVIRONMENT, ACTION] = new Actuator[ENVIRONMENT, ACTION] {
-    override def act(action: ACTION, e: ENVIRONMENT): Option[ENVIRONMENT] =
-      randomness.unreliably(reliability)(actuator.act(action, e)).flatten
+    override def act(action: ACTION, e: ENVIRONMENT): ENVIRONMENT =
+      randomness.unreliably(reliability)(actuator.act(action, e)).getOrElse(e)
   }
 }

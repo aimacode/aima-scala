@@ -7,17 +7,17 @@ import aima.core.agent.{Actuator, Agent}
   */
 class SuckerActuator(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction])
     extends Actuator[VacuumEnvironment, VacuumAction] {
-  def act(action: VacuumAction, vacuum: VacuumEnvironment): Option[VacuumEnvironment] = action match {
+  def act(action: VacuumAction, vacuum: VacuumEnvironment): VacuumEnvironment = action match {
     case Suck =>
-      Some(vacuum.copy(vacuum.map.updateStatus(agent, CleanPercept)))
-    case _ => None
+      vacuum.copy(vacuum.map.updateStatus(agent, CleanPercept))
+    case _ => vacuum
   }
 }
 class MoveActuator(val agent: Agent[VacuumEnvironment, VacuumPercept, VacuumAction])
     extends Actuator[VacuumEnvironment, VacuumAction] {
-  def act(action: VacuumAction, vacuum: VacuumEnvironment): Option[VacuumEnvironment] = action match {
+  def act(action: VacuumAction, vacuum: VacuumEnvironment): VacuumEnvironment = action match {
     case move: MoveAction =>
-      Some(vacuum.copy(vacuum.map.moveAgent(agent, move)))
-    case _ => None
+      vacuum.copy(vacuum.map.moveAgent(agent, move))
+    case _ => vacuum
   }
 }
