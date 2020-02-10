@@ -11,7 +11,7 @@ import scala.util.Random
 class TableDrivenVacuumAgentSpec extends Specification {
 
   "first level dirty sucks" in new context {
-    invokeAgent(List(NoPercept, DirtyPercept)) must_== List(NoAction, Suck)
+    invokeAgent(List(LocationAPercept, DirtyPercept)) must_== List(NoAction, Suck)
   }
 
   "first level A and Clean moves Right" in new context {
@@ -23,43 +23,43 @@ class TableDrivenVacuumAgentSpec extends Specification {
   }
 
   "second level dirty sucks" in new context {
-    val givenPercepts   = List.fill(2)(NoPercept) ++ List(NoPercept, DirtyPercept)
+    val givenPercepts   = List.fill(2)(LocationAPercept) ++ List(LocationAPercept, DirtyPercept)
     val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, Suck)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "second level A and Clean moves Right" in new context {
-    val givenPercepts   = List.fill(2)(NoPercept) ++ List(LocationAPercept, CleanPercept)
+    val givenPercepts   = List.fill(2)(LocationAPercept) ++ List(LocationAPercept, CleanPercept)
     val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, RightMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "second level B and Clean moves Right" in new context {
-    val givenPercepts   = List.fill(2)(NoPercept) ++ List(LocationBPercept, CleanPercept)
+    val givenPercepts   = List.fill(2)(LocationAPercept) ++ List(LocationBPercept, CleanPercept)
     val expectedActions = List.fill(2)(NoAction) ++ List(NoAction, LeftMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "fourth level dirty sucks" in new context {
-    val givenPercepts   = List.fill(6)(NoPercept) ++ List(NoPercept, DirtyPercept)
+    val givenPercepts   = List.fill(6)(LocationAPercept) ++ List(LocationAPercept, DirtyPercept)
     val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, Suck)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "fourth level A and Clean moves Right" in new context {
-    val givenPercepts   = List.fill(6)(NoPercept) ++ List(LocationAPercept, CleanPercept)
+    val givenPercepts   = List.fill(6)(LocationAPercept) ++ List(LocationAPercept, CleanPercept)
     val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, RightMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "fourth level B and Clean moves Right" in new context {
-    val givenPercepts   = List.fill(6)(NoPercept) ++ List(LocationBPercept, CleanPercept)
+    val givenPercepts   = List.fill(6)(LocationAPercept) ++ List(LocationBPercept, CleanPercept)
     val expectedActions = List.fill(6)(NoAction) ++ List(NoAction, LeftMoveAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
 
   "twenty dirty percepts is undefined because out of table definition range" in new context {
-    val givenPercepts   = List.fill(20)(NoPercept)
+    val givenPercepts   = List.fill(20)(LocationAPercept)
     val expectedActions = List.fill(20)(NoAction)
     invokeAgent(givenPercepts) must_== expectedActions
   }
@@ -70,10 +70,8 @@ class TableDrivenVacuumAgentSpec extends Specification {
       val selector = rnd.nextInt(3)
       if (selector == 0)
         LocationPercept.randomValue
-      else if (selector == 1)
-        DirtPercept.randomValue
       else
-        NoPercept
+        DirtPercept.randomValue
     }
 
     val givenPercepts = randomPerceptStream.take(100).toList

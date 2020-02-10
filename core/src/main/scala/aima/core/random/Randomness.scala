@@ -7,6 +7,9 @@ import scala.util.Random
   */
 trait Randomness {
   def rand: Random
+  def unreliably[A](reliability: Int = 50)(a: => A): Option[A] =
+    if (rand.nextInt(100) < reliability) Some(a)
+    else None
 }
 
 trait DefaultRandomness extends Randomness {

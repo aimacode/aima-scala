@@ -1,19 +1,23 @@
 package aima.core.agent
 
-import aima.core.random.Randomness
+import aima.core.random.{DefaultRandomness, Randomness}
 
 /**
   * @author Shawn Garner
   * @author Damien Favre
   */
 trait Actuator[ENVIRONMENT, ACTION] {
-  def act(action: ACTION, e: ENVIRONMENT): ENVIRONMENT //could be Action => E => E
+  def act(action: ACTION, e: ENVIRONMENT): ENVIRONMENT
 }
 
-trait UnreliableActuator[ENVIRONMENT, ACTION] extends Actuator[ENVIRONMENT, ACTION] with Randomness {
-  def unreliably(original: ENVIRONMENT, reliability: Int = 50)(
-      act: => ENVIRONMENT
-  ): ENVIRONMENT = {
-    if (rand.nextInt(100) < reliability) act else original
+object UnreliableActuator {
+  def fromActuator[ENVIRONMENT, ACTION](
+      actuator: Actuator[ENVIRONMENT, ACTION]
+  )(
+      reliability: Int = 50,
+      randomness: Randomness = new DefaultRandomness {}
+  ): Actuator[ENVIRONMENT, ACTION] = new Actuator[ENVIRONMENT, ACTION] {
+    override def act(action: ACTION, e: ENVIRONMENT): ENVIRONMENT =
+      randomness.unreliably(reliability)(actuator.act(action, e)).getOrElse(e)
   }
 }

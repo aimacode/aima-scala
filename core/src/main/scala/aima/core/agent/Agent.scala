@@ -9,18 +9,23 @@ trait Agent[ENVIRONMENT, PERCEPT, ACTION] {
   def sensors: List[Sensor[ENVIRONMENT, PERCEPT]]
   def agentProgram: AgentProgram[PERCEPT, ACTION]
 
-  def run(e: ENVIRONMENT): ENVIRONMENT = {
-    val actions: Seq[ACTION] = for {
-      sensor <- sensors
-    } yield agentProgram.agentFunction(sensor.perceive(e))
+  def run(e: ENVIRONMENT): (ENVIRONMENT, AgentRunSummary[PERCEPT, ACTION]) = {
+    val percepts: List[PERCEPT] = sensors.flatMap(_.perceive(e))
+    val actions: List[ACTION]   = percepts.map(agentProgram.agentFunction)
 
-    actions.foldLeft(e) { (env, action) =>
+    val newEnvironment = actions.foldLeft(e) { (env, action) =>
       actuators.foldLeft(env) { (env2, actuator) =>
         actuator.act(action, env2)
       }
     }
+    (newEnvironment, AgentRunSummary(percepts, actions))
   }
 }
+
+case class AgentRunSummary[PERCEPT, ACTION](
+    percepts: List[PERCEPT],
+    actions: List[ACTION]
+)
 
 trait AgentProgram[PERCEPT, ACTION] {
   type AgentFunction = PERCEPT => ACTION

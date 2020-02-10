@@ -24,7 +24,7 @@ class ModelBasedReflexVacuumAgentSpec extends Specification {
   "should assume dirty after moving to location B" in new context {
     agent.agentFunction.apply(LocationAPercept)
     agent.agentFunction.apply(CleanPercept)
-    agent.agentFunction.apply(NoPercept) must beLike {
+    agent.agentFunction.apply(LocationBPercept) must beLike {
       case Suck => ok
     }
   }
@@ -45,7 +45,7 @@ class ModelBasedReflexVacuumAgentSpec extends Specification {
   "should assume dirty after moving to location A" in new context {
     agent.agentFunction.apply(LocationBPercept)
     agent.agentFunction.apply(CleanPercept)
-    agent.agentFunction.apply(NoPercept) must beLike {
+    agent.agentFunction.apply(LocationAPercept) must beLike {
       case Suck => ok
     }
   }
