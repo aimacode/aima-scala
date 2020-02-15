@@ -7,7 +7,8 @@ import scala.annotation.tailrec
   * @author Shawn Garner
   */
 object MinimaxDecision {
-  def minMaxDecision[PLAYER <: Player, STATE <: State, ACTION <: Action](
+  import scala.math.Ordering.Double.IeeeOrdering
+  def minMaxDecision[PLAYER, STATE, ACTION](
       g: Game[PLAYER, STATE, ACTION],
       noAction: ACTION
   ): (STATE) => ACTION = { (state: STATE) =>
