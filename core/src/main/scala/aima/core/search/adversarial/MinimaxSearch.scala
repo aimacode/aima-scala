@@ -3,6 +3,7 @@ package aima.core.search.adversarial
 import scala.annotation.tailrec
 
 /**
+  * Figure 5.3 MINIMAX-DECISION
   * @author Aditya Lahiri
   * @author Shawn Garner
   */
